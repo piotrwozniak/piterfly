@@ -7,6 +7,11 @@
       "bytes": 108,
       "executable": false
     },
+    ".github/workflows/pages.yml": {
+      "sha256": "45095dffb858dbac0c867f71a3b850d4c08f895d8762e1dda1b3ca35d6445c0b",
+      "bytes": 2631,
+      "executable": false
+    },
     ".gitignore": {
       "sha256": "9f3cb8858f8823cd805c684cbe2cbb107e101b995b33602a4dac22df00f2a29f",
       "bytes": 165,
@@ -108,8 +113,8 @@
       "executable": false
     },
     "PROVENANCE.md": {
-      "sha256": "43ebf8971ae954fe1dbba61ea4aa4fcea06969285030e54cbd8fc279a1e4067f",
-      "bytes": 5810,
+      "sha256": "f4c858c505649cf0d5465a118059d8f18c282b1659182e065cd58697c2ab56e2",
+      "bytes": 5806,
       "executable": false
     },
     "PUBLIC_EXPORT.json": {
@@ -123,8 +128,8 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "f0b0df28c07e2488e3da4f60799a6ea8ee334ff713067877ddbe96b0c1312b5d",
-      "bytes": 64913,
+      "sha256": "aa399a9cbe222ada5e80ca50fd236a843781ed2622a3dbcf70b30fee4efff2ce",
+      "bytes": 65320,
       "executable": false
     },
     "SLOOP.md": {
@@ -668,8 +673,8 @@
       "executable": false
     },
     "docs/DEPLOYMENT.md": {
-      "sha256": "dbcc15fc370a31f09f994bc7de4914e38ce5ee2b5dae26b588d7b3ca26747375",
-      "bytes": 2380,
+      "sha256": "c032bbf3e8975f4a82ff253938eaf35b49ce593c042bd672cd443aaf44cfc9cf",
+      "bytes": 3863,
       "executable": false
     },
     "docs/GRANULAR-FX-FEASIBILITY.md": {
@@ -698,8 +703,8 @@
       "executable": false
     },
     "docs/RELEASE-1.0.0.md": {
-      "sha256": "3cec9634a22390b47be679df16047ba4a60c8fd26437d50fcce0ea6afcdc79d5",
-      "bytes": 4504,
+      "sha256": "f84605a59e740fc88a0cfa777a78087dd86c36b294e06af7a6b2532af9c3b826",
+      "bytes": 4500,
       "executable": false
     },
     "firmware/app.ld": {
@@ -1448,8 +1453,8 @@
       "executable": false
     },
     "tests/pwa_test.mjs": {
-      "sha256": "26a307b8e8e482bedb05961b4daa0342da0aadee6659a1dbe8e2e517e74b6fe4",
-      "bytes": 9521,
+      "sha256": "d2c83a97809c99924527801b1a90c652039ca065666a641c6942c671698f2eec",
+      "bytes": 10241,
       "executable": false
     },
     "tests/recovery_test.c": {
@@ -1498,8 +1503,8 @@
       "executable": false
     },
     "tests/site_test.py": {
-      "sha256": "698f2a1cee719822e8cdd40d4461cc6e7bbfcb0d80f2830ffc1a384aae6ba000",
-      "bytes": 7423,
+      "sha256": "c96451b479c7134ae515e1825241f95f0f40b0054f6ca5adaf703ea73d91f111",
+      "bytes": 8867,
       "executable": false
     },
     "tests/slice_loop.py": {
@@ -1607,6 +1612,11 @@
       "bytes": 1664,
       "executable": false
     },
+    "tools/check_pages_site.py": {
+      "sha256": "f35a3c9262cc28e4975dbfecd3445a4bf7d01bf1b709f22289ea25aa6d52ad27",
+      "bytes": 4757,
+      "executable": false
+    },
     "tools/check_public_export.py": {
       "sha256": "b7c44ca5a24d09ad793981baf3bb93b16e44230b39496d5387ca0899fa8d10da",
       "bytes": 1571,
@@ -1705,6 +1715,11 @@
     "tools/get_toolchain.sh": {
       "sha256": "01c997cf377aa964eceaaaa05f6e75c0df92a863297ca7d3cc4a71472764f5f3",
       "bytes": 578,
+      "executable": false
+    },
+    "tools/jieli-toolchain.sha256": {
+      "sha256": "50efefab90eae3ad1cc10ca521a6b95a5154a23d741f774719be3d0ae973e558",
+      "bytes": 333,
       "executable": false
     },
     "tools/level_drumkits.py": {
@@ -1848,8 +1863,8 @@
       "executable": false
     },
     "web/make_site.py": {
-      "sha256": "7000cd3e255edb2829a949bba32e8e4b7d5c34ba1f1a5b62f50b2e2753444e05",
-      "bytes": 15603,
+      "sha256": "3c89ae89a59db2f8d0420ab4991822366fad3439a4e2bfdf939e94197b257218",
+      "bytes": 15712,
       "executable": false
     },
     "web/midipipe.html": {
@@ -1873,8 +1888,8 @@
       "executable": false
     },
     "web/sw.js": {
-      "sha256": "e92b6575d0823c4aea4441338e483f890331c0f69b89daab7d77335c6bf64bf9",
-      "bytes": 2455,
+      "sha256": "11268ed9744cde07f87f0a21aa8fe91f08ac6c60e6abda60f349af56b1c9278d",
+      "bytes": 2629,
       "executable": false
     },
     "web/test_web.mjs": {

@@ -4,6 +4,8 @@
 
 # piterfly 1.0.0 for M-VAVE FM-1
 
+Planned Pages site (not deployed yet): [Installer](https://piotrwozniak.github.io/piterfly/webapp/installer/) · [Web editor](https://piotrwozniak.github.io/piterfly/webapp/editor/) · [What changes](https://piotrwozniak.github.io/piterfly/webapp/changes/).
+
 This checkout extends **SLOOP 2.8.5** with 24 persistent patterns, 128-position song arrangements and clearer navigation. It remains based on SLOOP and Felucca, with their credits and GPL-3.0 licence retained.
 
 **Local release preparation:** [1.0.0 source/binary bundle](docs/RELEASE-1.0.0.md),
@@ -37,12 +39,14 @@ The **64-step track limit already existed in SLOOP**. The trade-off for more sto
 
 **Before installing:** back up first. USR4 is repurposed. Song-file import replaces all pattern slots, including empty ones. This version has software, simulated-flash, protocol, UI-render and build validation; **this version has not yet been validated on a physical FM-1**. See the [migration, save-state and test details](docs/PITERFLY.md).
 
-This distribution copy has no Git metadata; original main is `8d9ac74`.
-The local prepared package is
-`build/releases/piterfly-1.0.0/piterfly-1.0.0.fwsc`, with matching source archive,
+This repository is the cleaned `piotrwozniak/piterfly` source tree, with its own
+fresh Git history. Its private origin is main `8d9ac74`; upstream credits and
+licences remain intact. See [provenance](PROVENANCE.md).
+Local release preparation creates
+`build/releases/piterfly-1.0.0/piterfly-1.0.0.fwsc`, with its matching source archive,
 licences, build metadata and SHA-256. The local installer is
 `http://localhost:8766/webapp/installer/`; local preparation is not a public release.
-The selected public destination is `https://piotrwozniak.github.io/fm1-piterfly/`,
+The selected public destination is `https://piotrwozniak.github.io/piterfly/`,
 not yet deployed. See [deployment notes](docs/DEPLOYMENT.md).
 
 ---

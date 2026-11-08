@@ -5,9 +5,9 @@
 // the manifest is one Chrome can install. Run from the repo root after a site is made:
 //   node tests/pwa_test.mjs SITE_DIR      (skipped, exit 0, without Playwright)
 import { spawn } from "node:child_process";
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, symlinkSync } from "node:fs";
 import { createRequire } from "node:module";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
 let chromium;
@@ -22,14 +22,17 @@ catch {
 const site = process.argv[2];
 if (!site) { console.log("usage: node tests/pwa_test.mjs SITE_DIR"); process.exit(2); }
 const PORT = 8790 + Math.floor(Math.random() * 100);
-const base = `http://127.0.0.1:${PORT}/webapp/`;
+const mount = mkdtempSync(join(tmpdir(), "piterfly-site-"));
+symlinkSync(resolve(site), join(mount, "piterfly"), "dir");
+const base = `http://127.0.0.1:${PORT}/piterfly/webapp/`;
+const cachePrefix = "piterfly-site-" + encodeURIComponent("/piterfly/webapp/") + "-";
 let failed = 0;
 const ok = (c, what) => { console.log(`pwa: ${what.padEnd(70)} ${c ? "ok" : "FAIL"}`); if (!c) failed++; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let server = null;
 async function serve() {
-  server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1", "--directory", site],
+  server = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1", "--directory", mount],
                  { stdio: "ignore" });
   for (let i = 0; i < 50; i++) {
     try { await fetch(base + "sw.js"); return; } catch { await sleep(100); }
@@ -70,13 +73,13 @@ try {
   ok(ready, "online: the installer registers sw.js, it is active");
   await page.reload();                                   // (now controlled)
   ok(await page.evaluate(() => !!navigator.serviceWorker.controller), "the installer page is controlled by it");
-  const cached = await page.evaluate(async () => {
+  const cached = await page.evaluate(async (prefix) => {
     const ks = await caches.keys();
-    const c = await caches.open(ks.find((k) => k.startsWith("sloop-site-")));
+    const c = await caches.open(ks.find((k) => k.startsWith(prefix)));
     return (await c.keys()).map((r) => new URL(r.url).pathname);
-  });
-  ok(cached.includes("/webapp/editor/") && cached.includes("/webapp/installer/") &&
-     cached.some((p) => /^\/firmware\/sloop-.*\.fwsc$/.test(p)) && cached.includes("/webapp/editor/fukiai.ttf"),
+  }, cachePrefix);
+  ok(cached.includes("/piterfly/webapp/editor/") && cached.includes("/piterfly/webapp/installer/") &&
+     cached.some((p) => /^\/piterfly\/firmware\/sloop-.*\.fwsc$/.test(p)) && cached.includes("/piterfly/webapp/editor/fukiai.ttf"),
      "kept: the installer, the editor, its font, the firmware");
 
   const cdp = await ctx.newCDPSession(page);
@@ -116,15 +119,19 @@ try {
   const swf = join(site, "webapp", "sw.js");
   const sw0 = readFileSync(swf, "utf8");
   writeFileSync(swf, sw0.replace(/const STAMP = "([^"]*)"/, 'const STAMP = "$1-next"'));
-  const keys = await page.evaluate(async () => {
+  const keys = await page.evaluate(async (prefix) => {
+    await caches.open("sloop-site-unrelated");
+    await caches.open("piterfly-site-other-project");
     const reg = await navigator.serviceWorker.getRegistration();
     await reg.update();
     for (let i = 0; i < 80 && !(await caches.keys()).some((k) => k.endsWith("-next")); i++)
       await new Promise((r) => setTimeout(r, 100));
-    for (let i = 0; i < 40 && (await caches.keys()).length > 1; i++) await new Promise((r) => setTimeout(r, 100));
+    for (let i = 0; i < 40 && (await caches.keys()).filter(k => k.startsWith(prefix)).length > 1; i++) await new Promise((r) => setTimeout(r, 100));
     return caches.keys();
-  });
-  ok(keys.length === 1 && keys[0].endsWith("-next"), "a new site: its sw.js replaces the copy (" + keys.join(", ") + ")");
+  }, cachePrefix);
+  const ownKeys = keys.filter(k => k.startsWith(cachePrefix));
+  ok(keys.includes("sloop-site-unrelated") && keys.includes("piterfly-site-other-project"), "updates preserve caches of other projects on the same origin");
+  ok(ownKeys.length === 1 && ownKeys[0].endsWith("-next"), "a new site: its sw.js replaces the copy (" + keys.join(", ") + ")");
   writeFileSync(swf, sw0);
   await stop();
 
@@ -137,7 +144,7 @@ class H(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         if self.path.endswith(".fwsc"): self.send_header("Cache-Control", "max-age=3600")
         super().end_headers()
-os.chdir(${JSON.stringify(site)}); http.server.ThreadingHTTPServer(("127.0.0.1", ${PORT}), H).serve_forever()`], { stdio: "ignore" });
+os.chdir(${JSON.stringify(mount)}); http.server.ThreadingHTTPServer(("127.0.0.1", ${PORT}), H).serve_forever()`], { stdio: "ignore" });
   for (let i = 0; i < 50; i++) { try { await fetch(base + "sw.js"); break; } catch { await sleep(100); } }
   const c2 = await browser.newContext({ serviceWorkers: "block" });
   const p2 = await c2.newPage();
@@ -159,6 +166,7 @@ os.chdir(${JSON.stringify(site)}); http.server.ThreadingHTTPServer(("127.0.0.1",
   await stop();
   await browser.close();
   rmSync(profile, { recursive: true, force: true });
+  rmSync(mount, { recursive: true, force: true });
 }
 console.log("pwa:", failed ? `FAILED (${failed})` : "the site without internet: test passed");
 process.exit(failed ? 1 : 0);

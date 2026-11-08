@@ -75,7 +75,7 @@ and the site checks that the preview belongs to that release.
 
 The generator checks the firmware/source version and hash before linking the
 archives. The standalone editor retains full software/font notices. The site
-base URL is `https://piotrwozniak.github.io/fm1-piterfly/`, including links in
+base URL is `https://piotrwozniak.github.io/piterfly/`, including links in
 the downloaded editor. This destination has been selected but not deployed.
 Preparing a site does not publish it; see DEPLOYMENT.md.
 

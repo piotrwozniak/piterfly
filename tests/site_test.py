@@ -3,6 +3,7 @@
 """SLOOP 2.6: the offline editor (web/make_site.py offline_editor): one file that needs nothing next to it; and the
 site without internet (webapp/sw.js, the manifest): what sw.js keeps is all there and all it needs."""
 import json
+import hashlib
 from html.parser import HTMLParser
 import html
 import re
@@ -14,6 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "web"))
 import make_site  # noqa: E402
+sys.path.insert(0, str(ROOT / "tools"))
+import check_pages_site  # noqa: E402
 
 src = (ROOT / "web" / "editor.html").read_text(encoding="utf-8")
 off = make_site.offline_editor(src)
@@ -69,7 +72,7 @@ check("offline: the installer and the font licence online",
 rel = [m for m in re.findall(r'(?:src|href)="([^"#]+)"', off) if not re.match(r"(https?:|data:|mailto:)", m)]
 check("offline: no other file next to it (no relative src / href)", not rel)
 check("offline editor targets the selected piterfly Pages installer",
-      'href="https://piotrwozniak.github.io/fm1-piterfly/webapp/installer/"' in off)
+      'href="https://piotrwozniak.github.io/piterfly/webapp/installer/"' in off)
 check("offline: no url() to a file", not re.search(r'url\((?!data:)["\']?[A-Za-z]', off))
 check("offline: no app, no service worker (a file has no site)",
       "serviceWorker" not in off and "webmanifest" not in off and 'id="install"' not in off)
@@ -116,6 +119,27 @@ try:
     except ValueError:
         rejected = True
     check("wrong firmware/source pairing is rejected", rejected)
+    # Complete download set: every SHA256SUMS entry must actually be downloadable.
+    artifacts = {"piterfly-9.9.fwsc": bytes(pkg), "piterfly-9.9-source.tar.gz": b"source fixture",
+                 "piterfly-9.9-licences.zip": b"licence fixture"}
+    info.update(source_tree_sha256="fixture", base_commit="fixture", artifacts={
+        n: {"sha256": hashlib.sha256(data).hexdigest()} for n, data in artifacts.items()})
+    for name, data in artifacts.items():
+        (release / name).write_bytes(data)
+    (release / "BUILD_INFO.json").write_text(json.dumps(info))
+    sums = {**artifacts, "BUILD_INFO.json": (release / "BUILD_INFO.json").read_bytes()}
+    (release / "SHA256SUMS").write_text("".join(f"{hashlib.sha256(data).hexdigest()}  {name}\n" for name, data in sums.items()))
+    make_site.main(tmp / "p.fwsc", "9.9", tmp / "pages", release_dir=release)
+    check_pages_site.check(tmp / "pages", release)
+    check("Pages: checksum-covered artifacts, relative links and /piterfly/ manifest are valid", True)
+    index = tmp / "pages/index.html"
+    index.write_text(index.read_text() + '<a href="/webapp/editor/">bad root link</a>')
+    try:
+        check_pages_site.check(tmp / "pages", release)
+        rejected = False
+    except ValueError:
+        rejected = True
+    check("Pages: link escaping the /piterfly/ prefix is rejected", rejected)
     check("sw.js: every file it keeps is in the site", all(path(f).is_file() for f in files))
     m = json.loads((app / "sloop.webmanifest").read_text(encoding="utf-8"))
     check("manifest: standalone, starts at the editor, icons 192 and 512 (+ maskable)",

@@ -33,7 +33,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ONLINE = "https://piotrwozniak.github.io/fm1-piterfly/"  # Selected destination; generating files does not deploy them.
+ONLINE = "https://piotrwozniak.github.io/piterfly/"  # Selected destination; generating files does not deploy them.
 
 
 def offline_editor(html):
@@ -70,7 +70,9 @@ def licence_page(out, version, raw, release_dir=None):
         dest = out / "source"
         dest.mkdir(parents=True, exist_ok=True)
         links = []
-        for name in [f"piterfly-{version}-source.tar.gz", f"piterfly-{version}-licences.zip", "BUILD_INFO.json", "SHA256SUMS"]:
+        for name in [*sorted(info["artifacts"]), "BUILD_INFO.json", "SHA256SUMS"]:
+            if Path(name).name != name or name.startswith("."):
+                raise ValueError(f"unsafe release artifact name: {name}")
             data = (release_dir / name).read_bytes()
             if name in info["artifacts"] and hashlib.sha256(data).hexdigest() != info["artifacts"][name]["sha256"]:
                 raise ValueError(f"release artifact hash mismatch: {name}")
@@ -110,7 +112,7 @@ def app_files(out, version, fw_name):
     (app / "sloop.webmanifest").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
     keep = {"installer/": app / "installer" / "index.html", "editor/": app / "editor" / "index.html",
             "../firmware/" + fw_name: out / "firmware" / fw_name, "sloop.webmanifest": app / "sloop.webmanifest"}
-    for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt"):
+    for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt", "sloop-editor.html"):
         if (app / "editor" / f).exists():
             keep["editor/" + f] = app / "editor" / f
     for f in ("preview.js", "preview-worklet.js", "sloop-preview.wasm"):
@@ -202,7 +204,7 @@ def main(pkg, version, out, release_dir=None):
     (ed / "sloop-editor.html").write_text(offline_editor(ed_html), encoding="utf-8")
     (inst / "index.html").write_text(html.replace('download="sloop-editor.html"', dl), encoding="utf-8")
     if "24-patterns" in version:
-        direct = html.replace("<head>", '<head><base href="/webapp/installer/">', 1)
+        direct = html.replace("<head>", '<head><base href="webapp/installer/">', 1)
         (out / "install-24-patterns.html").write_text(direct.replace('download="sloop-editor.html"', dl), encoding="utf-8")
     for f in ("fukiai.ttf", "FUKIAI-LICENSE.txt"):
         if (HERE / f).exists():

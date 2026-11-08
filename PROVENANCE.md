@@ -64,7 +64,7 @@ unchanged from the origin commit. The GPL SLOOP logo-generation code remains in
 
 A local clean build, archive inventory and host tests establish technical checks,
 not hardware timing, power-cut recovery or a new grant from any third-party author.
-The selected public site base URL is `https://piotrwozniak.github.io/fm1-piterfly/`.
+The selected public site base URL is `https://piotrwozniak.github.io/piterfly/`.
 The offline editor points to that destination. Selecting this URL does not enable
 GitHub Pages, upload files or change repository visibility. Deployment still
 requires a separate instruction; see docs/DEPLOYMENT.md. The original private
