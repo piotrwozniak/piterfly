@@ -1,0 +1,10 @@
+piterfly arcade logo and branding
+SPDX-License-Identifier: GPL-3.0-only
+
+The project owner declares ownership of arcade-source.png and selected
+GNU GPL version 3 only on 2026-11-08. This grant also covers the derived
+arcade-web.png, firmware splash and piterfly PWA branding generated from it.
+The full licence text is in ../../LICENSE.
+
+This grant does not relicense inherited Felucca/SLOOP artwork, fonts,
+third-party samples or screenshots containing such material.

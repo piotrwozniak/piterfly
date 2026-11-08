@@ -1,0 +1,13 @@
+piterfly device icon atlas
+SPDX-License-Identifier: GPL-3.0-only
+
+assets/icons.png is generated from original pixel geometry in
+tools/gen_pixel_icons.py. It replaces the older Felucca atlas on the
+codex/gpl-pixel-icons feature branch. No pixels from that atlas are used.
+
+The project owner selected GNU GPL version 3 only for these new icons on
+2026-11-08. The full licence is in ../LICENSE. The generator is the
+preferred source for editing and regenerating the artwork.
+
+This grant covers the new atlas and its generated firmware tables. It does
+not relicense the old atlas in Git history or old documentation screenshots.

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>FM-1 + Behringer D MINI with MidiPipe — piterfly</title>
+<link rel="icon" href="../icon-192.png">
+<link rel="stylesheet" href="changes.css">
+</head>
+<body>
+<main class="setup-page">
+<nav aria-label="Navigation"><a href="./#midi-thru">← What changes?</a><a href="../installer/">Installer</a><a href="../editor/">Web editor</a></nav>
+<img class="brand" src="logo.png" width="446" height="304" alt="piterfly">
+<div class="strip" aria-hidden="true"></div>
+<h1>FM-1 + D MINI with MidiPipe</h1>
+<p class="lead">One USB keyboard, four FM-1 tracks and an external Behringer D MINI. The Mac routes MIDI; D MINI plays track 1, while tracks 2–4 use the FM-1’s internal sounds.</p>
+<p>This guide reconstructs the user’s working MidiPipe setup. The confirmed SLOOP behaviour, the current piterfly THRU extension and an optional direct-keyboard route are described separately below.</p>
+<nav class="setup-nav" aria-label="Tutorial sections"><a href="#usb">USB</a><a href="#audio">Audio</a><a href="#mypipe">MyPipe</a><a href="#settings">Device settings</a><a href="#verified">What worked</a><a href="#live">Live keyboard</a></nav>
+<section id="usb" class="setup-section">
+<h2>1. Connect all three devices to the Mac</h2>
+<p>Use three separate USB data cables, directly into the Mac or through a USB hub that supports data. The Mac is the USB host.</p>
+<div class="setup-wiring" role="group" aria-label="Three separate USB connections: keyboard to Mac, FM-1 to Mac, D MINI to Mac">
+<div class="setup-devices"><div class="setup-device" data-device="keyboard"><h3>Keyboard</h3><p>External USB MIDI keyboard</p></div><div class="setup-device" data-device="fm1"><h3>FM-1</h3><p>MIDI port: Felucca</p></div><div class="setup-device" data-device="dmini"><h3>D MINI</h3><p>USB MIDI connection</p></div></div>
+<div class="setup-wires" aria-hidden="true"><div><small>USB</small>↔</div><div><small>USB</small>↔</div><div><small>USB</small>↔</div></div>
+<div class="setup-host" data-device="host"><h3>Mac</h3><p class="midi-pixel">MidiPipe</p><p>Three devices<br>One USB host</p></div>
+</div>
+<p class="note">The FM-1 appeared as <strong>Felucca</strong> on this Mac. Select its actual MIDI port name in MidiPipe; a piterfly build may appear as <strong>piterfly</strong>.</p>
+</section>
+<section id="audio" class="setup-section">
+<h2>2. Connect the audio outputs separately</h2>
+<div class="setup-wiring setup-audio" style="--devices:2" role="group" aria-label="FM-1 audio output and D MINI audio output each go to the mixer or audio interface">
+<div class="setup-devices"><div class="setup-device" data-device="fm1"><h3>FM-1 audio</h3><p>Internal tracks 2, 3 and drums</p></div><div class="setup-device" data-device="dmini"><h3>D MINI audio</h3><p>External sound for track 1</p></div></div>
+<div class="setup-wires" aria-hidden="true"><div><small>Audio</small>→</div><div><small>Audio</small>→</div></div>
+<div class="setup-host" data-device="host"><h3>Mixer / interface</h3><p>Speakers or headphones</p></div>
+</div>
+<p>MIDI tells D MINI which notes to play. Hear its sound from its own audio output, alongside the FM-1’s audio.</p>
+</section>
+<section id="mypipe" class="setup-section">
+<h2>3. Put these four tools in one MyPipe</h2>
+<p>Keep both connections in the same <strong>MyPipe</strong>. In the right-hand <strong>Pipes</strong> column, arrange the tools from top to bottom as shown.</p>
+<div class="setup-pipe" data-device="host" role="group" aria-label="MidiPipe tool order and selected ports">
+<h3>MyPipe</h3><p>Select each tool and choose its MIDI Input or MIDI Output port.</p>
+<ol class="pipe-tools">
+<li class="pipe-input" data-device="keyboard"><span class="pipe-index" aria-hidden="true">1</span><span class="pipe-tool">MIDI In</span><span class="pipe-device">Your USB keyboard<small>MIDI Input: the keyboard’s actual port name</small></span></li>
+<li data-device="fm1"><span class="pipe-index" aria-hidden="true">2</span><span class="pipe-tool">MIDI Out</span><span class="pipe-device">Felucca<small>MIDI Output: FM-1<br>Pass Through: <strong>OFF</strong></small></span></li>
+<li class="pipe-new-input pipe-input" data-device="fm1"><span class="pipe-index" aria-hidden="true">3</span><span class="pipe-tool">MIDI In</span><span class="pipe-device">Felucca<small>MIDI Input: FM-1</small></span></li>
+<li data-device="dmini"><span class="pipe-index" aria-hidden="true">4</span><span class="pipe-tool">MIDI Out</span><span class="pipe-device">D MINI<small>MIDI Output: the external synth</small></span></li>
+</ol>
+</div>
+<ol class="setup-steps">
+<li>Select the first <strong>MIDI In</strong>. Set <strong>MIDI Input</strong> to your external keyboard.</li>
+<li>Select the first <strong>MIDI Out</strong>. Set <strong>MIDI Output</strong> to <strong>Felucca</strong> and turn <strong>Pass Through OFF</strong>. Keyboard messages are delivered to FM-1 and stop continuing through that part of MyPipe.</li>
+<li>Select the second <strong>MIDI In</strong>. Set <strong>MIDI Input</strong> to <strong>Felucca</strong>; this receives messages that FM-1 actually sends.</li>
+<li>Select the second <strong>MIDI Out</strong>. Set <strong>MIDI Output</strong> to <strong>D MINI</strong>.</li>
+<li>Remove redundant <strong>Channel Router</strong> and <strong>Channel Filter</strong> tools from this main setup. The channels stay <strong>1→1, 2→2, 3→3, 10→10</strong>.</li>
+<li>Use <strong>File → Save</strong> and keep <strong>MidiPipe running</strong> while using the setup.</li>
+</ol>
+<div class="setup-callout"><p><strong>Two different “through” settings:</strong> MidiPipe’s <strong>Pass Through OFF</strong> stops a message continuing to later tools after the first MIDI Out. The piterfly <strong>GLO → MIDI THRU</strong> switch controls whether FM-1 sends received notes back out. These settings do different jobs.</p></div>
+</section>
+<section id="settings" class="setup-section">
+<h2>4. Keep the MIDI channels unchanged</h2>
+<table class="setup-table"><thead><tr><th scope="col">FM-1 track</th><th scope="col">MIDI in → out</th><th scope="col">Sound</th></tr></thead><tbody>
+<tr><th scope="row" class="track" style="--track:#61a1ff">Track 1</th><td><code>1 → 1</code></td><td>Behringer D MINI</td></tr>
+<tr><th scope="row" class="track" style="--track:#1ecc70">Track 2</th><td><code>2 → 2</code></td><td>FM-1 internal synth</td></tr>
+<tr><th scope="row" class="track" style="--track:#ffc618">Track 3</th><td><code>3 → 3</code></td><td>FM-1 internal synth</td></tr>
+<tr><th scope="row" class="track" style="--track:#ff621a">Track 4</th><td><code>10 → 10</code></td><td>FM-1 drums</td></tr>
+</tbody></table>
+<p><strong>Choose the instrument by changing the keyboard’s transmit channel.</strong> Selecting a different track on the FM-1 screen does not change the external keyboard’s channel. This recipe uses <strong>IN = NOTES</strong>, with fixed track assignments.</p>
+<div class="midi-settings setup-common-settings">
+<figure><h3>Assign the four channels</h3><p class="screen-name">GLO → MIDI</p><a class="screen" href="screenshots/piterfly-midi-channels.png" aria-label="Open channel assignments"><img src="screenshots/piterfly-midi-channels.png" width="720" height="720" loading="lazy" alt="FM-1 MIDI page: CH1 1, CH2 2, CH3 3, CH4 10"></a><figcaption><strong>CH1 = 1, CH2 = 2, CH3 = 3, CH4 = 10.</strong> Keep CH1 assigned to 1; setting it to OFF also disables that track’s MIDI output.</figcaption></figure>
+<figure><h3>Receive notes and send the sequencer</h3><p class="screen-name">GLO → MIDI 2</p><a class="screen" href="screenshots/piterfly-midi-input.png" aria-label="Open MIDI input and output settings"><img src="screenshots/piterfly-midi-input.png" width="720" height="720" loading="lazy" alt="FM-1 MIDI 2 page: IN NOTES, OTHER OFF, OUT SEQ"></a><figcaption><strong>IN = NOTES, OTHER = OFF, OUT = SEQ.</strong> OTHER OFF ignores unassigned input channels. SEL also leaves 1/2/3/10 unchanged, but lets other channels play the selected track.</figcaption></figure>
+<figure class="setup-home"><h3>Let D MINI provide track 1’s sound</h3><p class="screen-name">HOME → Track 1</p><a class="screen" href="screenshots/piterfly-midi-home.png" aria-label="Open HOME with track 1 at zero volume"><img src="screenshots/piterfly-midi-home.png" width="720" height="720" loading="lazy" alt="FM-1 HOME with track 1 selected and LEVEL 0"></a><figcaption>Select track 1 with <strong>PRESETS</strong> in current piterfly (<strong>ALGORITHM</strong> in stock SLOOP), then set <strong>KNOB 2 · LEVEL = 0</strong>. Keep this level in every pattern used for the setup.</figcaption></figure>
+</div>
+<div class="setup-callout"><p><strong>On D MINI:</strong> set its MIDI receive channel to <strong>1 only</strong>, connect its audio output to your listening setup, and confirm it ignores channels 2, 3 and 10. MidiPipe can then send all FM-1 output channels to it without a channel filter in the main pipe.</p></div>
+<p class="note">These are renders of piterfly’s actual UI. The common MIDI settings also describe the original SLOOP setup; the MIDI THRU page shown below is a piterfly addition.</p>
+</section>
+<section id="verified" class="setup-section">
+<h2>5. What was confirmed in the original setup?</h2>
+<table class="setup-table"><thead><tr><th scope="col">Path</th><th scope="col">Reported result</th></tr></thead><tbody>
+<tr><td>FM-1 track 1 sequencer → D MINI</td><td class="setup-status confirmed">Working</td></tr>
+<tr><td>FM-1 tracks 2–4 → internal FM-1 sounds</td><td class="setup-status confirmed">Working</td></tr>
+<tr><td>External keyboard → FM-1 internal sounds</td><td class="setup-status confirmed">Working</td></tr>
+<tr><td>External keyboard → FM-1 → D MINI, with the tested stock SLOOP</td><td class="setup-status pending">Not achieved in that setup</td></tr>
+</tbody></table>
+<p>MidiPipe routes the messages FM-1 actually sends. Routing all its output channels to D MINI does not itself make the tested stock SLOOP resend incoming keyboard notes.</p>
+</section>
+<section id="live" class="setup-section">
+<h2>6. Live keyboard with piterfly MIDI THRU</h2>
+<p>The current piterfly firmware adds per-track forwarding for the channel assignments above. With that build installed, turn <strong>TRK1 ON</strong> on <strong>GLO → MIDI THRU</strong> to send received track 1 notes back to USB MIDI OUT. The second MidiPipe input then receives them and sends them to D MINI.</p>
+<div class="midi-settings setup-thru-settings">
+<figure><p class="screen-name">GLO → MIDI THRU</p><a class="screen" href="screenshots/piterfly-midi-thru.png" aria-label="Open the piterfly THRU extension"><img src="screenshots/piterfly-midi-thru.png" width="720" height="720" loading="lazy" alt="piterfly MIDI THRU: TRK1 ON, TRK2 OFF, TRK3 OFF, TRK4 OFF"></a><figcaption>This is the piterfly extension, separate from the original stock-SLOOP results above.</figcaption></figure>
+<div class="setup-callout"><p><strong>Keyboard ch 1 → FM-1 track 1 → MidiPipe → D MINI ch 1.</strong></p><p>Keep <strong>CH1 = 1</strong> and <strong>IN = NOTES</strong>. The current per-track THRU works with this fixed map; this recipe does not use channel 4 or selected-track input mode.</p><p>THRU forwards Note On/Off and velocity. CC, sustain and pitch bend are not forwarded. The original confirmation table is not a hardware test of this extension.</p></div>
+</div>
+</section>
+<section id="direct" class="setup-section">
+<h2>Optional: a direct keyboard path for stock SLOOP</h2>
+<p><strong>Proposed alternative, not a confirmed part of the original setup.</strong> Add a separate pipe for live playing on D MINI:</p>
+<div class="setup-optional-route" role="group" aria-label="Optional separate route: keyboard, channel 1 only filter, D MINI"><span>Keyboard</span><span aria-hidden="true">→</span><span>Channel 1 only</span><span aria-hidden="true">→</span><span>D MINI</span></div>
+<p>Use <strong>MIDI In: keyboard → Channel Filter: allow only channel 1 → MIDI Out: D MINI</strong>. Test that channel 1 reaches D MINI and channels 2, 3 and 10 do not. Keep the existing keyboard → FM-1 route and FM-1 → D MINI sequencer route.</p>
+<div class="setup-callout optional"><p>Use one live-note path at a time: this direct route or piterfly’s track 1 THRU. Enabling both can send each keyboard note to D MINI twice.</p></div>
+</section>
+<footer><nav aria-label="Next steps"><a href="./#midi-thru">Back to MIDI THRU overview</a><a href="../installer/">Installer</a></nav><p>Setup reconstructed from the user’s configuration notes. The optional route still needs its own test.</p></footer>
+</main>
+</body>
+</html>
