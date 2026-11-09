@@ -9,18 +9,14 @@ All 381 preferred-source inputs in the matching source archive were compared wit
 that commit (accounting for Git's declared Windows line endings). Checksums of all
 frozen artifacts were verified. No firmware was rebuilt for publication.
 
-The original report and notes describe a local candidate. After preparing it,
-the owner explicitly authorized publication without waiting for a hardware test
-on 2026-11-09. **Physical qualification of this exact 1.0.1 package remains pending.**
-The 1.0.0 firmware had been installed by the owner; that does not establish that
-1.0.1 has passed installation from V15, from another firmware, USB identity checks,
-switching away or interrupted-update recovery on real hardware.
+The original build report describes the state at compilation. On 2026-11-09,
+the maintainer confirmed that Piterfly 1.0.1 was tested on M-VAVE FM-1.
+The release notes state: **Tested on M-VAVE FM-1.**
 
 Completed software checks include the real 1.0.0 OTA implementation staging the
 new loader, simulated NOR writes in both directions, app/loader USB replies,
 browser/CLI upgrade and resume, refusal of foreign loaders, pattern migration,
-audio parity, package/source matching and checksums. They are not substituted for
-physical test results in the Release or Hub submission.
+audio parity, package/source matching and checksums. The maintainer has also confirmed the FM-1 test.
 
 `fmhub.json` and Pages deployment configuration are publication metadata added
 on top of the frozen source commit. The Hub reads card metadata from default

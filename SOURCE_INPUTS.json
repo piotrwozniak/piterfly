@@ -703,8 +703,8 @@
       "executable": false
     },
     "docs/PUBLICATION-1.0.1.md": {
-      "sha256": "3677c3b4836aae61452a3c61c2fb1429d5c20c00cb4e745e9a2280f78d20fda7",
-      "bytes": 1852,
+      "sha256": "c88d06e902a1635d6bd82937550feb0222779128e0883d5872ed16a61d876d66",
+      "bytes": 1543,
       "executable": false
     },
     "docs/RELEASE-1.0.0.md": {
@@ -713,8 +713,8 @@
       "executable": false
     },
     "docs/RELEASE-1.0.1.md": {
-      "sha256": "fbceeddfe47305c552c42720050edec67b588071b7dd64d552d0e28d29564361",
-      "bytes": 3900,
+      "sha256": "cd440e9585b0626f6ae3ae3067a69ba0c42f79192cbae1dfa4339fa006ccf60b",
+      "bytes": 3765,
       "executable": false
     },
     "firmware/app.ld": {

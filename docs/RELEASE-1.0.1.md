@@ -1,4 +1,4 @@
-# Piterfly 1.0.1 — identity change, local device-test candidate
+# Piterfly 1.0.1 — identity change
 
 The running application and `.fwsc` now identify as **`FM-1_1120101`**.
 The packaged Felucca loader identifies as **`ota-FM-1_1120101`**.
@@ -44,14 +44,14 @@ There is no change to flash layout, the 24-pattern bank, sample allocation,
 FUN7 projects, PER4 settings or protocol 15. No identity-based data migration is
 performed. As always, make a backup before the hardware test.
 
-Host tests cover the old-to-new identity transition, resumed new loader, reverse
-transition, app/loader USB replies and writing the real new package over a 1.0.0
-flash image. These checks do not replace installation and power-loss tests on FM-1.
-Verify on hardware: installation from 1.0.0, the USB handshake, saved patterns and
-settings after power-off, and installing another firmware again.
+Tested on M-VAVE FM-1, as confirmed by the maintainer on 2026-11-09.
+Software tests also cover the old-to-new identity transition, resumed loader,
+reverse transition, app/loader USB replies and writing the real new package over
+a 1.0.0 flash image.
 
-The published tag `1.0.0` and all its release assets are retained. No 1.0.1 tag,
-GitHub Release, Pages deployment or Hub submission is created for this local test.
+The published tag `1.0.0` and all its release assets are retained. The 1.0.1 tag
+points to the frozen build inputs in `90d96dc`; publication metadata and deployment
+configuration are maintained on main.
 
 ## Local build and test installer
 
