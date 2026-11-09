@@ -357,7 +357,7 @@ class Updater:
         if model_of(dev.id.text) != model_of(product):
             dev.link.close()
             raise InstallError("model", f"the device is {dev.id.text}, the package is for {product}")
-        if dev.id.loader and not re.fullmatch(r"ota-FM-1_9\d\d", dev.id.text, re.I):
+        if dev.id.loader and not re.fullmatch(r"ota-FM-1_(?:9\d\d|1120101)", dev.id.text, re.I):
             dev.link.close()           # another firmware's loader: its image layout may differ
             raise InstallError("foreign", f"the FM-1 is in the update mode of another firmware ({dev.id.text}): "
                                           "finish that update with its own updater (M-UPGRADE), then install again")

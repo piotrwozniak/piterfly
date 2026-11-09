@@ -18,8 +18,8 @@
       "executable": false
     },
     "BUILDING.md": {
-      "sha256": "6bf75098026b11c0ecfaa5531d2c89cb86eeac8cc144043b78deb27fff6e2aa6",
-      "bytes": 6179,
+      "sha256": "3482ba7035d29fa92fb84da3728eb1d909134f7457449a6ba161a0c34e5a107b",
+      "bytes": 6332,
       "executable": false
     },
     "DEMARRAGE-RAPIDE-FR.md": {
@@ -98,7 +98,7 @@
       "executable": false
     },
     "LICENSING.md": {
-      "sha256": "a1e7e6c6a83eddef4b16ef469457463a7c23843c0483cb8a96aa526d6b154bda",
+      "sha256": "035bd8113a9f7713d5ea6b96a8a3b1571d64ed03061a919b46d1afdc9bd828ed",
       "bytes": 6044,
       "executable": false
     },
@@ -113,8 +113,8 @@
       "executable": false
     },
     "PROVENANCE.md": {
-      "sha256": "f4c858c505649cf0d5465a118059d8f18c282b1659182e065cd58697c2ab56e2",
-      "bytes": 5806,
+      "sha256": "8d7623a2f9f90e3cfafed63e61bec283e9d1675e6cbfc9787b873fc1681b55d6",
+      "bytes": 6608,
       "executable": false
     },
     "PUBLIC_EXPORT.json": {
@@ -128,8 +128,8 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "aa399a9cbe222ada5e80ca50fd236a843781ed2622a3dbcf70b30fee4efff2ce",
-      "bytes": 65320,
+      "sha256": "040ff46fac4cfef85b6b1d2c4b94790d43c8e1fd3c2fcbf0d245d393532b9b8b",
+      "bytes": 65379,
       "executable": false
     },
     "SLOOP.md": {
@@ -138,7 +138,7 @@
       "executable": false
     },
     "THIRD_PARTY_NOTICES.md": {
-      "sha256": "3e48bf952eefa86a50e6b4aa349997105b4bf5f8ad9037b90cf5b01590788feb",
+      "sha256": "2d0d6b81bfa3af7d2109d926b07e1e0580501ec7b14e006b608cdc7f450f39ae",
       "bytes": 3157,
       "executable": false
     },
@@ -707,6 +707,11 @@
       "bytes": 4500,
       "executable": false
     },
+    "docs/RELEASE-1.0.1.md": {
+      "sha256": "fbceeddfe47305c552c42720050edec67b588071b7dd64d552d0e28d29564361",
+      "bytes": 3900,
+      "executable": false
+    },
     "firmware/app.ld": {
       "sha256": "573d7e52eedf3b43459cfe44995dabdcd99a17de04d20e68aa353c33d570a595",
       "bytes": 2807,
@@ -833,8 +838,8 @@
       "executable": false
     },
     "firmware/loader/loader.c": {
-      "sha256": "40a413581d2857912702b035126447c3a1edcf7b33343c2430424711f0bba896",
-      "bytes": 4338,
+      "sha256": "a2db5d713dbee1caed4763712a60d85e5172cce8e4012c57fad4956699bd743a",
+      "bytes": 4400,
       "executable": false
     },
     "firmware/loader/loader.ld": {
@@ -993,8 +998,8 @@
       "executable": false
     },
     "firmware/src/felucca.c": {
-      "sha256": "5bac820978f0108ee15ea658cac55bccdf80c870fca39f02222d84f7a93dc096",
-      "bytes": 7061,
+      "sha256": "b455cf5d11510c47e7167a1247605d1b3b58be4912cf204c766cbcc8bee68d02",
+      "bytes": 7088,
       "executable": false
     },
     "firmware/src/fm6_bank.c": {
@@ -1178,8 +1183,8 @@
       "executable": false
     },
     "firmware/src/version.h": {
-      "sha256": "ce9f72d6e414cb6b2b182b6052e3d85d1ed4b530bbb41caa4033a1ff518dcef6",
-      "bytes": 174,
+      "sha256": "6ab32e0a00b9b8bae31dd038e8a5c16f300b236730d659019f5198b2c94ca497",
+      "bytes": 214,
       "executable": false
     },
     "firmware/src/voice.c": {
@@ -1343,8 +1348,8 @@
       "executable": false
     },
     "tests/install_test.py": {
-      "sha256": "01f6d94bcf7a5c03ddf034ef5a94bfb37da825fea9c00420a0ea7334894116e1",
-      "bytes": 13478,
+      "sha256": "7251592b5dc68bdd2e4e0ec384626983e18dca9c98bcbdd2faded28dabd29a17",
+      "bytes": 14677,
       "executable": false
     },
     "tests/knob_walk_test.c": {
@@ -1353,8 +1358,8 @@
       "executable": false
     },
     "tests/ldr_test.c": {
-      "sha256": "9614f627ad4509601dd160f32a259abe408589e45e47bffc50e51eb7717f9698",
-      "bytes": 9734,
+      "sha256": "3bf554186438208b60f3b868d587c1205ee147aeaa32385a366dd2abfed215db",
+      "bytes": 9977,
       "executable": false
     },
     "tests/len_test.c": {
@@ -1388,8 +1393,8 @@
       "executable": false
     },
     "tests/ota_test.c": {
-      "sha256": "a3727fa2b90b8b83f8a9ce97d8617ec43a8ad5d18723a1cfd4237f7b2c8b60ae",
-      "bytes": 8404,
+      "sha256": "7b1f267c9b394219121e3e63fde3d2a7fcf0a84f6bf853869dc1f2f443266ae5",
+      "bytes": 8447,
       "executable": false
     },
     "tests/pattern24_migration_test.c": {
@@ -1468,8 +1473,8 @@
       "executable": false
     },
     "tests/release_test.py": {
-      "sha256": "9e8903b17eb112a1167c364997f55ac48af9f8aae0b1522373356f1cf541674c",
-      "bytes": 1151,
+      "sha256": "efa12cefead3eebbc00c580181c8c8047bd4b78d59b7f1d74b0b1fce9bd67873",
+      "bytes": 1976,
       "executable": false
     },
     "tests/run_preview_tests.sh": {
@@ -1598,8 +1603,8 @@
       "executable": false
     },
     "tools/build.py": {
-      "sha256": "59d5dc0bb318fa3d0b5cdc214316a8661b314931a73e4d3b283ac6add3baecb9",
-      "bytes": 17822,
+      "sha256": "09058217ae1fa8d25c7b49dd0bf28b6adc478c0326e98824e89c1b9a061c9300",
+      "bytes": 17875,
       "executable": false
     },
     "tools/build_preview.py": {
@@ -1633,8 +1638,8 @@
       "executable": false
     },
     "tools/fm1_install.py": {
-      "sha256": "46472680c689d5b2fd46d7aa97d20c998ea14826c9258af00b6abef8d59a611c",
-      "bytes": 19527,
+      "sha256": "ecb9afbb83639d371e5d769c221993d3b44c05e14057cfba46e8caa20a0cccb0",
+      "bytes": 19539,
       "executable": false
     },
     "tools/fm1_sample_upload.py": {
@@ -1643,8 +1648,8 @@
       "executable": false
     },
     "tools/fm1pkg_make.py": {
-      "sha256": "284fa4553d3194d6c374b7cb3ff169ac11a5d3f496861ed17f7bae28e79d7ea3",
-      "bytes": 8637,
+      "sha256": "fce8ef6335608c1c61d875a221a32357c56dd2d5a17c91d7aeae48bc1e65e7a6",
+      "bytes": 9032,
       "executable": false
     },
     "tools/gen_builtin_hiphop.py": {
@@ -1743,8 +1748,8 @@
       "executable": false
     },
     "tools/prepare_release.py": {
-      "sha256": "4bce84397613c5304b3aca5bd3a8d03cebbd70abbd16f800f423ba823ea813d2",
-      "bytes": 8084,
+      "sha256": "32219e2fd8c981f178e3a37b93c61413411d856e77531a3b2078b0f1e6ab3248",
+      "bytes": 8109,
       "executable": false
     },
     "tools/render_ui_docs.c": {
@@ -1813,18 +1818,18 @@
       "executable": false
     },
     "web/changes.html": {
-      "sha256": "10c177efbf9c76e71a728a4f091ff367d501a7009276cc7a23042b78a3e83f83",
+      "sha256": "e7b13ebf390ff0d9a9c12a633fd10c66ad7015ebd57d12c9dd1916a3be6b13ad",
       "bytes": 58007,
       "executable": false
     },
     "web/editor.html": {
-      "sha256": "e517c25cdf7b3e1636caee71b39669fb93c395c960a619b1b87690df795305f5",
+      "sha256": "e0a1baa74c6592a77f7b915cefeb6cf430a6f3c1993e082a6ab759cfa93a0126",
       "bytes": 984482,
       "executable": false
     },
     "web/fm1ota.js": {
-      "sha256": "37a4f375a3d4ba39f336437d7d229d777daad722a7a7032f7601ff1c430cb73a",
-      "bytes": 12704,
+      "sha256": "8039b6b577525f1050207fda347c51a5d576dfe78369776f6e2f59cae1cd5d64",
+      "bytes": 12811,
       "executable": false
     },
     "web/fm1pkg.js": {
@@ -1863,8 +1868,8 @@
       "executable": false
     },
     "web/make_site.py": {
-      "sha256": "3c89ae89a59db2f8d0420ab4991822366fad3439a4e2bfdf939e94197b257218",
-      "bytes": 15712,
+      "sha256": "04e23af9b2e0b24cf24930abcc4098d6da05991db776b0b475860d8a48cfae9f",
+      "bytes": 15741,
       "executable": false
     },
     "web/midipipe.html": {
@@ -1893,8 +1898,8 @@
       "executable": false
     },
     "web/test_web.mjs": {
-      "sha256": "ccda08d457f034eede808eff8b6a4a63a519cc2c9af2906683dce13c1be21fb1",
-      "bytes": 142769,
+      "sha256": "48eaf1619ffe60f4d66c3b522915bf29f5a0bed5c8245b0bce4c06e13965354b",
+      "bytes": 143950,
       "executable": false
     }
   }

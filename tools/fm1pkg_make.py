@@ -18,6 +18,7 @@ All integrity checks in the format are CRC16 (poly 0x1021, init 0).
 """
 import argparse
 import os
+import re
 import struct
 from pathlib import Path
 
@@ -29,6 +30,14 @@ KEY = 0x980F
 FLASH_HDR = bytes.fromhex("20022f104cc900f00f001010a4ff4e5d0b41e0cd781dc856417fb367cf9f")
 UFW_CHIP = b"AC791N"
 SDK = None
+
+
+def project_product():
+    header = (Path(__file__).resolve().parents[1] / "firmware/src/version.h").read_text()
+    match = re.search(r'^#define PITERFLY_PRODUCT "([^"]+)"', header, re.M)
+    if not match or not re.fullmatch(r"FM-1_[0-9]{1,15}", match[1]):
+        raise ValueError("PITERFLY_PRODUCT must be FM-1_ plus 1..15 digits (20 package markers)")
+    return match[1]
 
 
 def _crc_table():
@@ -193,7 +202,7 @@ def main():
     ap.add_argument("app", type=Path)
     ap.add_argument("ota", type=Path)
     ap.add_argument("out", type=Path)
-    ap.add_argument("--product", default="FM-1_900")
+    ap.add_argument("--product", default=project_product())
     ap.add_argument("--key", type=lambda s: int(s, 0), default=KEY)
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()

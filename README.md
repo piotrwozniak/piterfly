@@ -2,13 +2,14 @@
 
 <p align="center"><img src="assets/piterfly/arcade-web.png" alt="piterfly" width="240"></p>
 
-# piterfly 1.0.0 for M-VAVE FM-1
+# piterfly 1.0.1 for M-VAVE FM-1
 
 Planned Pages site (not deployed yet): [Installer](https://piotrwozniak.github.io/piterfly/webapp/installer/) · [Web editor](https://piotrwozniak.github.io/piterfly/webapp/editor/) · [What changes](https://piotrwozniak.github.io/piterfly/webapp/changes/).
 
 This checkout extends **SLOOP 2.8.5** with 24 persistent patterns, 128-position song arrangements and clearer navigation. It remains based on SLOOP and Felucca, with their credits and GPL-3.0 licence retained.
 
-**Local release preparation:** [1.0.0 source/binary bundle](docs/RELEASE-1.0.0.md),
+**Local release preparation:** [1.0.1 identity change and device test](docs/RELEASE-1.0.1.md),
+[previous 1.0.0 bundle](docs/RELEASE-1.0.0.md),
 [licences](LICENSING.md) and [icon-rights clarification](docs/ICON-RIGHTS.md).
 All 86 included device icons are original GPL-3.0-only geometry. Historical
 screenshots, pre-replacement proposals, inherited SLOOP artwork and the old Git
@@ -43,7 +44,7 @@ This repository is the cleaned `piotrwozniak/piterfly` source tree, with its own
 fresh Git history. Its private origin is main `8d9ac74`; upstream credits and
 licences remain intact. See [provenance](PROVENANCE.md).
 Local release preparation creates
-`build/releases/piterfly-1.0.0/piterfly-1.0.0.fwsc`, with its matching source archive,
+`build/releases/piterfly-1.0.1/piterfly-1.0.1.fwsc`, with its matching source archive,
 licences, build metadata and SHA-256. The local installer is
 `http://localhost:8766/webapp/installer/`; local preparation is not a public release.
 The selected public destination is `https://piotrwozniak.github.io/piterfly/`,

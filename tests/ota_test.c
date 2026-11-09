@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FELUCCA_ID "FM-1_900"
+#include "../firmware/src/version.h"
+#define FELUCCA_ID PITERFLY_PRODUCT
 #define FELUCCA_OTA_DRYRUN 0
 static int recovery_active;
 #define OTA_IDENTITY (recovery_active ? "FM-1_000" : FELUCCA_ID)

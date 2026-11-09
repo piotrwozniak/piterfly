@@ -49,12 +49,14 @@ On Linux x86-64 the toolchain runs natively and Docker is not needed.
 `JIELI_TOOLCHAIN` and `AC79_SDK` override the default locations
 (`~/.jieli/toolchain`, `~/fw-AC79_AIoT_SDK`).
 
-`./build.sh --release 1.0.0` labels the app `piterfly 1.0.0`, with updater identity
-`FM-1_910`, and creates `build/felucca-1.0.0.fwsc`. The transport retains its two
-major/minor digits; the full version and binary SHA-256 distinguish patch builds.
+`./build.sh --release 1.0.1` labels the app `piterfly 1.0.1`, with updater identity
+`FM-1_1120101`, and creates `build/felucca-1.0.1.fwsc`. The identity is configured
+independently of the version in `firmware/src/version.h`; it is shared by the
+package, running app and `ota-` loader. Historical 1.0.0 sources and assets remain
+at their original tag; do not rebuild an old release from newer sources.
 The authoritative current version is `firmware/src/version.h`.
 For a frozen source snapshot, full licences and matching local installer links,
-use [the 1.0.0 preparation procedure](docs/RELEASE-1.0.0.md).
+use [the 1.0.1 preparation procedure](docs/RELEASE-1.0.1.md).
 
 Build options (environment, `0` or `1`; defaults in `firmware/src/felucca.c`):
 

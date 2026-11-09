@@ -47,7 +47,8 @@ SDK_SHA256 = {
     "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
 }
 
-PRODUCT = "FM-1_900"                # package identity; release builds are FM-1_9XY
+# One source of identity for the package, app and loader, independent of the version label.
+PRODUCT = fm1pkg_make.project_product()
 VERSION = None                      # default: firmware/src/version.h
 
 
@@ -56,7 +57,7 @@ def release_identity(version):
     m = re.fullmatch(r"([0-9])\.([0-9])(?:\.(0|[1-9][0-9]*))?(-[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*)?", version)
     if not m:
         raise ValueError("use X.Y.Z or X.Y[-suffix], with single-digit major/minor")
-    return "FM-1_9" + m[1] + m[2]
+    return PRODUCT
 
 
 def toolchain():
@@ -322,7 +323,7 @@ def mmio_check():
 def main():
     global PRODUCT, VERSION
     ap = argparse.ArgumentParser()
-    ap.add_argument("--release", metavar="X.Y.Z", help="version label; updater identity FM-1_9XY uses major/minor")
+    ap.add_argument("--release", metavar="X.Y.Z", help="version label; updater identity is PITERFLY_PRODUCT in firmware/src/version.h")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     a = ap.parse_args()
     name = "felucca.fwsc"

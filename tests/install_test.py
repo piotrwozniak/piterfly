@@ -67,9 +67,10 @@ class FakeFM1:
     """a MIDI backend with one FM-1 on it"""
 
     def __init__(self, image, identity="FM-1_015", name="FM-1", unplug_after=None, after_write="FM-1_900",
-                 stall_after=None, bad_addr=None):
+                 stall_after=None, bad_addr=None, loader_identity="ota-FM-1_900"):
         self.image, self.unplug_after, self.after_write = image, unplug_after, after_write
         self.stall_after, self.bad_addr = stall_after, bad_addr
+        self.loader_identity = loader_identity
         self.served = self.bad = self.upgrades = 0
         self.sent, self.links, self.gen, self.lock = [], [], 0, threading.Lock()
         self.boot(identity, name)
@@ -123,7 +124,7 @@ class FakeFM1:
             if self.stall_after and self.served >= self.stall_after:
                 return
             if addr == I.FINISH_CHECK:
-                threading.Timer(0.05, self.boot, ("ota-FM-1_900", "Felucca Update")).start()
+                threading.Timer(0.05, self.boot, (self.loader_identity, "Felucca Update")).start()
             elif addr == I.FINISH_WRITE:
                 threading.Timer(0.05, self.boot, (self.after_write, "Felucca")).start()
             else:
@@ -200,6 +201,23 @@ def wire():
 
 
 def installs():
+    # Upgrade from the released 1.0.0 identity, resume our long-ID loader, and leave it again.
+    new_id = "FM-1_1120101"
+    new_raw = package(new_id)
+    new_image = I.logical_image(new_raw)
+    new_path = pkgfile("piterfly-1.0.1.fwsc", new_raw)
+    for start in ("FM-1_910", "ota-" + new_id):
+        dev = FakeFM1(new_image, identity=start, name="piterfly", after_write=new_id, loader_identity="ota-" + new_id)
+        rc, out, err = cli([new_path, "--yes"], dev)
+        ok(rc == 0 and dev.bad == 0 and new_id in out, f"Piterfly upgrade/resume: {start} -> {new_id}")
+    old_raw = package("FM-1_910")
+    old_path = pkgfile("piterfly-1.0.0.fwsc", old_raw)
+    dev = FakeFM1(I.logical_image(old_raw), identity=new_id, name="piterfly", after_write="FM-1_910")
+    rc, out, err = cli([old_path, "--yes"], dev)
+    ok(rc == 0 and dev.bad == 0, "Piterfly: new identity can install the old 1.0.0 package")
+    dev = FakeFM1(new_image, identity="ota-FM-1_1120102", name="Felucca Update")
+    rc, out, err = cli([new_path, "--yes"], dev)
+    ok(rc != 0 and dev.served == 0, "unknown long-ID loader remains refused")
     raw = package()
     image = I.logical_image(raw)
     p = pkgfile("ok.fwsc", raw)

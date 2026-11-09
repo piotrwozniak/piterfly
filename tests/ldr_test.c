@@ -9,7 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FELUCCA_ID "ota-FM-1_900"
+#include "../firmware/src/version.h"
+#define FELUCCA_ID "ota-" PITERFLY_PRODUCT
 #define FELUCCA_OTA_DRYRUN 0
 
 static uint8_t nor[0x100000], *logical;
@@ -40,12 +41,13 @@ static uint32_t unpack7h(const uint8_t *in, uint32_t n, uint8_t *out)
     return o;
 }
 
+static int identity_ok;
 static int ota_wire_send(const uint8_t *p, uint32_t n)
 {
     uint8_t u[64], m[600];
     uint32_t addr, len, i, s = 0;
     unpack7h(p + 1, n - 2, u);
-    if (u[2] == 0x11) return 0;
+    if (u[2] == 0x11) { identity_ok = !memcmp(u + 6, FELUCCA_ID, sizeof FELUCCA_ID); return 0; }
     addr = u[7] | u[8] << 8 | u[9] << 16 | (uint32_t)u[10] << 24;
     len = u[11] | u[12] << 8 | u[13] << 16;
     requests++;
@@ -157,6 +159,8 @@ int main(int argc, char **argv)
     uint8_t *old, head[0x4000];
     uint32_t ofo, nfo;
     int bad = 0, rc;
+    ota_reply_identity();
+    bad += check("loader USB identity matches the project product", identity_ok);
     if (argc < 3) { printf("usage: ldr_test OLD.fwsc NEW.fwsc\n"); return 2; }
     old = load_logical(argv[1], &olen);
     logical = load_logical(argv[2], &logical_len);

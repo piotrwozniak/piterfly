@@ -13,7 +13,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const IS_OTA = (id) => /^ota-/i.test(id.model);
 // the update loader of SLOOP / Felucca packages ("ota-FM-1_9XX"). A device left in the update mode of another
 // firmware (the stock updater's loader) is never written: its loader may lay the image out differently.
-export const OUR_LOADER = (id) => /^ota-FM-1_9\d\d$/i.test(id.text);
+// Preserve legacy Felucca loaders and explicitly recognize Piterfly 1.0.1; no other long IDs.
+export const OUR_LOADER = (id) => /^ota-FM-1_(?:9\d\d|1120101)$/i.test(id.text);
 // the MIDI ports the installer may probe (never other gear): the FM-1 under SLOOP / Felucca ("Felucca"), under
 // CLIPPER ("Clipper", its sister firmware), under a firmware named after itself ("SLOOP"), the update loaders, and
 // the names Windows / macOS give the stock firmware

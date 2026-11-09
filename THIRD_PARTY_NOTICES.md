@@ -1,4 +1,4 @@
-# Third-party notices — piterfly 1.0.0
+# Third-party notices — piterfly 1.0.1
 
 Modified from SLOOP 2.8.5 (`bac9c05ea7627449405aa10e48da21d75b6c8c56`),
 based on Felucca by Leo Kuroshita (@kurogedelic), Hügelton Instruments.

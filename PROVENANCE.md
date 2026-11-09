@@ -1,4 +1,4 @@
-# piterfly 1.0.0 — distribution-tree provenance
+# piterfly — distribution-tree provenance
 
 Distribution candidate prepared locally on 2026-11-08. No firmware Release has been published or installed on hardware.
 
@@ -35,8 +35,9 @@ SOURCE_INPUTS.json records the reviewed source inventory independently of Git.
 - Update the distribution notices to distinguish this clean tree from the private
   historical repository. No licence for excluded material is inferred or granted.
 
-The firmware, HAL, loader, DSP algorithms, sounds and their build generators are
-unchanged from the origin commit. The GPL SLOOP logo-generation code remains in
+The original 1.0.0 export kept firmware, HAL, loader, DSP algorithms, sounds and
+their build generators unchanged from the origin commit. The 1.0.1 identity-only
+changes are recorded below; DSP, sound data and flash layout remain unchanged. The GPL SLOOP logo-generation code remains in
 `tools/gen_logo.py`; the default build uses only its piterfly splash compiler and
 `assets/piterfly/arcade-source.png`. Old artwork outputs are not shipped.
 
@@ -87,3 +88,14 @@ under `build/releases/piterfly-1.0.0-validated/` for a later Release; they preda
 the repository housekeeping changes and are not committed. Re-seal the current
 sources and rebuild browser audio before preparing any future release bundle.
 No Release, GitHub Pages deployment or public visibility is enabled by this step.
+
+## Piterfly 1.0.1 identity candidate — 2026-11-09
+
+The local 1.0.1 candidate replaces the shared `FM-1_910` identity with
+`FM-1_1120101`, checked free using the Firmware Hub submit-page checker. The
+application, package and `ota-` loader share the product defined in version.h.
+Updater resume filters now recognize this exact long identity as well as legacy
+Felucca loaders. Tests cover the 1.0.0/new-loader transition and the reverse path.
+No storage/data-layout change or audio-engine change accompanies the identity
+change. See [the 1.0.1 notes](docs/RELEASE-1.0.1.md) for format limits and device
+qualification still required. Published 1.0.0 tags and assets stay unchanged.

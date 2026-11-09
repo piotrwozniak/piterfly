@@ -2,6 +2,7 @@
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* SLOOP (based on FELUCCA): one compilation unit (the HAL is header-only). Order matters. */
 #include <stdint.h>
+#include "version.h"
 #include "fm1_time.h"
 #include "fm1_sys.h"
 #include "fm1_irq.h"
@@ -35,7 +36,7 @@
 #define FELUCCA_CPU1 1          /* the second core (cpu1.c); 0: one core, as SLOOP 2.5 */
 #endif
 #ifndef FELUCCA_ID
-#define FELUCCA_ID "FM-1_900"    /* package identity (build.py: the .fwsc marker string) */
+#define FELUCCA_ID PITERFLY_PRODUCT    /* package identity (build.py: the .fwsc marker string) */
 #endif
 #ifndef FELUCCA_CDC
 #define FELUCCA_CDC 0            /* USB CDC-ACM serial console, a developer's tool (menu USB SERIAL). 2.7: out of the FM-1

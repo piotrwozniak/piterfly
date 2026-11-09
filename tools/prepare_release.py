@@ -107,7 +107,7 @@ def main(out=None):
     notices = out / f"piterfly-{version}-licences.zip"
     with zipfile.ZipFile(notices, "w", compression=zipfile.ZIP_DEFLATED) as z:
         for name in ["LICENSE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "PROVENANCE.md", "PUBLIC_EXPORT.json", "docs/ICON-RIGHTS.md",
-                     "docs/RELEASE-1.0.0.md", "assets/icons-LICENSE.txt", "assets/piterfly/LICENSE.txt",
+                     "docs/RELEASE-1.0.0.md", "docs/RELEASE-1.0.1.md", "assets/icons-LICENSE.txt", "assets/piterfly/LICENSE.txt",
                      "assets/samples-cc0/ATTRIBUTION.txt", "assets/hiphop-pack/CREDITS.txt",
                      *[p.relative_to(source).as_posix() for p in sorted((source / "LICENSES").glob("*.txt"))]]:
             z.write(source / name, name)

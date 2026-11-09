@@ -17,7 +17,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { logicalImage, productOf } from "./fm1pkg.js";
-import { Updater, pack7, unpack7, FM1_PORT } from "./fm1ota.js";
+import { Updater, pack7, unpack7, FM1_PORT, OUR_LOADER } from "./fm1ota.js";
 
 let failed = 0;
 const ok = (cond, what) => { console.log(`${what.padEnd(64)} ${cond ? "ok" : "FAIL"}`); if (!cond) failed++; };
@@ -1710,9 +1710,9 @@ const UPGRADE = [0xF0, 0x22, 0x24, 0x35, 0x7F, 0xF7];
 
 /* an FM-1 on WebMIDI: identity, then "device asks, host answers" reads of the image */
 class FakeFM1 {
-  constructor(image, { unplugAfter = Infinity, finalIdentity = "FM-1_900", name = "FM-1", identity = "FM-1_015", loaderName = "Felucca Update" } = {}) {
+  constructor(image, { unplugAfter = Infinity, finalIdentity = "FM-1_900", name = "FM-1", identity = "FM-1_015", loaderName = "Felucca Update", loaderIdentity = "ota-FM-1_900" } = {}) {
     this.image = image; this.unplugAfter = unplugAfter; this.served = 0; this.bad = 0;
-    this.finalIdentity = finalIdentity; this.loaderName = loaderName;
+    this.finalIdentity = finalIdentity; this.loaderName = loaderName; this.loaderIdentity = loaderIdentity;
     this.access = { inputs: new Map(), outputs: new Map() };
     this.boot(identity, name);
   }
@@ -1748,7 +1748,7 @@ class FakeFM1 {
       this.waiting = null;
       this.served++;
       if (this.served >= this.unplugAfter) { this.input.state = this.output.state = "disconnected"; return; }
-      if (addr === 0xE0000000) setTimeout(() => this.boot("ota-FM-1_900", this.loaderName), 300);
+      if (addr === 0xE0000000) setTimeout(() => this.boot(this.loaderIdentity, this.loaderName), 300);
       else if (addr === 0xF0000000) setTimeout(() => this.boot(this.finalIdentity, "Felucca"), 300);
       else this.next();
     }
@@ -1767,7 +1767,19 @@ class FakeFM1 {
 }
 
 async function updater() {
+  const newId = "FM-1_1120101";
+  ok(OUR_LOADER({text: "ota-" + newId}) && OUR_LOADER({text: "ota-FM-1_900"}) &&
+     !OUR_LOADER({text: "ota-FM-1_1120102"}) && !OUR_LOADER({text: "ota-FM-1_015"}),
+     "Piterfly: recognize our new loader and legacy loaders, reject foreign long IDs");
   const image = Uint8Array.from({ length: 0x2000 }, (_, i) => (i * 7) & 0xFF);
+  const upgrade = new FakeFM1(image, {identity: "FM-1_910", name: "piterfly", finalIdentity: newId, loaderIdentity: "ota-" + newId});
+  const upgraded = await new Updater(upgrade.access).install(image, newId);
+  ok(upgraded === newId && upgrade.bad === 0, "Piterfly: 1.0.0 -> 1.0.1 with matching long USB identity");
+  const interrupted = new FakeFM1(image, {identity: "ota-" + newId, finalIdentity: newId});
+  ok(await new Updater(interrupted.access).resume(image) && interrupted.bad === 0, "Piterfly: resume interrupted new long-ID loader");
+  const downgrade = new FakeFM1(image, {identity: newId, name: "piterfly", finalIdentity: "FM-1_910"});
+  ok(await new Updater(downgrade.access).install(image, "FM-1_910") === "FM-1_910" && downgrade.bad === 0,
+     "Piterfly: new identity can leave for 1.0.0");
   const dev = new FakeFM1(image);
   const steps = [];
   const got = await new Updater(dev.access).install(image, "FM-1_900", (k) => steps.push(k));

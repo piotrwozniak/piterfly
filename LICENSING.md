@@ -1,6 +1,6 @@
 # piterfly licensing and provenance
 
-piterfly **1.0.0** is modified SLOOP 2.8.5, based on Felucca by Leo Kuroshita
+piterfly **1.0.1** is modified SLOOP 2.8.5, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. Its code is **GPL-3.0-only**, except for the
 components below. Original notices and authorship are retained.
 
