@@ -8,8 +8,8 @@
       "executable": false
     },
     ".github/workflows/pages.yml": {
-      "sha256": "45095dffb858dbac0c867f71a3b850d4c08f895d8762e1dda1b3ca35d6445c0b",
-      "bytes": 2631,
+      "sha256": "03d4aea07417619e4b12f8862b5703b32f55388de0f32bcce9fba5090d484227",
+      "bytes": 2667,
       "executable": false
     },
     ".gitignore": {
@@ -673,8 +673,8 @@
       "executable": false
     },
     "docs/DEPLOYMENT.md": {
-      "sha256": "c032bbf3e8975f4a82ff253938eaf35b49ce593c042bd672cd443aaf44cfc9cf",
-      "bytes": 3863,
+      "sha256": "09d8da64ee00c6759e8cb663b7ea087e235c650b512879419bcb9a0c1d7cbda6",
+      "bytes": 2074,
       "executable": false
     },
     "docs/GRANULAR-FX-FEASIBILITY.md": {
@@ -700,6 +700,11 @@
     "docs/PITERFLY.md": {
       "sha256": "065adf6873446368676c6863c0f8ce9cda29008a5d2c2d3f6d9cccc55c225e1b",
       "bytes": 18282,
+      "executable": false
+    },
+    "docs/PUBLICATION-1.0.1.md": {
+      "sha256": "3677c3b4836aae61452a3c61c2fb1429d5c20c00cb4e745e9a2280f78d20fda7",
+      "bytes": 1852,
       "executable": false
     },
     "docs/RELEASE-1.0.0.md": {
@@ -1190,6 +1195,11 @@
     "firmware/src/voice.c": {
       "sha256": "557f990c92342c3f23995e2a99d13ce5ceaed35c34bae222fb9761438dd22c17",
       "bytes": 40243,
+      "executable": false
+    },
+    "fmhub.json": {
+      "sha256": "07533444b297adbb3c396c61ba8040ad389f69209437625a5437ef4417001996",
+      "bytes": 582,
       "executable": false
     },
     "tests/_cap26.c": {

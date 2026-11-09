@@ -1,0 +1,10 @@
+{
+  "what": "A four-track groovebox for M-VAVE FM-1: 12 synth engines, drums, 24 stored patterns, 128 song positions, 64-step tracks, live granular effects and MIDI THRU. Includes a browser editor with audio preview.",
+  "author": "Piotr Woźniak",
+  "kinds": ["groove", "synth", "drums"],
+  "play": "https://piotrwozniak.github.io/piterfly/webapp/editor/?mock=1",
+  "editor": "https://piotrwozniak.github.io/piterfly/webapp/editor/",
+  "cheat": "https://piotrwozniak.github.io/piterfly/webapp/changes/",
+  "image": "assets/piterfly/screenshots/home-64.png",
+  "color": "#39A8FF"
+}
