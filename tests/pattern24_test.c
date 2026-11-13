@@ -6,7 +6,7 @@ int main(void)
 {
     uint32_t i;
     harness_init();
-    assert(SMP_USER_SLOTS == 3 && ARR_SCENES == 24 && NSTEP == 64);
+    assert(SMP_USER_SLOTS == 1 && ARR_SCENES == 24 && NSTEP == 64);
     pb_scan();
     /* Fill every slot with a distinct full-length four-track pattern. */
     for (i = 0; i < 24; i++) {
@@ -26,7 +26,7 @@ int main(void)
         const uint8_t *blob = ed_bk_obj(83, &len);
         memcpy(&proj_tmp, blob, len);
         assert(project_restore(22, &proj_tmp, len) == 0);
-        assert(project_at(22)->t[0].step[63].note[0] == 63);
+        assert(stored_note(project_at(22),0,63) == 63);
         project_load(22); audio_blocks(1);
         trk[0].step[63].note[0] = 62; project_save(22);
     }

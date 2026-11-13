@@ -98,8 +98,8 @@ try:
     check("sw.js: stamped with the version", 'const STAMP = "9.9-' in sw and "/*" + "FILES*/" not in sw)
     check("sw.js keeps the installer, the editor, its font, the firmware",
           {"installer/", "editor/", "editor/fukiai.ttf", "../firmware/sloop-9.9.fwsc"} <= set(files))
-    check("sw.js keeps the MidiPipe tutorial and shared documentation styles",
-          {"changes/midipipe.html", "changes/changes.css"} <= set(files))
+    check("sw.js keeps the MidiPipe tutorial, wiring diagram and documentation styles",
+          {"changes/midipipe.html", "changes/midi-rig.svg", "changes/changes.css"} <= set(files))
     check("sw.js keeps the licences page at its directory URL", "licences/" in files)
     actual_images = {p.name for p in (app / "changes/screenshots").glob("*.png")}
     check("site copies only listed GPL documentation images", actual_images == set(make_site.SCREENSHOTS))

@@ -6,7 +6,7 @@
 #define UI_SMALL
 #endif
 extern uint32_t _data_start[], _data_end[], _data_load[], _bss_start[], _bss_end[];
-extern uint32_t _pool_start[], _pool_end[], _rt_start[], _rt_end[], _rt_load[];
+extern uint32_t _pool_start[], _pool_end[], _pool_clear_end[], _rt_start[], _rt_end[], _rt_load[];
 extern uint32_t _c1_start[], _c1_end[], _c1_load[];
 extern uint32_t _lr_start[], _lr_end[];
 
@@ -188,9 +188,10 @@ UI_SMALL static void felucca_init(void)
     song.g[G_MIDI] = (int16_t)lights_mout;
     song.g[G_ROUTE] = (int16_t)lights_min;
     for (i = 0; i < NTRK; i++)
-        song.g[G_THRU1 + i] = (midi_thru >> i) & 1u;
+        song.g[trk_thru_param(i)] = (midi_thru >> i) & 1u;
     song.g[G_CH1] = midi_set[0], song.g[G_CH2] = midi_set[1], song.g[G_CH3] = midi_set[2];   /* (2.6: GLO > MIDI, */
     song.g[G_DRCH] = midi_set[3], song.g[G_CHOTH] = midi_set[4], song.g[G_BEND] = midi_set[5];
+    for(i=0;i<4u;i++) song.g[G_CH4+i]=midi_extra[i];
     song.g[G_FXCH] = midi_set[6];
     song.g[G_DRMAP] = midi_set[7];                   /* (2.7) GLO > MIDI 3: DR MAP */
     song.g[G_CLKOUT] = midi_set[9];                  /* (2.7) GLO > MIDI 3: CLK OUT */
@@ -203,6 +204,7 @@ UI_SMALL static void felucca_init(void)
 
 UI_SMALL static void fm1_main(void)
 {
+    memset(trk,0,sizeof trk); /* runtime in NOINIT must be cleared before persistent banks inspect it */
     int32_t knob = 512 * 16;
     uint32_t healthy_since;
     persist_boot();
@@ -391,7 +393,7 @@ UI_SMALL void fm1_cstart(void)
     fm1_irq_init();
     for (d = _bss_start; d < _bss_end; d++)
         *d = 0;
-    for (d = _pool_start; d < _pool_end; d++)
+    for (d = _pool_start; d < _pool_clear_end; d++)
         *d = 0;
     lowram_ok = lowram_test();                  /* .lowram proved and zeroed (app.ld) */
     stack_paint(_ustack_lo, _ustack_top);       /* the stacks painted below their live frames (console: stack_free) */

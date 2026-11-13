@@ -1,0 +1,587 @@
+{
+  "kind": "host instruction counts; not device CPU percentages",
+  "commits": {
+    "before-seven": "6d592ba",
+    "seven": "22355d9",
+    "duck": "025fd06"
+  },
+  "blocks_per_run": 30000,
+  "warmup_blocks": 4000,
+  "runs_per_case": 3,
+  "compiler": "Apple clang -O2",
+  "second_core": "inline serial host double; aggregate work of both cores",
+  "rows": [
+    {
+      "case": "idle",
+      "revision": "before-seven",
+      "instructions_per_block_median": 14675.0,
+      "runs": [
+        14675.0,
+        14677.1,
+        14674.4
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "idle",
+      "revision": "seven",
+      "instructions_per_block_median": 18648.8,
+      "runs": [
+        18648.8,
+        18651.0,
+        18647.4
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "idle",
+      "revision": "duck",
+      "instructions_per_block_median": 18674.7,
+      "runs": [
+        18674.7,
+        18674.2,
+        18676.8
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog-8v-1part",
+      "revision": "before-seven",
+      "instructions_per_block_median": 53776.5,
+      "runs": [
+        53775.6,
+        53781.8,
+        53776.5
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "analog-8v-1part",
+      "revision": "seven",
+      "instructions_per_block_median": 57836.4,
+      "runs": [
+        57891.1,
+        57831.8,
+        57836.4
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog-8v-1part",
+      "revision": "duck",
+      "instructions_per_block_median": 57872.7,
+      "runs": [
+        57872.7,
+        57871.6,
+        57884.1
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog-8v-3parts",
+      "revision": "before-seven",
+      "instructions_per_block_median": 57355.0,
+      "runs": [
+        57356.0,
+        57352.5,
+        57355.0
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "analog-8v-3parts",
+      "revision": "seven",
+      "instructions_per_block_median": 61410.1,
+      "runs": [
+        61410.1,
+        61466.9,
+        61410.0
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog-8v-3parts",
+      "revision": "duck",
+      "instructions_per_block_median": 61463.5,
+      "runs": [
+        61470.4,
+        61462.6,
+        61463.5
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "fm6-8v-3parts",
+      "revision": "before-seven",
+      "instructions_per_block_median": 53411.1,
+      "runs": [
+        53411.1,
+        53416.2,
+        53409.8
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "fm6-8v-3parts",
+      "revision": "seven",
+      "instructions_per_block_median": 58145.9,
+      "runs": [
+        58145.9,
+        58145.8,
+        58194.9
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "fm6-8v-3parts",
+      "revision": "duck",
+      "instructions_per_block_median": 58203.9,
+      "runs": [
+        58204.7,
+        58202.7,
+        58203.9
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain-insert-1",
+      "revision": "before-seven",
+      "instructions_per_block_median": 73925.5,
+      "runs": [
+        73925.5,
+        73924.2,
+        73926.8
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "grain-insert-1",
+      "revision": "seven",
+      "instructions_per_block_median": 78424.9,
+      "runs": [
+        78420.7,
+        78424.9,
+        78462.1
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain-insert-1",
+      "revision": "duck",
+      "instructions_per_block_median": 78478.5,
+      "runs": [
+        78477.6,
+        78478.5,
+        78478.7
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain-insert-3",
+      "revision": "before-seven",
+      "instructions_per_block_median": 107033.9,
+      "runs": [
+        107037.4,
+        107033.9,
+        107033.9
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "grain-insert-3",
+      "revision": "seven",
+      "instructions_per_block_median": 112411.2,
+      "runs": [
+        112460.0,
+        112411.0,
+        112411.2
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain-insert-3",
+      "revision": "duck",
+      "instructions_per_block_median": 112468.0,
+      "runs": [
+        112467.6,
+        112468.0,
+        112518.7
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "seq-3",
+      "revision": "before-seven",
+      "instructions_per_block_median": 41136.2,
+      "runs": [
+        41135.6,
+        41136.8,
+        41136.2
+      ],
+      "dispatch": "0c:100.00%"
+    },
+    {
+      "case": "seq-3",
+      "revision": "seven",
+      "instructions_per_block_median": 45655.9,
+      "runs": [
+        45658.4,
+        45653.3,
+        45655.9
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "seq-3",
+      "revision": "duck",
+      "instructions_per_block_median": 45712.1,
+      "runs": [
+        45711.5,
+        45712.1,
+        45714.2
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog3",
+      "revision": "before-seven",
+      "instructions_per_block_median": 57350.6,
+      "runs": [
+        57350.4,
+        57350.6,
+        57354.1
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "analog3",
+      "revision": "seven",
+      "instructions_per_block_median": 61412.8,
+      "runs": [
+        61412.8,
+        61433.0,
+        61410.8
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog3",
+      "revision": "duck",
+      "instructions_per_block_median": 61477.7,
+      "runs": [
+        61477.7,
+        61476.4,
+        61485.5
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog7",
+      "revision": "seven",
+      "instructions_per_block_median": 68558.2,
+      "runs": [
+        68558.6,
+        68557.9,
+        68558.2
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "analog7",
+      "revision": "duck",
+      "instructions_per_block_median": 68653.8,
+      "runs": [
+        68656.2,
+        68653.6,
+        68653.8
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain1",
+      "revision": "before-seven",
+      "instructions_per_block_median": 73928.2,
+      "runs": [
+        73928.2,
+        73925.4,
+        73932.3
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "grain1",
+      "revision": "seven",
+      "instructions_per_block_median": 78421.6,
+      "runs": [
+        78421.6,
+        78420.5,
+        78424.6
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain1",
+      "revision": "duck",
+      "instructions_per_block_median": 78481.0,
+      "runs": [
+        78476.5,
+        78481.0,
+        78493.6
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain3",
+      "revision": "before-seven",
+      "instructions_per_block_median": 107042.4,
+      "runs": [
+        107032.7,
+        107042.4,
+        107043.5
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "grain3",
+      "revision": "seven",
+      "instructions_per_block_median": 112413.0,
+      "runs": [
+        112416.2,
+        112413.0,
+        112410.8
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain3",
+      "revision": "duck",
+      "instructions_per_block_median": 112477.7,
+      "runs": [
+        112486.2,
+        112477.7,
+        112466.3
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain7",
+      "revision": "seven",
+      "instructions_per_block_median": 187544.3,
+      "runs": [
+        187546.1,
+        187529.9,
+        187544.3
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain7",
+      "revision": "duck",
+      "instructions_per_block_median": 187591.8,
+      "runs": [
+        187609.1,
+        187591.8,
+        187575.9
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain8",
+      "revision": "seven",
+      "instructions_per_block_median": 206571.9,
+      "runs": [
+        206573.4,
+        206565.7,
+        206571.9
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain8",
+      "revision": "duck",
+      "instructions_per_block_median": 206661.5,
+      "runs": [
+        206657.0,
+        206666.4,
+        206661.5
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain7-mix0",
+      "revision": "seven",
+      "instructions_per_block_median": 114694.0,
+      "runs": [
+        114696.0,
+        114691.2,
+        114694.0
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain7-mix0",
+      "revision": "duck",
+      "instructions_per_block_median": 114789.0,
+      "runs": [
+        114792.7,
+        114789.0,
+        114787.6
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "seq3-chords",
+      "revision": "before-seven",
+      "instructions_per_block_median": 60068.8,
+      "runs": [
+        60068.8,
+        60068.7,
+        60069.8
+      ],
+      "dispatch": "0c:100.00%"
+    },
+    {
+      "case": "seq3-chords",
+      "revision": "seven",
+      "instructions_per_block_median": 65161.6,
+      "runs": [
+        65160.7,
+        65161.6,
+        65161.9
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "seq3-chords",
+      "revision": "duck",
+      "instructions_per_block_median": 65226.8,
+      "runs": [
+        65226.8,
+        65237.5,
+        65221.8
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "seq7-chords",
+      "revision": "seven",
+      "instructions_per_block_median": 74226.2,
+      "runs": [
+        74225.0,
+        74233.3,
+        74226.2
+      ],
+      "dispatch": "c0:100.00%"
+    },
+    {
+      "case": "seq7-chords",
+      "revision": "duck",
+      "instructions_per_block_median": 74323.8,
+      "runs": [
+        74323.8,
+        74328.3,
+        74323.7
+      ],
+      "dispatch": "c0:100.00%"
+    },
+    {
+      "case": "seq7-grain",
+      "revision": "seven",
+      "instructions_per_block_median": 193159.1,
+      "runs": [
+        193152.5,
+        193159.1,
+        193167.4
+      ],
+      "dispatch": "c0:100.00%"
+    },
+    {
+      "case": "seq7-grain",
+      "revision": "duck",
+      "instructions_per_block_median": 193257.3,
+      "runs": [
+        193254.6,
+        193257.3,
+        193310.8
+      ],
+      "dispatch": "c0:100.00%"
+    },
+    {
+      "case": "grain-engine3",
+      "revision": "before-seven",
+      "instructions_per_block_median": 78849.7,
+      "runs": [
+        78849.0,
+        78849.7,
+        78850.0
+      ],
+      "dispatch": "08:0.09% 0c:99.91%"
+    },
+    {
+      "case": "grain-engine3",
+      "revision": "seven",
+      "instructions_per_block_median": 85620.5,
+      "runs": [
+        85673.2,
+        85620.5,
+        85616.4
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "grain-engine3",
+      "revision": "duck",
+      "instructions_per_block_median": 85678.8,
+      "runs": [
+        85678.8,
+        85678.1,
+        85684.5
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "silent-grain7",
+      "revision": "duck",
+      "instructions_per_block_median": 148417.0,
+      "runs": [
+        148446.2,
+        148416.7,
+        148417.0
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "silent-grain7-mix0",
+      "revision": "duck",
+      "instructions_per_block_median": 75630.3,
+      "runs": [
+        75629.6,
+        75630.3,
+        75680.6
+      ],
+      "dispatch": "80:0.09% c0:99.91%"
+    },
+    {
+      "case": "sample-seq7",
+      "revision": "duck",
+      "instructions_per_block_median": 66066.2,
+      "runs": [
+        66067.2,
+        66066.2,
+        66064.3
+      ],
+      "dispatch": "00:6.97% c0:93.03%"
+    },
+    {
+      "case": "sample-seq3",
+      "revision": "duck",
+      "instructions_per_block_median": 54303.8,
+      "runs": [
+        54304.1,
+        54303.8,
+        54303.7
+      ],
+      "dispatch": "00:6.97% 80:0.08% c0:92.95%"
+    }
+  ]
+}

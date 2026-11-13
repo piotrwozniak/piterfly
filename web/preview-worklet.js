@@ -14,25 +14,27 @@ export class FirmwareAudio {
     this.previous = null;
     this.position = this.frames;
   }
+  trackMap(k) { return this.previous?.tracks.length===4 && k===3?7:k; }
   write(data) { this.bytes.set(data, this.transfer); }
   transport() {
-    return { positions: [0, 1, 2, 3].map((k) => this.w.preview_position(k)) };
+    return { positions: Array.from({length:this.previous?.tracks.length||8},(_,k)=>this.w.preview_position(this.trackMap(k))) };
   }
   sync(state) {
     const old = this.previous;
     state.g.forEach((v, i) => { if (!old || v !== old.g[i]) this.w.preview_global(i, v); });
-    this.w.preview_select(state.sel, state.solo);
+    this.w.preview_select(state.tracks.length===4 && state.sel===3?7:state.sel, state.tracks.length===4?(state.solo&7)|((state.solo&8)<<4):state.solo);
     state.tracks.forEach((t, k) => {
+      const drum=k===state.tracks.length-1, target=state.tracks.length===4 && drum?7:k;
       const before = old?.tracks[k];
       const changedSound = !before || t.engine !== before.engine || t.preset !== before.preset;
-      if (changedSound) this.w.preview_track(k, t.engine, t.preset);
-      t.p.forEach((v, i) => { if (changedSound || v !== before.p[i]) this.w.preview_param(k, i, v); });
+      if (changedSound) this.w.preview_track(target, t.engine, t.preset);
+      t.p.forEach((v, i) => { if (changedSound || v !== before.p[i]) this.w.preview_param(target, i, v); });
       for (let i = 0; i < t.step.length; i++) {
-        const source = [k === 3 ? t.dstep[i] : t.step[i], t.micro[i], (t.fill[i >> 2] >> ((i & 3) * 2)) & 3];
-        const prior = before && [k === 3 ? before.dstep[i] : before.step[i], before.micro[i], (before.fill[i >> 2] >> ((i & 3) * 2)) & 3];
+        const source = [drum ? t.dstep[i] : t.step[i], t.micro[i], (t.fill[i >> 2] >> ((i & 3) * 2)) & 3];
+        const prior = before && [drum ? before.dstep[i] : before.step[i], before.micro[i], (before.fill[i >> 2] >> ((i & 3) * 2)) & 3];
         if (prior && JSON.stringify(source) === JSON.stringify(prior)) continue;
         const data = new Uint8Array(12), [s, micro, fill] = source;
-        if (k === 3) {
+        if (drum) {
           data[0] = s.on & 255; data[1] = s.on >> 8;
           for (let l = 0; l < 16; l++) {
             data[2 + (l >> 2)] |= (s.lvl[l] & 3) << ((l & 3) * 2);
@@ -40,15 +42,15 @@ export class FirmwareAudio {
           }
         } else data.set([...s.notes.slice(0, 4), s.n, s.time, s.flags, s.vel, s.lvl || 0, s.rat || 0]);
         data[10] = micro; data[11] = fill;
-        this.write(data); this.w.preview_step(k, i);
+        this.write(data); this.w.preview_step(target, i);
       }
       if (!before || JSON.stringify(t.locks) !== JSON.stringify(before.locks)) {
         const data = new Uint8Array(24 * 4);
         t.locks.slice(0, 24).forEach((l, i) => data.set([l.step, l.param, l.value & 255, (l.value >> 8) & 255], i * 4));
-        this.write(data); this.w.preview_locks(k, t.locks.length);
+        this.write(data); this.w.preview_locks(target, t.locks.length);
       }
-      if (k < 3 && (changedSound || t.p[70] !== before.p[70] || JSON.stringify(t.fm6) !== JSON.stringify(before.fm6))) {
-        this.write(t.fm6); this.w.preview_fm6(k);
+      if (!drum && (changedSound || t.p[t.p.length-1] !== before.p[before.p.length-1] || JSON.stringify(t.fm6) !== JSON.stringify(before.fm6))) {
+        this.write(t.fm6); this.w.preview_fm6(target);
       }
     });
     state.samples?.forEach((s, k) => { this.write(s); this.w.preview_sample(k); });
@@ -76,7 +78,7 @@ if (typeof registerProcessor === 'function') {
       this.port.onmessage = ({ data }) => {
         try {
           if (data.type === 'state') this.dsp.sync(data.state);
-          else if (data.type === 'note') this.dsp.w.preview_note(data.track, data.note, data.on ? 1 : 0);
+          else if (data.type === 'note') this.dsp.w.preview_note(this.dsp.trackMap(data.track), data.note, data.on ? 1 : 0);
           else if (data.type === 'play') this.dsp.w.preview_play(data.on ? 1 : 0);
           else if (data.type === 'panic') this.dsp.w.preview_panic();
           else if (data.type === 'hit') this.dsp.w.preview_hit(data.kit, data.lane, data.velocity);

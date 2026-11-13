@@ -4,6 +4,7 @@
  * mkdir -p build/ui-docs && build/render_ui_docs build/ui-docs
  */
 #define UI_PAGES_HARNESS_ONLY 1
+#define FELUCCA_SYNTH_PARTS 7
 #include "../tests/ui_pages_test.c"
 
 static void init_docs(uint32_t palette)
@@ -22,7 +23,7 @@ static void mixed_lengths(int mixed)
 {
     const uint32_t lengths[4]={64,32,12,8};
     for(uint32_t t=0;t<NTRK;t++) {
-        uint32_t n=mixed?lengths[t]:64;
+        uint32_t n=mixed?lengths[t%4u]:64;
         steps_clear(&trk[t]); trk[t].p[P_SLEN]=n;
         for(uint32_t k=0;k<n;k++) {
             if(t==TRK_DRUM) {
@@ -79,6 +80,8 @@ int main(int argc,char **argv)
     init_docs(4); mixed_lengths(1); song.playing=1;
     go_home(); ui.force=1; ui_draw(); ppm("piterfly-home-after"); legacy_home_layout();
     mixed_lengths(0); ui.force=1; ui_draw(); ppm("home-64");
+    song.sel=4; ui.force=1; ui_draw(); ppm("home-tracks-5-8");
+    song.sel=0;
     song.playing=0; rec_wait=1; ui.force=1; ui_draw(); ppm("rec-ready-64");
 
     init_docs(0);
@@ -93,12 +96,43 @@ int main(int argc,char **argv)
     song.g[G_CH1]=1; song.g[G_CH2]=2; song.g[G_CH3]=3; song.g[G_DRCH]=10;
     song.g[G_ROUTE]=0; song.g[G_CHOTH]=1; song.g[G_MIDI]=1;
     for(uint32_t t=0;t<NTRK;t++) {
-        song.g[G_THRU1+t]=t==0; steps_clear(&trk[t]); trk[t].p[P_SLEN]=16;
+        song.g[trk_thru_param(t)]=t==0; steps_clear(&trk[t]); trk[t].p[P_SLEN]=16;
     }
     trk[0].p[P_LEVEL]=0;
     capture_page("MIDI","piterfly-midi-channels");
     capture_page("MIDI 2","piterfly-midi-input");
     capture_page("MIDI THRU","piterfly-midi-thru");
     go_home(); ui.force=1; ui_draw(); ppm("piterfly-midi-home");
+    trk[0].p[P_LEVEL]=100;
+    capture_page("FILTER","piterfly-duck");
+    trk[0].p[P_ITYPE]=IT_GRAIN; grain_defaults(&trk[0]);
+    audio_prepare(); gf_layout(); ui.grain_pair=0;
+    capture_page("INSERT","piterfly-granular-sound");
+    trk[0].p[P_GFREEZE]=1; ui.grain_pair=3;
+    capture_page("INSERT","piterfly-granular-source");
+    init_docs(4); mixed_lengths(0); song.playing=0; rec_wait=0;
+    go_home(); ui.force=1; ui_draw();
+    arrangement.count=128; arrangement.loop=1; arrangement_enabled=1;
+    for(uint32_t i=0;i<128;i++) {
+        arrangement.entry[i].scene=i%2u;
+        arrangement.entry[i].bars=(uint8_t)(4u << (i%3u));
+    }
+    studio_open(SC_SONG); song_cursor=65; ui.force=1; ui_draw(); ppm("song-positions-63-67");
+    song_cursor=127; ui.force=1; ui_draw(); ppm("song-position-128");
+    init_docs(0); go_home(); ui.force=1; ui_draw();
+    capture_page("MIDI 4-7","midi-tracks-4-7");
+    song.g[G_THRU5]=1; song.g[G_THRU6]=0; song.g[G_THRU7]=1; song.g[G_THRU8]=0;
+    capture_page("THRU 4-7","midi-thru-tracks-4-7");
+    init_docs(4); go_home(); ui.force=1; ui_draw();
+    song.playing=0; press(B_SAVE); frames(24);
+    static const char *const bank_files[6]={"save-bank-a","save-bank-b","save-bank-c","save-bank-d","save-bank-e","save-bank-f"};
+    for(uint32_t bank=0;bank<6;bank++) {
+        section_bank=bank; ui.force=1; frame(); ppm(bank_files[bank]);
+    }
+    release(B_SAVE);
+    init_docs(0); go_home(); ui.force=1; ui_draw();
+    trk[0].p[P_ITYPE]=IT_GRAIN; grain_defaults(&trk[0]); audio_prepare(); gf_layout();
+    ui.grain_pair=1; capture_page("INSERT","granular-pitch-mix");
+    ui.grain_pair=2; capture_page("INSERT","granular-pos-spread");
     return 0;
 }

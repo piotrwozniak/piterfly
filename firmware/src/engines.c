@@ -2,6 +2,7 @@
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* Engine table: order = PRESETS browsing order (and the engine numbers of the editor protocol). */
 #include "dsp.c"
+#include "audio_pool.c"
 /* SLOOP 2.5: the big per-part state of GRAIN, FM6 and PHYS shares one arena per synth part (a part plays one
  * engine at a time: on a switch the old engine fades out, its voices end, then the new one starts, voice.c
  * engine_block). The first engine to ask for it after another one gets it cleared, as at power-on. */
@@ -43,7 +44,13 @@ typedef union {
     fm6_part_t fm6;                      /* eng_fm6.c: six notes and the operator buses */
     uint32_t phys[PHYS_ARENA / 4u];      /* eng_phys.c: two SYMP slots or three small ones */
 } eng_arena_t;
+#if NPART > 3
+_Static_assert(sizeof(eng_arena_t)<=8704u,"engine state leaves the last 512 bytes for INSERT");
+static eng_arena_t *engine_arena_ptr(uint32_t p) { return (eng_arena_t *)audio_page(32u+p*AUDIO_ENGINE_PAGES); }
+#else
 static eng_arena_t eng_arena[NPART] __attribute__((section(".pool")));
+static eng_arena_t *engine_arena_ptr(uint32_t p) { return &eng_arena[p]; }
+#endif
 static uint8_t eng_arena_own[NPART];            /* the engine + 1 whose state is in it, 0 = none */
 #ifdef ARENA_STATS
 static uint32_t eng_arena_claims, eng_arena_bad;   /* host tests: claims, accesses by an engine the part does not play */
@@ -58,13 +65,13 @@ static void *eng_arena_of(const track_t *t, uint32_t eng)
         eng_arena_bad++;
 #endif
     if (eng_arena_own[p] != eng + 1u) {
-        memset(&eng_arena[p], 0, sizeof eng_arena[p]);
+        memset(engine_arena_ptr(p), 0, sizeof(eng_arena_t));
         eng_arena_own[p] = (uint8_t)(eng + 1u);
 #ifdef ARENA_STATS
         eng_arena_claims++;
 #endif
     }
-    return &eng_arena[p];
+    return engine_arena_ptr(p);
 }
 
 /* fx.c units_split: rendering t this block would draw rng() (libc.c), so t stays on core 0, where the draws
@@ -74,13 +81,13 @@ static int phys_render_draws(const track_t *t, int32_t model)   /* model: the MO
 {
     uint32_t p = (uint32_t)(t - trk), md = (uint32_t)model % PM_COUNT, big = md == PM_SYMP, i;
     uint32_t sz = big ? PHYS_SLOT_BIG : PHYS_SLOT_SMALL;
-    const uint8_t *a = (const uint8_t *)&eng_arena[p % NPART];
+    const uint8_t *a = (const uint8_t *)engine_arena_ptr(p % NPART);
     if (p >= NPART)
         return 0;
     if (eng_arena_own[p] != ENGI_PHYS + 1u || phys_lay[p] != big + 1u)
         return 1;
     for (i = 0; i < phys_poly(t); i++)
-        if (t->v[i].active && ((const phys_slot_t *)(a + i * sz))->model != md)
+        if (voice_at(t,i)->active && ((const phys_slot_t *)(a + i * sz))->model != md)
             return 1;
     return 0;
 }

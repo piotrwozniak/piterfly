@@ -138,6 +138,13 @@ UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
         case 14:
             result = a[1] >= ARR_SCENES ? 2u : section_store(a[1]) ? 0u : 3u;
             break;
+        case 15: /* Direct SOLO for every track, independent of the panel bank. */
+            if(na>=3u && a[1]<NTRK) {
+                uint32_t bit=1u<<a[1];
+                song.solo=(uint8_t)(a[2]==2u?song.solo^bit:a[2]?song.solo|bit:song.solo&~bit);
+                ui.force=1;
+            }
+            break;
         case 10:
             thr_ed = (uint8_t)(a[1] & 3u);
             break;
@@ -159,6 +166,7 @@ UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
     for (i = 0; i < NTRK; i++) {
         m |= (trk[i].p[P_MUTE] != 0) << i;
     }
+    uint32_t mutes=m;
     ed_b(a[0]);
     ed_b((song.playing != 0) | (transport_req != 0) << 1 | (arrangement_enabled != 0) << 2 |
          (arrangement_clock.running != 0) << 3 | (fill_now != 0) << 4 | (fill_arm != 0) << 5 | (srec != 0) << 6);
@@ -169,8 +177,8 @@ UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
     ed_b(chain_n);
     ed_b(chain_i);
     ed_b(m);
-    ed_b(song.solo & 15u);
-    ed_b(song.rec & 15u);
+    ed_b(song.solo & 127u);
+    ed_b(song.rec & 127u);
     ed_b(song.sel);
     ed_b((uint32_t)(punch.req + 1));
     ed_b(clamp((int32_t)((song.cpu_q8 * 100u) >> 8), 0, 127));
@@ -198,5 +206,8 @@ UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
         ed_b((uint32_t)(drum_tune[i] + 8) | (uint32_t)(drum_dec[i] + 4) << 4);
     m = arrangement_ready();
     ed_b(m & 127u); ed_b((m >> 7) & 127u); ed_b((m >> 14) & 127u); ed_b((m >> 21) & 127u);
+#if NPART > 3
+    ed_b(((mutes>>7)&1u) | ((song.solo>>7)&1u)<<1 | ((song.rec>>7)&1u)<<2);
+#endif
     if (a[0] == 14u) ed_b(result);
 }

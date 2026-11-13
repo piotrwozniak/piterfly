@@ -34,7 +34,7 @@ enum { ED_INFO = 1, ED_GET, ED_SET, ED_DUMP, ED_DESC, ED_STEP_GET, ED_STEP_SET, 
 /* v10 (SLOOP 2.5): DSYN_LIST .. DSYN_PLAY = 72..76, editor_dsyn.c; backup object 9 = the SYN kits */
 /* v11 (SLOOP 2.7): backup object 11 = your theme (gfx.c theme_t), the editor's Theme page */
 /* v12 (SLOOP 2.7): LIVE = 77, editor_live.c: the LIVE page (transport, sections, mix keys, punch-in FX, REC, undo) */
-#define ED_PROTO 15u                                   /* the protocol version INFO ends with */
+#define ED_PROTO 17u                                   /* the protocol version INFO ends with */
 
 static uint8_t ed_out[600];
 static uint32_t ed_n;
@@ -468,7 +468,7 @@ UI_SMALL static const uint8_t *ed_bk_obj(uint32_t id, uint32_t *len)   /* 0 = no
     }
     return 0;
 }
-static const uint8_t ED_BK_IDS[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 32, 33, 34, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83};   /* 64..83: patterns 4..23; USR4 is reserved for pattern storage. */
+static const uint8_t ED_BK_IDS[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 32, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83};   /* 64..83: patterns 4..23; USR2/3/4 regions are reserved for pattern storage. */
 
 /* a flash erase silences the audio for ~50 ms and stalls USB: only while stopped (as the panel) */
 UI_SMALL static uint32_t ed_flash_busy(void) { return song.playing || transport_req; }
@@ -526,7 +526,7 @@ UI_SMALL static uint32_t ed_bk_commit(void)
         persist_t p;
         if (ed_flash_busy())
             return 3;
-        if (n != MIDI_PART && n != 2u * ML_N && n != 2u * ML_N + 4u)
+        if (n != MIDI_PART && n != MIDI_PART_OLD && n != 2u * ML_N && n != 2u * ML_N + 4u)
             return 2;
         midi_part_read(raw, n);                           /* (every entry and channel checked) */
         persist_fill(&p);
@@ -576,6 +576,7 @@ UI_SMALL static int ed_backup(uint32_t cmd, const uint8_t *a, uint32_t na)   /* 
             proj_capture((project_t *)ED_BK_RAW);           /* the working project, as it is now */
             persist_fill(&ed_bk_set);
             midi_part_fill(ed_bk_ml);
+            project_stage_busy=1; project_stage_ms=fm1_ms;
             ed_bk_valid = 1;
             ed_bk_put = 0;
         }
@@ -597,9 +598,10 @@ UI_SMALL static int ed_backup(uint32_t cmd, const uint8_t *a, uint32_t na)   /* 
         uint32_t off = na >= 6u ? ed_bk_r32(a + 1) : 0u, count = na >= 8u ? (uint32_t)a[6] | (uint32_t)a[7] << 7 : 0u;
         p = na >= 1u ? ed_bk_obj(a[0], &len) : 0;
         rc = na != 8u || !p || !count || count > 256u || off > len || count > len - off ? 1u
-             : !ed_bk_valid || (a[0] == 0u && ed_bk_put) ? 5u : 0u;   /* 5: LIST first (the snapshot is gone) */
+             : !ed_bk_valid || !project_stage_locked(fm1_ms) || (a[0] == 0u && ed_bk_put) ? 5u : 0u;   /* 5: LIST first (the snapshot is gone) */
         ed_b(na ? a[0] : 127u);
         ed_b(rc);
+        if(!rc) project_stage_ms=fm1_ms;
         ed_bk_u32(off);
         ed_b(rc ? 0u : count & 127u);
         ed_b(rc ? 0u : count >> 7);
@@ -616,13 +618,14 @@ UI_SMALL static int ed_backup(uint32_t cmd, const uint8_t *a, uint32_t na)   /* 
             len = ed_bk_r32(a + 2);
             if (id >= 2u || len) {                        /* (the working project and the settings are never empty) */
                 if (len <= sizeof proj_tmp) {
+                    project_stage_busy=1; project_stage_ms=fm1_ms;
                     ed_bk_put = 1;
                     ed_bk_valid = 0;                      /* (the staging RAM is the snapshot's) */
                     ed_bk_id = (uint8_t)id;
                     ed_bk_len = len;
                     ed_bk_crc = ed_bk_r32(a + 7);
                     ed_bk_pos = 0;
-                    ed_bk_ms = fm1_ms;
+                    ed_bk_ms = fm1_ms; project_stage_ms=fm1_ms;
                     rc = 0;
                 }
             }
@@ -633,18 +636,18 @@ UI_SMALL static int ed_backup(uint32_t cmd, const uint8_t *a, uint32_t na)   /* 
             if (k && k <= ed_bk_len - ed_bk_pos) {
                 memcpy(ED_BK_RAW + ed_bk_pos, ed_smp_buf, k);
                 ed_bk_pos += k;
-                ed_bk_ms = fm1_ms;
+                ed_bk_ms = fm1_ms; project_stage_ms=fm1_ms;
                 rc = 0;
             }
         } else if (op == 2u && na == 2u) {                /* commit */
             rc = ed_bk_commit();
-            ed_bk_put = 0;
+            ed_bk_put = 0; project_stage_busy=0;
             if (!rc) {
                 sync_reload = 1;
                 ui.force = 1;
             }
         } else if (op == 3u && na == 2u) {                /* abort */
-            ed_bk_put = 0;
+            ed_bk_put = 0; project_stage_busy=0;
             rc = 0;
         }
         ed_b(op & 127u);
@@ -982,7 +985,10 @@ UI_SMALL static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes b
             ed_b(trk[i].p[P_MUTE] != 0);
             ed_b((song.rec >> i) & 1u);
         }
-        ed_b(song.solo & 15u);                            /* v5: the tracks soloed */
+        ed_b(song.solo & 127u);
+#if NPART > 3
+        ed_b(song.solo >> 7);
+#endif                            /* v5: the tracks soloed */
         break;
     case ED_TRACK_MIX: {                                   /* track [, level v14, mute] -> track, level, mute */
         track_t *t;

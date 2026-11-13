@@ -30,29 +30,38 @@ async function request(m, [cmd, a]) {
   const inp = [...m.access.inputs.values()][0], out = [...m.access.outputs.values()][0];
   return new Promise((resolve) => { inp.onmidimessage = ({data}) => resolve(E.unframe(data)); out.send(E.frame(cmd, a)); });
 }
-for (const {engine, granular} of [...Array.from({length: 12}, (_, engine) => ({engine, granular: false})), {engine: 0, granular: true}, {engine: 4, granular: true}]) {
+for (const {engine, granular, duck, bypass} of [...Array.from({length: 12}, (_, engine) => ({engine, granular: false})), {engine: 0, granular: true}, {engine: 4, granular: true}, {engine:0,granular:true,bypass:true}, {engine:2,duck:1}, {engine:2,duck:2}]) {
   const m = device();
   await request(m, E.req.set(1, 20, engine));
   await request(m, E.req.preset(engine, 0));
   const state = E.previewSnapshot(m.state);
   state.tracks[0].p[17] = 0; // direct note, no arp in this comparison
   if (granular) { state.tracks[0].p[53] = 9; state.tracks[0].p[57] = 80; }
+  if(duck) {state.g[28]=127; state.g[62]=duck===1?1:0;}
   const dsp = new FirmwareAudio(module); dsp.sync(state);
-  const t = state.tracks[0], frames = 8192;
+  const t = state.tracks[0], frames = bypass ? 32768 : 8192;
   const cfg = Int32Array.from([engine, t.preset, 60, frames, ...t.p, ...state.g]);
-  const raw = execFileSync('build/host/preview_native', { input: Buffer.concat([Buffer.from(cfg.buffer), Buffer.from(t.fm6)]) });
+  const raw = execFileSync('build/host/preview_native', duck?['--duck']:bypass?['--grain-bypass']:[], { input: Buffer.concat([Buffer.from(cfg.buffer), Buffer.from(t.fm6), ...(duck?[Buffer.from(Int32Array.from(state.tracks.at(-1).p).buffer)]:[])]) });
   const native = new Float32Array(raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength));
   dsp.w.preview_note(0, 60, 1);
-  const a = render(dsp, frames/2);
-  dsp.w.preview_note(0, 60, 0);
-  const b = render(dsp, frames/2);
-  const left = [...a.l, ...b.l], right = [...a.r, ...b.r];
-  assert(a.energy + b.energy > 0.01, `engine ${engine} must sound`);
+  if(duck) dsp.w.preview_note(7,36,1);
+  const segments = [];
+  if (bypass) {
+    segments.push(render(dsp, frames/4));
+    dsp.w.preview_param(0,57,0); segments.push(render(dsp,frames/4));
+    dsp.w.preview_param(0,65,1); dsp.w.preview_param(0,57,80); dsp.w.preview_note(0,60,0);
+    segments.push(render(dsp,frames/4));
+    dsp.w.preview_param(0,65,0); segments.push(render(dsp,frames/4));
+  } else {
+    segments.push(render(dsp,frames/2)); dsp.w.preview_note(0,60,0); segments.push(render(dsp,frames/2));
+  }
+  const left = segments.flatMap(s => [...s.l]), right = segments.flatMap(s => [...s.r]);
+  assert(segments.reduce((sum,s) => sum+s.energy,0) > 0.01, `engine ${engine} must sound`);
   let delta = 0;
   for (let i = 0; i < frames; i++) delta = Math.max(delta, Math.abs(left[i] - native[i*2]), Math.abs(right[i] - native[i*2+1]));
 
   assert(delta <= 1/32768, `engine ${engine}: native/WASM delta ${delta}`);
-  console.log(`engine ${engine}${granular ? " + live granular" : ""}: native/WASM match (${delta})`);
+  console.log(`engine ${engine}${bypass ? " + granular MIX 0 / FREEZE / LIVE" : granular ? " + live granular" : duck ? " + duck "+(duck===1?"ON":"OFF") : ""}: native/WASM match (${delta})`);
   m.stop();
 }
 {

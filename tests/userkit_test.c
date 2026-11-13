@@ -78,13 +78,13 @@ int main(void)
     song.g[G_BPM] = 120;
     song.g[G_DRREV] = 0;                                 /* (no reverb tail between the checks) */
     slot_build(0, notes, lens, 4);
-    check(usr_nz[0] == 4u && !usr_nz[1], "USR1 read by smp_user_scan: 4 zones; USR2 empty");
-    check(SMP_USER_SLOTS == 3u && !strcmp(DRUM_KIT_NAMES[DRUM_USR], "USR1") &&
-          !strcmp(DRUM_KIT_NAMES[DRUM_USR+2u], "USR3") && !strcmp(DRUM_KIT_NAMES[DRUM_PAIR], "REMOVED"),
-          "KIT: three available banks; retired kit IDs remain reserved");
+    check(usr_nz[0] == 4u && drum_usr_zone(1,36)<0, "USR1 read by smp_user_scan: 4 zones; USR2 empty");
+    check(SMP_USER_SLOTS == 1u && !strcmp(DRUM_KIT_NAMES[DRUM_USR], "USR1") &&
+          !strcmp(DRUM_KIT_NAMES[DRUM_USR+2u], "REMOVED") && !strcmp(DRUM_KIT_NAMES[DRUM_PAIR], "REMOVED"),
+          "KIT: USR1 available; retired kit IDs remain reserved");
     check(SMP_USER_OFF(0u)==0xA0000u && SMP_USER_OFF(2u)==0xC8000u &&
-          SMP_USER_SLOTS == 3u && FL_PATTERN_LO == 0xE7000u && FL_STORE_OK(0xE7000u,0x14000u) && FL_STORE_OK(0xC8000u,0x14000u),
-          "USR3 remains a sample bank; the former USR4 region belongs to the journal");
+          SMP_USER_SLOTS == 1u && FL_PATTERN_LO == 0xE7000u && FL_STORE_OK(0xE7000u,0x14000u) && FL_STORE_OK(0xC8000u,0x14000u),
+          "USR2/3 and the former USR4 region belong to the journal");
 
     TDRUM->p[P_E0] = (int16_t)DRUM_USR;                  /* USR1 */
     quiet();
@@ -131,12 +131,12 @@ int main(void)
         slot_build(2,n3,l3,2);
         TDRUM->p[P_E0]=(int16_t)(DRUM_USR+2u);
         quiet();drum_on(36,110);
-        check(drum_voice_on(DZ_USR+2*16) && run_peak(40)>2000,"USR3: its kick plays");
+        check(!drum_voice_on(DZ_USR+2*16) && run_peak(40)<64,"USR3: retired source remains silent");
         quiet();drum_on(38,110);check(run_peak(40)<64,"USR3: missing snare is silent");
         TDRUM->p[P_E0]=(int16_t)(DRUM_USR+3u);quiet();drum_on(36,110);
         check(run_peak(40)<64,"retired USR4 kit stays silent");
         TDRUM->p[P_E0]=(int16_t)DRUM_PAIR;quiet();drum_on(36,110);
-        check(drum_voice_on(DZ_USR+2*16),"legacy pair can still use its USR3 material");
+        check(!drum_voice_on(DZ_USR+2*16) && run_peak(40)<64,"legacy pair cannot remap retired material onto USR1");
         quiet();drum_on(38,110);check(run_peak(40)<64,"legacy pair never reads removed USR4");
     }
     {   /* the sequencer: KICK on 1, SNARE on 5 */

@@ -333,12 +333,15 @@ static int32_t gain_next(track_t *t)                    /* the track's mute gain
 static struct {
     uint32_t t;                                         /* units since the kick */
     int32_t g0, g1;                                     /* the parts' gain at the block start, end (Q15) */
-} duck = {0xFFFFFFFFu, 32767, 32767};
+    uint8_t prev, now;                                  /* target masks published before the render-core split */
+} duck = {0xFFFFFFFFu, 32767, 32767, (1u<<NPART)-1u, (1u<<NPART)-1u};
 
 static void duck_block(uint32_t adv)
 {
     int32_t depth = song.g[G_DUCK] * 258, x;
     uint32_t len = BEAT_U / 2u;
+    duck.prev=duck.now; duck.now=0;
+    for(uint32_t t=0;t<NPART;t++) duck.now|=(uint8_t)((song.g[G_DUCK1+t]!=0)<<t);
     duck.g0 = duck.g1;
     if (drums.kick) {
         drums.kick = 0;
@@ -444,7 +447,7 @@ static void tflt_run(djf_t *f, const tsvf_t *c, int32_t *b, uint32_t n, uint32_t
  * as before (nothing runs). MIX glides (2.9 ms, SL_SLOPE); a TYPE change fades the old one out, clears the state,
  * fades the new one in; so does a start from MIX 0 (no stale line or filter).
  * The drum track (SLOOP): its left, right, reverb send and delay send each through their own state, the same settings
- * (fx.c mix_block). State in RAM (.bss): 580 B a channel; noinline, its own loops */
+ * (fx.c mix_block). State headers in RAM; the eight-track build stores delay lines in shared audio pages. */
 enum { IT_OFF, IT_SOFT, IT_HARD, IT_FOLD, IT_FUZZ, IT_CRUSH, IT_PHASER, IT_FLANGER, IT_CHORUS, IT_GRAIN_ENUM, IT_N };
 _Static_assert(IT_GRAIN_ENUM == IT_GRAIN && IT_N == sizeof N_ITYPE / sizeof N_ITYPE[0], "the INSERT's types as params.c names them");
 #define IL_LEN 256u                     /* FLANG / CHOR: the line, samples (a power of 2: masked) */
@@ -464,10 +467,41 @@ typedef struct {
     uint32_t ph;                        /* the sweep's phase */
     int32_t hp, lp1, lp2, dc, hold;     /* low cut (Q8), the two low-passes, DC blocker (Q8), CRUSH's held sample */
     int32_t px[PH_ST], py[PH_ST], fb;   /* PHASR: each stage's last input and output, the fed back */
-    int16_t line[IL_LEN];               /* FLANG / CHOR, at a quarter (headroom) */
+#if NPART > 3
+    int16_t *line;
+#else
+    int16_t line[IL_LEN];
+#endif               /* FLANG / CHOR, at a quarter (headroom) */
 } ins_t;
-/* (in .bss, not the pool: tools/build.py keeps 8 KiB of the pool spare; RAM has room) */
+/* Headers in .bss; the seven-part build borrows delay lines from engine-arena padding. */
 static ins_t ins[NPART + 4u];                    /* the parts; the drum track's L, R, REV, DLY */
+
+#if NPART > 3
+static int16_t *insert_line(ins_t *s)
+{
+    uint32_t i=(uint32_t)(s-ins);
+    return i<NPART?(int16_t *)(audio_page(32u+i*9u+8u)+512u):
+        (int16_t *)(audio_page(127u+(i-NPART)/2u)+((i-NPART)&1u)*512u);
+}
+static int insert_needs_line(uint32_t type) { return type==IT_FLANGER || type==IT_CHORUS; }
+static int engine_needs_arena(uint32_t e) { return e==7u || e==ENGI_GRAIN || e==ENGI_FM6 || e==ENGI_PHYS; }
+static void audio_prepare(void)
+{
+    memset(audio_blocked,0,sizeof audio_blocked);
+    for(uint32_t t=0;t<NPART;t++) {
+        track_t *p=&trk[t];
+        if(t<3u || engine_needs_arena(p->engine) || engine_needs_arena(p->eng_req)) audio_mark(32u+t*9u,9u);
+        else eng_arena_own[t]=0;
+        if(insert_needs_line(p->p[P_ITYPE]) || (ins[t].w && insert_needs_line(ins[t].type)) ||
+            (p->pold && p->xf_on && p->xf && insert_needs_line(p->p_old[P_ITYPE]))) audio_mark(32u+t*9u+8u,1u);
+    }
+    for(uint32_t t=0;t<NTRK;t++)
+        if(t<3u || t==TRK_DRUM || trk[t].p[P_SLCR]==SL_STUT || sl[t].rec_on || sl[t].loop || sl[t].w) audio_mark(audio_sl_page(t),8u);
+    uint32_t drum=insert_needs_line(TDRUM->p[P_ITYPE]);
+    for(uint32_t k=0;k<4u;k++) drum|=ins[NPART+k].w && insert_needs_line(ins[NPART+k].type);
+    if(drum) audio_mark(127u,2u);
+}
+#endif
 
 static inline int32_t ins_mixq(int32_t m) { return m >= 127 ? 32768 : m <= 0 ? 0 : m * 258; }   /* MIX -> Q15 */
 static inline int32_t ins_mix(int32_t x, int32_t y, int32_t w) { return w == 32768 ? y : x + mulq16(y - x, (uint32_t)w << 1); }
@@ -631,6 +665,10 @@ static __attribute__((noinline)) int ins_run(ins_t *s, const int16_t *p, int32_t
         if (!tw)
             return 0;                                   /* dry: bit for bit */
         memset(s, 0, sizeof *s);                        /* starting: no stale line or filter */
+#if NPART > 3
+        s->line=insert_line(s);
+        if(insert_needs_line((uint32_t)ty)) memset(s->line,0,IL_LEN*sizeof(int16_t));
+#endif
         s->type = (uint8_t)ty;
     }
     if (s->type >= IT_PHASER)
@@ -700,7 +738,8 @@ static void mix_part_run(track_t *t, uint32_t n, mixacc_t *mx, int32_t *b)
         int32_t c = t->p[P_CHOR] * 258, d = send_thr(t->p[P_DLY] * 258, thr_dly), r = send_thr(t->p[P_REV] * 258, thr_rev);
         int32_t pk = t->peak;
         int32_t xmax = c > d ? c : d;
-        int32_t ga = mulq15(g0, duck.g0), gb = mulq15(g1, duck.g1);   /* mute x duck, ramped over the block */
+        uint32_t bit=1u<<(uint32_t)(t-trk);
+        int32_t ga = mulq15(g0, (duck.prev&bit)?duck.g0:32767), gb = mulq15(g1, (duck.now&bit)?duck.g1:32767);   /* mute x duck; toggles also ramp */
         xmax = 0x7FFFFFFF / ((xmax > r ? xmax : r) | 1);   /* sends: loud chords at a high LEVEL */
         track_dist(t, b, n);
         if (t->p[P_ITYPE] | t->ins_run) {
@@ -883,15 +922,25 @@ static void mix_drums(uint32_t n, mixacc_t *mx)
     click_render(mx->l, mx->r, n);                        /* the metronome: its own voice (drums.c), any kit, any mute */
 }
 
+/* Each unit owns its timing slot; CPU0 reads it only after the previous join. */
+static uint32_t unit_ticks[NTRK];
 /* the units of mask into the set mx, in their order */
 static void mix_units(uint32_t mask, uint32_t n, mixacc_t *mx, int32_t *scratch)
 {
     uint32_t k;
     for (k = 0; k < NPART; k++)
-        if (mask & (1u << k))
+        if (mask & (1u << k)) {
+            uint32_t t0 = cpu1_ticks();
             mix_part(&trk[k], n, mx, scratch);
-    if (mask & U_DRUMS)
+            uint32_t dt = cpu1_ticks() - t0;
+            unit_ticks[k] = dt ? dt : 1u;
+        }
+    if (mask & U_DRUMS) {
+        uint32_t t0 = cpu1_ticks();
         mix_drums(n, mx);
+        uint32_t dt = cpu1_ticks() - t0;
+        unit_ticks[TRK_DRUM] = dt ? dt : 1u;
+    }
 }
 
 /* the load figures: core 1's time in its job and core 0's time waiting for it, in ticks over a half (cpu1.h
@@ -915,11 +964,36 @@ static void cpu1_units_job(uint32_t arg)                /* core 1's job: the uni
     cpu1_job_ticks += cpu1_ticks() - t0;
 }
 
-/* the units core 1 renders this block: the last part and the drums (cpu1_units when set: the menu, the tests),
- * less the parts that must stay here (above) */
+/* Greedily place the longest recent units first. A unit remains indivisible. */
+static uint32_t units_balance(uint32_t eligible)
+{
+    uint32_t left = U_ALL, mask = 0, load[2] = {0, 0};
+    while (left) {
+        uint32_t best = 0, cost = 0;
+        for (uint32_t k = 0; k < NTRK; k++)
+            if ((left & (1u << k)) && unit_ticks[k] >= cost)
+                best = k, cost = unit_ticks[k];
+        left &= ~(1u << best);
+        uint32_t worker = (eligible & (1u << best)) && load[1] <= load[0];
+        load[worker] += cost ? cost : 1u;
+        if (worker) mask |= 1u << best;
+    }
+    return mask;
+}
+
+/* Keep RNG/voice-allocation hazards on CPU0 before balancing the eligible units. */
 static uint32_t units_split(void)
 {
-    uint32_t mask = cpu1_units < 0 ? (1u << (NPART - 1u)) | U_DRUMS : (uint32_t)cpu1_units & U_ALL, k, nform = 0;
+#if NPART > 3
+    /* Voice allocation reads every part. Keep transition/retrigger blocks on
+     * core 0 so the other renderer cannot retire a voice during that scan. */
+    for(uint32_t k=0;k<NPART;k++) {
+        const track_t *t=&trk[k];
+        if(t->xf_on || t->pold || t->eng_req!=t->engine || t->xp_n) return 0;
+        for(uint32_t v=0;v<NVOICE;v++) if(voice_at(t,v)->pend) return 0;
+    }
+#endif
+    uint32_t mask = cpu1_units < 0 ? U_ALL : (uint32_t)cpu1_units & U_ALL, k, nform = 0;
     if (!mask)
         return 0;
     for (k = 0; k < NPART; k++)
@@ -938,7 +1012,7 @@ static uint32_t units_split(void)
             (e == &ENG_FORMANT && nform > 1u))
             mask &= ~(1u << k);
     }
-    return mask;
+    return cpu1_units < 0 ? units_balance(mask) : mask;
 }
 
 static int32_t master_cur = -1;                        /* the volume knob, ramped per sample (no zipper) */
@@ -1201,7 +1275,10 @@ static void mix_block(int32_t *out, uint32_t n)
         thr_rev = (q & 1u) ? (thr_rev + 1928 > 32767 ? 32767 : thr_rev + 1928) : (thr_rev > 1928 ? thr_rev - 1928 : 0);
         thr_dly = (q & 2u) ? (thr_dly + 1928 > 32767 ? 32767 : thr_dly + 1928) : (thr_dly > 1928 ? thr_dly - 1928 : 0);
     }
+    audio_prepare();
+    gf_layout();
     events_block(n);
+    audio_prepare();
     gf_layout();
     duck_block(n * (uint32_t)song.g[G_BPM]);
     c1 = cpu1_on() ? units_split() : 0;                 /* core 1's units this block */

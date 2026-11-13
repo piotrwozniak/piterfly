@@ -35,13 +35,17 @@ static void font_ref_build(void)
 {
     uint32_t gi, o = 0;
     for (gi = 0; gi < 64u; gi++) {
-        uint32_t ws = FONT_S.bw[gi], wb = FONT_L.bw[gi], bs = (ws + 1u) / 2u, bb = (wb + 1u) / 2u, x, y;
+        uint32_t ws = font_bitmap_width(&FONT_S, gi), wb = font_bitmap_width(&FONT_L, gi), bs = (ws + 1u) / 2u, bb = (wb + 1u) / 2u, x, y;
         const uint8_t *s = FONT_S.data + FONT_S.off[gi];
         big_off[gi] = (uint16_t)o;
         for (y = 0; y < 32u; y++)
             for (x = 0; x < wb; x++) {
                 uint32_t sx = x / 2u, v;
-                if (FONT_S.bits == 1u) {                  /* (2.6: S at 1 bit a pixel) */
+                if (FONT_S.bits == 2u) {
+                    uint32_t top = s[0] >> 4, rows = (s[0] & 15u) + 1u, sy = y / 2u;
+                    v = s[0] != 255u && sy >= top && sy < top + rows && sx >= FONT_PAD && sx < FONT_PAD + 8u &&
+                        ((s[1u + sy - top] >> (7u - (sx - FONT_PAD))) & 1u) ? 15u : 0u;
+                } else if (FONT_S.bits == 1u) {                  /* (2.6: S at 1 bit a pixel) */
                     uint32_t i = (y / 2u) * ws + sx;
                     v = (s[i >> 3] >> (7u - (i & 7u))) & 1u ? 15u : 0u;
                 } else {

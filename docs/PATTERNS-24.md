@@ -1,3 +1,5 @@
+> Historical implementation notes for the earlier four-track storage layout. Piterfly 1.1.0 uses seven synth parts plus drums, FUN9 projects and USR1 for samples. See [1.1.0 release notes](RELEASE-1.1.0.md) for the current layout.
+
 # piterfly: feature and technical notes
 
 This checkout extends **SLOOP 2.8.5** on branch `codex/piterfly-24-patterns`. For the complete user-facing comparison and controls in Polish, see [PITERFLY.md](PITERFLY.md). This is a feature build, not an upstream SLOOP release.

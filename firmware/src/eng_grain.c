@@ -100,14 +100,14 @@ typedef struct {
 } gr_part_t;
 /* (its state: the part's engine arena, engines.c eng_arena_of) */
 
-static uint32_t gr_nz(uint32_t src) { return src < SMP_NSETS ? SMP_SETS[src].nz : usr_nz[(src - SMP_NSETS) % SMP_USER_SLOTS]; }
+static uint32_t gr_nz(uint32_t src) { return src < SMP_NSETS ? SMP_SETS[src].nz : (src-SMP_NSETS<SMP_USER_SLOTS?usr_nz[src-SMP_NSETS]:0u); }
 static const smp_zone_t *gr_zone(uint32_t src, uint32_t zl)
 {
-    return src < SMP_NSETS ? &SMP_ZONES[SMP_SETS[src].z0 + zl] : &usr_zone[(src - SMP_NSETS) % SMP_USER_SLOTS][zl & 15u];
+    return src < SMP_NSETS ? &SMP_ZONES[SMP_SETS[src].z0 + zl] : src-SMP_NSETS<SMP_USER_SLOTS?&usr_zone[src-SMP_NSETS][zl&15u]:&SMP_ZONES[0];
 }
 static uint32_t gr_stamp(uint32_t src)
 {
-    return src < SMP_NSETS ? 0u : usr_nz[(src - SMP_NSETS) % SMP_USER_SLOTS] ? smp_user_gen : 0xFFFFFFFFu;
+    return src < SMP_NSETS ? 0u : (src-SMP_NSETS<SMP_USER_SLOTS?usr_nz[src-SMP_NSETS]:0u) ? smp_user_gen : 0xFFFFFFFFu;
 }
 static inline uint32_t gr_rnd(gr_part_t *P) { return noise32(&P->rng); }
 static inline uint32_t gr_scale(uint32_t n, uint32_t f16) { return (n >> 16) * f16 + (((n & 0xFFFFu) * f16) >> 16); }
@@ -172,8 +172,8 @@ static void gr_build(gr_part_t *P, const track_t *t)
     int32_t pred, idx;
     const smp_zone_t *z;
     for (i = 0; i < GR_POLY && zl == GR_MAXZ; i++) {
-        int32_t vz = t->v[i].s[0];
-        if (t->v[i].active && vz >= 0 && vz < P->nz && P->zdone[vz] < P->zcnt[vz])
+        int32_t vz = voice_at(t,i)->s[0];
+        if (voice_at(t,i)->active && vz >= 0 && vz < P->nz && P->zdone[vz] < P->zcnt[vz])
             zl = (uint32_t)vz;
     }
     for (i = 0; i < P->nz && zl == GR_MAXZ; i++)
@@ -263,11 +263,11 @@ static void gr_spawn(gr_part_t *P, const track_t *t, uint32_t vi, uint32_t zl, u
         if (P->g[i].owner)
             c += P->g[i].step << P->g[i].rev;
     if (c > GR_LOAD_MAX) {
-        if (t->v[vi].gate)
+        if (voice_at(t,vi)->gate)
             gr_wait[(uint32_t)(t - trk) % NPART] = 1;
         return;
     }
-    if (t->v[vi].gate)
+    if (voice_at(t,vi)->gate)
         gr_wait[(uint32_t)(t - trk) % NPART] = 0;
     g->z = z;
     g->step = step;
@@ -359,7 +359,7 @@ static int gr_run(gr_part_t *P, gr_grain_t *g, int32_t *acc, uint32_t n)
 static void grain_note_on(track_t *t, voice_t *v)
 {
     gr_part_t *P = (gr_part_t *)eng_arena_of(t, ENGI_GRAIN);
-    uint32_t vi = (uint32_t)(v - t->v) % NVOICE, i;
+    uint32_t vi = voice_index(t,v) % NVOICE, i;
     v->s[0] = gr_find((uint32_t)t->p[P_E0] % SMP_NALL, v->note);
     v->s[1] = 0;                                    /* the first grain at once */
     if (!v->env) {                                  /* a fresh voice: no grains left from before */
@@ -378,17 +378,16 @@ static void grain_block(track_t *t)
     uint32_t src = (uint32_t)t->p[P_E0] % SMP_NALL, st = gr_stamp(src), i, held = 0;
     if (!P->rng)
         P->rng = 0x2545F491;
-    if (P->src != src + 1u || P->stamp != st) {
-        gr_reset(P, src, st);
-        for (i = 0; i < NVOICE; i++)
-            if (t->v[i].active)
-                t->v[i].s[0] = gr_find(src, t->v[i].note);
+    uint32_t reset=P->src != src+1u || P->stamp != st, active=0;
+    if(reset) gr_reset(P,src,st);
+    for(i=0;i<NVOICE;i++) {
+        voice_t *v=voice_at(t,i);
+        if(!v->active) continue;
+        active|=1u<<i; held|=v->gate!=0;
+        if(reset) v->s[0]=gr_find(src,v->note);
     }
-    for (i = 0; i < GR_NG; i++)
-        if (P->g[i].owner && !t->v[(P->g[i].owner - 1u) % NVOICE].active)
-            P->g[i].owner = 0;
-    for (i = 0; i < NVOICE; i++)
-        held |= t->v[i].active && t->v[i].gate;
+    for(i=0;i<GR_NG;i++)
+        if(P->g[i].owner && !(active&(1u<<((P->g[i].owner-1u)%NVOICE)))) P->g[i].owner=0;
     if (!held && (uint32_t)(t - trk) < NPART)
         gr_wait[t - trk] = 0;                       /* (no note held: none waits) */
     gr_build(P, t);
@@ -398,7 +397,7 @@ static void grain_render(track_t *t, voice_t *v, int32_t *out, uint32_t n, const
 {
     gr_part_t *P = (gr_part_t *)eng_arena_of(t, ENGI_GRAIN);
     const int16_t *p = t->p;
-    uint32_t vi = (uint32_t)(v - t->v) % NVOICE, i, mine = 0, nact = 0, iv;
+    uint32_t vi = voice_index(t,v) % NVOICE, i, mine = 0, nact = 0, iv;
     int32_t zl = v->s[0], acc[CTL], lp, y = v->s[2];
     if (n > CTL)
         n = CTL;
@@ -410,7 +409,7 @@ static void grain_render(track_t *t, voice_t *v, int32_t *out, uint32_t n, const
     for (i = 0; i < n; i++)
         acc[i] = 0;
     for (i = 0; i < GR_POLY; i++)
-        nact += t->v[i].active;
+        nact += voice_at(t,i)->active;
     for (i = 0; i < GR_NG; i++)
         if (P->g[i].owner == vi + 1u)
             mine += gr_run(P, &P->g[i], acc, n);

@@ -62,7 +62,7 @@ UI_SMALL static uint32_t keys_sounding(const track_t *t)
         return m;
     }
     for (i = 0; i < NVOICE; i++) {
-        const voice_t *v = &t->v[i];
+        const voice_t *v = voice_at(t,i);
         if (v->active && v->gate && v->stage <= 2) {
             uint32_t k, note = v->note;
             for (k = 0; k < 27u; k++)
@@ -133,9 +133,9 @@ UI_SMALL static uint32_t keys_lit(void)
         return scale_keys(0) & ~(blink ? 0u : scale_keys(1));
     case LY_MIX:                                   /* tracks heard: 1..4; soloed: 5..8; a fill: 9, armed / on: 10; tap: the beat */
         for (i = 0; i < 4u; i++) {
-            if (!trk_silent(&trk[i]))
+            if (!trk_silent(&trk[(song.sel&~3u)+i]))
                 m |= 1u << key_of_white(i);
-            if ((song.solo >> i) & 1u)
+            if ((song.solo >> ((song.sel&~3u)+i)) & 1u)
                 m |= 1u << key_of_white(4u + i);
         }
         if (fill_now)
@@ -579,6 +579,7 @@ UI_SMALL static void edit_param(uint32_t slot, int32_t steps)
                                     : clamp(*vp + accel(EN_K1 + slot, steps, d->names ? 0 : d->max - d->min), d->min, d->max);
     int32_t old_type = TSEL->p[P_ITYPE];
     *vp = (int16_t)v;
+    if(page_duck_slot(pg,slot)) return;             /* a pattern routing flag, not a sound parameter or lock */
     if (pg->scope == SC_TRACK && id == P_ITYPE && old_type != v && (old_type == IT_GRAIN || v == IT_GRAIN)) ui.force = 1;
     if (pg->scope == SC_TRACK && id == P_ITYPE && old_type != IT_GRAIN && v == IT_GRAIN) { grain_defaults(TSEL); ui.grain_pair = 0; ui.force = 1; }
     if (pg->scope != SC_GLOBAL && p_lockable(id))

@@ -8,6 +8,11 @@ The build makes three files in `build/`:
 | `loader/ota.bin` | the update loader |
 | `felucca.fwsc` | the installable package (app + loader) |
 
+The approved arcade boot logo is packed losslessly. A flash overflow fails the
+build; it never silently substitutes another logo. `FELUCCA_LOGO_TEXT=1` is an
+explicit development option only. `tests/splash_restore_test.c` checks the original
+RLE bytes and every displayed RGB565 pixel, including scratch-buffer bounds.
+
 ## Windows (WSL)
 
 `INSTALL-SLOOP.bat` builds in a WSL distribution and opens the installer on
@@ -49,14 +54,11 @@ On Linux x86-64 the toolchain runs natively and Docker is not needed.
 `JIELI_TOOLCHAIN` and `AC79_SDK` override the default locations
 (`~/.jieli/toolchain`, `~/fw-AC79_AIoT_SDK`).
 
-`./build.sh --release 1.0.1` labels the app `piterfly 1.0.1`, with updater identity
-`FM-1_1120101`, and creates `build/felucca-1.0.1.fwsc`. The identity is configured
-independently of the version in `firmware/src/version.h`; it is shared by the
-package, running app and `ota-` loader. Historical 1.0.0 sources and assets remain
-at their original tag; do not rebuild an old release from newer sources.
+`./build.sh --release 1.1.0` labels the app `piterfly 1.1.0`, with updater identity
+`FM-1_1120101`, and creates `build/felucca-1.1.0.fwsc`. The application, package and update loader share the Piterfly product identity introduced in 1.0.1; the semantic version and binary SHA-256 identify this release.
 The authoritative current version is `firmware/src/version.h`.
 For a frozen source snapshot, full licences and matching local installer links,
-use [the 1.0.1 preparation procedure](docs/RELEASE-1.0.1.md).
+use [the 1.1.0 release procedure](docs/RELEASE-1.1.0.md).
 
 Build options (environment, `0` or `1`; defaults in `firmware/src/felucca.c`):
 
@@ -115,7 +117,7 @@ python3 web/make_site.py build/releases/sloop-2.6.fwsc 2.6 build/site
 python3 -m http.server 8766 --bind 127.0.0.1 --directory build/site
 ```
 
-Open `http://localhost:8766/webapp/editor/?mock=1`, **Connect**, then **Play loop** to hear all four tracks.
+Open `http://localhost:8766/webapp/editor/?mock=1`, **Connect**, then **Play loop** to hear the simulated tracks.
 **Show preview** opens the piano/pads, volume and editable sequence; **Hide preview** folds them while
 playback continues. The piano keys and labeled computer keys audition the selected track.
 The audio controls are available only in simulated mode. The physical-device editor continues to use Web MIDI.

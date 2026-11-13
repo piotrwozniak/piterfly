@@ -37,7 +37,19 @@ run "GPL device icons: source, atlas, IDs and packed firmware bytes" "${PYTHON:-
 mkdir -p build/gen
 [ build/gen/felucca_tables.h -nt tools/gen_tables.py ] || python3 tools/gen_tables.py build/gen/felucca_tables.h
 [ build/gen/felucca_fm6.h -nt tools/gen_fm6_patches.py ] || python3 tools/gen_fm6_patches.py build/gen/felucca_fm6.h
+[ build/gen/sloop_logo.h -nt tools/gen_logo.py ] || python3 tools/gen_logo.py build/gen/sloop_logo.h
+$CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/splash_restore_test" tests/splash_restore_test.c -lm
+run "approved arcade splash: lossless packing, exact pixels and scratch bounds" "$OUT/splash_restore_test"
 
+$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/seven_tracks_test" tests/seven_tracks_test.c -lm
+run "seven synth parts + drums: engines, shared buffers, voices, persistence and USB" "$OUT/seven_tracks_test"
+run "eight tracks with the second render core on a real host thread" env CORES=2 "$OUT/seven_tracks_test"
+$CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/seven_tracks_asan" tests/seven_tracks_test.c -lm
+run "eight tracks: memory, bounds and undefined-behaviour checks" env CORES=2 "$OUT/seven_tracks_asan"
+$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/duck_targets_test" tests/duck_targets_test.c -lm
+run "per-track DUCK: audio bypass, UI, all masks, legacy defaults and live overdub" env CORES=2 "$OUT/duck_targets_test"
+$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/project_codec_test" tests/project_codec_test.c -lm
+run "packed projects: every parameter range, 200000 steps and every lock" "$OUT/project_codec_test"
 $CC -o "$OUT/pattern_bank_test" tests/pattern_bank_test.c
 run "24-pattern journal: migration, capacity, interrupted writes" "$OUT/pattern_bank_test"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/pattern24_test" tests/pattern24_test.c -lm
@@ -189,6 +201,13 @@ $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/sample_pitch_test"
 run "SAMPLE, GRAIN: the pitch follows the keys to the top of the keyboard (up to the decode bound)" "$OUT/sample_pitch_test"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/granular_fx_test" tests/granular_fx_test.c -lm
 run "live granular: codec, dynamic pages, freeze, extremes, dry bypass" "$OUT/granular_fx_test"
+$CC -O2 -w -DCPU1_HOST_TIMING=1 -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/granular_performance_test" tests/granular_performance_test.c -lm
+run "granular performance: exact capture, parked bypass and measured dual-core balancing" env CORES=2 "$OUT/granular_performance_test"
+$CC -O1 -g -w -DCPU1_HOST_TIMING=1 -DGF_CHECK_HISTORY=1 -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/granular_performance_asan" tests/granular_performance_test.c -lm
+run "granular performance: memory, history bounds and undefined behaviour" env CORES=2 "$OUT/granular_performance_asan"
+if $TSAN -DCPU1_HOST_TIMING=1 -Ifirmware/hal -o "$OUT/granular_performance_tsan" tests/granular_performance_test.c -lm 2>/dev/null; then
+    run "granular performance: moving measured units between real threads without races" env CORES=2 CHAOS=3 TSAN_OPTIONS=halt_on_error=1 "$OUT/granular_performance_tsan"
+fi
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/granular_project_test" tests/granular_project_test.c -lm
 run "live granular: all 24 legacy patterns migrate and settings persist" "$OUT/granular_project_test"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/granular_ui_test" tests/granular_ui_test.c -lm
@@ -209,6 +228,7 @@ if [ -z "$SKIP_CPU_VALGRIND" ] && command -v valgrind >/dev/null 2>&1; then expo
 run "regression: golden renders, health, voices, CPU budget" "$OUT/regress" tests/golden.txt tests/cpu_baseline.txt
 # SLICE (tests/slice_test.c) needs a FELUCCA_SLICE=1 build; the engine is not built by default
 
+run "target loop analysis: real, nested, cold and irreducible branches" python3 tests/target_budget_test.py
 run "regression: target cost of the render loops" python3 tests/target_budget.py \
     build/felucca.dis tests/target_budget.txt
 # the render split over the two cores (fx.c mix_units): the golden renders and tests/mix_split_test.c (three
@@ -221,6 +241,7 @@ run "the offline editor (one file, nothing next to it); the offline site (sw.js,
 
 if command -v node >/dev/null 2>&1; then
     run "web pages: editor protocol, samples, packages, update protocol" node web/test_web.mjs
+    run "eight-track editor protocol and backup compatibility" node web/test_seven_tracks.mjs
     rm -rf "$OUT/pwa-site" && python3 web/make_site.py build/felucca.fwsc 2.7 "$OUT/pwa-site" >/dev/null &&
         run "the site without internet in Chromium (skipped without Playwright)" node tests/pwa_test.mjs "$OUT/pwa-site"
 else

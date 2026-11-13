@@ -77,7 +77,7 @@ static uint32_t trk_index(const track_t *t) { return (uint32_t)(t - trk); }
 
 static uint32_t trk_midi_ch(uint32_t i)    /* MIDI channel 0..15 of track i (keys -> MIDI out); 2.6: GLO > MIDI */
 {                                          /* (2.6: OFF is OFF, in and out: 0xFF, nothing sent) */
-    int32_t c = i < NPART ? song.g[G_CH1 + i] : song.g[G_DRCH];
+    int32_t c = song.g[trk_ch_param(i)];
     return c >= 1 && c <= 16 ? (uint32_t)c - 1u : 0xFFu;
 }
 /* a note on (vel > 0) / off to MIDI OUT on channel ch (trk_midi_ch: 0xFF, the track's MIDI OFF: nothing) */
@@ -119,7 +119,7 @@ static void thru_input(uint32_t pkt, const track_t *t, uint32_t ch,
         return;
     sent = &thru_sent[cable][ch][note];
     thru_release(sent, note);
-    if (!vel || !song.g[G_THRU1 + ti])
+    if (!vel || !song.g[trk_thru_param(ti)])
         return;
     out = trk_midi_ch(ti);
     if (out > 15u)
@@ -2949,7 +2949,7 @@ static track_t *midi_own(uint32_t ch)
     if (song.g[G_DRCH] && ch + 1u == (uint32_t)song.g[G_DRCH])
         return TDRUM;
     for (i = 0; i < NPART; i++)
-        if (ch + 1u == (uint32_t)song.g[G_CH1 + i])
+        if (ch + 1u == (uint32_t)song.g[trk_ch_param(i)])
             return &trk[i];
     return 0;
 }
@@ -3030,7 +3030,8 @@ static const uint8_t MIDI_CC_MAP[][2] = {
 /* MIDI LEARN (SLOOP 2.6, after Felucca 1.5 by Leo Kuroshita, Discussion #170): up to ML_N CCs, each set to one
  * parameter of one track, whatever channel it comes on (a channel IN ignores stays ignored) and whichever track that
  * channel plays. Kept with the settings (project.c settings_write, after the SYN kits), an entry 16 bits: bits 0..6
- * the CC, 7..8 the track, 9..15 the parameter's code, 0 = an empty entry: a common parameter its P_* id + 1 (their
+ * the CC, 7..8 the track's low bits, 9..15 the parameter's code, 0 = an empty entry.
+ * ml_track_hi stores the third track bit separately (the legacy prefix stays readable): a common parameter its P_* id + 1 (their
  * ids never move, new ones go before P_E0), an engine parameter ML_E0 + k for P_E0 + k (P_E0 moves when common ones
  * are added). A learned CC no longer reaches the standard map on any channel: the controller is the user's now. The
  * CCs with a meaning of their own (0 / 32 bank select, 1 mod wheel, 6 / 38 data entry, 11 expression, 64 sustain,
@@ -3040,6 +3041,8 @@ static const uint8_t MIDI_CC_MAP[][2] = {
 #define ML_E0 120u
 _Static_assert(P_E0 < ML_E0 && P_COUNT - P_E0 == 8, "MIDI LEARN: a code per parameter");
 static volatile uint16_t ml_tab[ML_N];
+static volatile uint16_t ml_track_hi; /* bit per learned mapping: tracks 5..8 */
+static uint32_t ml_track(uint32_t i) { return ((ml_tab[i]>>7)&3u) | ((ml_track_hi>>i)&1u)<<2; }
 static volatile uint8_t ml_arm, ml_heard;  /* the UI waits for a CC; the CC that came meanwhile + 1 (0 none) */
 static uint32_t ml_id(uint32_t code)        /* an entry's code -> P_* id, P_COUNT: none this firmware knows */
 {
@@ -3091,7 +3094,7 @@ static int __attribute__((noinline)) midi_learned(uint32_t cc, uint32_t value)
         e = ml_tab[i];
         if ((e >> 9) && (e & 127u) == cc) {
             if ((id = ml_id(e >> 9)) < P_COUNT)
-                midi_cc_set(&trk[(e >> 7) & 3u], id, value);
+                midi_cc_set(&trk[ml_track(i) % NTRK], id, value);
             hit = 1;
         }
     }
@@ -3397,18 +3400,17 @@ static void events_block(uint32_t n)
     {   /* GLO > SYSTEM > IN changed to or from CH n, or a channel of GLO > MIDI / DRUMS (2.6): what the other routing
          * started is released (its note-offs would go elsewhere now: stuck notes), the pedals and wheels too */
         static uint8_t route_was, thru_was;
-        static uint32_t chans_was = 0xFFFFFFFFu;
+        static uint8_t chans_was[NTRK + 2], chans_init;
         uint32_t rt = (uint32_t)song.g[G_ROUTE], thru = 0;
         for (i = 0; i < NTRK; i++)
-            thru |= (uint32_t)(song.g[G_THRU1 + i] != 0) << i;
+            thru |= (uint32_t)(song.g[trk_thru_param(i)] != 0) << i;
         if (thru != thru_was || rt != route_was)
             thru_panic((1u << NTRK) - 1u);
         thru_was = (uint8_t)thru;
-        uint32_t chans = (uint32_t)(song.g[G_CH1] & 31) | (uint32_t)(song.g[G_CH2] & 31) << 5 |
-                         (uint32_t)(song.g[G_CH3] & 31) << 10 | (uint32_t)(song.g[G_CHOTH] & 1) << 15 |
-                         (uint32_t)(song.g[G_DRCH] & 31) << 16 | (uint32_t)(song.g[G_FXCH] & 31) << 21;   /* (2.7: FX CH too:
-                                                       * its channel's notes go to the effects from then on) */
-        if ((rt != route_was && (rt >= 2u || route_was >= 2u)) || (chans != chans_was && chans_was != 0xFFFFFFFFu)) {
+        uint8_t chans[NTRK + 2];
+        for(i=0;i<NTRK;i++) chans[i]=(uint8_t)song.g[trk_ch_param(i)];
+        chans[NTRK]=(uint8_t)song.g[G_CHOTH]; chans[NTRK+1]=(uint8_t)song.g[G_FXCH];
+        if ((rt != route_was && (rt >= 2u || route_was >= 2u)) || (chans_init && memcmp(chans,chans_was,sizeof chans))) {
             panic_req = (uint8_t)((1u << NTRK) - 1u);
             seq_out_all_off();                        /* (MIDI OUT: the notes on end on the channels they went out on) */
             memset(midi_sel_on, 0, sizeof midi_sel_on);
@@ -3418,7 +3420,7 @@ static void events_block(uint32_t n)
                 trk[i].bend = 0;
         }
         route_was = (uint8_t)rt;
-        chans_was = chans;
+        memcpy(chans_was,chans,sizeof chans); chans_init=1;
     }
     pr = panic_req;
     if (pr)

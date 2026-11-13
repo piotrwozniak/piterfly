@@ -1,444 +1,158 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#000000">
-<title>piterfly vs SLOOP — what changes?</title>
-<link rel="icon" href="../icon-192.png">
-<link rel="stylesheet" href="changes.css">
-</head>
-<body>
-<main>
-<div class="page-toolbar"><nav aria-label="Navigation"><a href="../installer/">← Installer</a><a href="../editor/">Web editor</a></nav><select class="language-picker" id="language" aria-label="Language"><option value="en">English</option><option value="pl">Polski</option><option value="es">Español</option></select></div>
-<img class="brand" src="logo.png" width="446" height="304" alt="piterfly">
-<div class="strip" aria-hidden="true"></div>
-<h1>What changes with piterfly?</h1>
-<p class="lead">A SLOOP 2.8.5 variant for the M-VAVE FM-1, with more room for patterns and a clearer view of long sequences. The same four tracks and up to 64 steps per track.</p>
-<ul class="benefits">
-<li><strong>24 stored patterns instead of 4.</strong> Six banks, A1–F4, each storing a complete four-track loop.</li>
-<li><strong>128 song positions instead of 16.</strong> Arrange patterns in order, with 1–64 bars per position.</li>
-<li><strong>Clearer controls.</strong> Full step overviews, track-coloured selection frames that turn red during recording, page-navigation dots and save/delete icons.</li>
-<li><strong>Control external instruments with MIDI THRU.</strong> Forward incoming notes per track; turn its internal volume down to play only your external synth. <a href="#midi-thru">See the channel 1 setup.</a></li>
-<li><strong>Explicit save status.</strong> PENDING means waiting for flash; SAVED confirms completion. Failed settings writes are retried, and song files are checked before import starts.</li>
-</ul>
-<h2>Different track lengths, before and after</h2>
-<div class="comparison">
-<figure>
-<h3>Legacy layout · reconstruction</h3>
-<p class="screen-name">HOME — Track overview</p>
-<a class="screen" href="screenshots/layout-home-before.png" aria-label="Open schematic legacy HOME layout"><img src="screenshots/layout-home-before.png" width="720" height="720" alt="Schematic legacy HOME layout with current GPL icons: 64, 32, 12 and 8 steps; long tracks show the current group of 16"></a>
-<figcaption>Tracks 1–4: 64, 32, 12 and 8 steps. Long tracks show only the current group of 16 during playback.</figcaption>
-</figure>
-<figure class="after">
-<h3>After · piterfly</h3>
-<p class="screen-name">HOME — Track overview</p>
-<a class="screen" href="screenshots/piterfly-home-after.png" aria-label="Open full-size piterfly screenshot"><img src="screenshots/piterfly-home-after.png" width="720" height="720" alt="piterfly HOME with 64, 32, 12 and 8 steps: four rows, two rows, twelve cells and eight cells, with playback outlines"></a>
-<figcaption>The same 64 / 32 / 12 / 8 steps, all visible. Each track keeps its own loop length; white outlines show playback.</figcaption>
-</figure>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="changes.css"><link rel="icon" href="../icon-192.png">
+<title>Piterfly 1.1.0 — an expanded FM-1</title>
+</head><body><main><div class="page-toolbar"><nav>
+<a href="../installer/">Installer</a>
+<a href="../editor/">Web editor</a>
+<a href="midipipe.html">D MINI setup</a>
+</nav><select class="language-picker" id="language" aria-label="Language"><option value="en">English</option><option value="pl">Polski</option><option value="es">Español</option></select></div><img class="brand" src="logo.png" width="446" height="304" alt="piterfly"><div class="strip"></div>
+<h1>Piterfly 1.1.0</h1>
+<p>An alternative OS for the M-VAVE FM-1, built on SLOOP and its Felucca foundation. Tested on the physical FM-1 and accepted by the project owner.</p>
+<p class="note">Illustrations reproduce the actual 240 × 240 FM-1 firmware screens with example music data; they are not photographs of the physical display.</p>
+<h2>Seven synth parts + dedicated drums</h2>
+<p>Four additional normal synth tracks: engines, presets, notes, effects and MIDI routing. Eight synth voices are shared across the seven parts; drums have their own voices.</p>
+<h2>See all 64 note steps</h2>
+<div class="comparison"><figure><img src="screenshots/home-64.png" width="360" height="360" alt="Tracks 1–4"></figure><figure><img src="screenshots/home-tracks-5-8.png" width="360" height="360" alt="Tracks 5–8"></figure></div>
+<p>Full step views, distinct playback and edit cursors, track-coloured frames, recording indicators and page dots improve readability. The note-step capacity remains 64. PRESETS selects the track; ALGORITHM selects the sound.</p>
+<h2>24 pattern slots</h2>
+<p>Banks A1–F4 provide 24 complete pattern slots, up from four. Each pattern holds all eight tracks, sounds and mix.</p>
+
+<p>Hold SAVE and turn KNOB 1: six banks A–F provide 24 pattern slots, four on each device screen. A1/A2 are occupied in this example; the other slots are empty.</p>
+<div class="comparison pattern-banks"><figure><a class="screen" href="screenshots/save-bank-a.png"><img src="screenshots/save-bank-a.png" width="360" height="360" alt="SAVE bank A: slots A1–A4." loading="lazy"></a><figcaption>SAVE bank A: slots A1–A4.</figcaption></figure>
+<figure><a class="screen" href="screenshots/save-bank-b.png"><img src="screenshots/save-bank-b.png" width="360" height="360" alt="SAVE bank B: slots B1–B4." loading="lazy"></a><figcaption>SAVE bank B: slots B1–B4.</figcaption></figure>
+<figure><a class="screen" href="screenshots/save-bank-c.png"><img src="screenshots/save-bank-c.png" width="360" height="360" alt="SAVE bank C: slots C1–C4." loading="lazy"></a><figcaption>SAVE bank C: slots C1–C4.</figcaption></figure>
+<figure><a class="screen" href="screenshots/save-bank-d.png"><img src="screenshots/save-bank-d.png" width="360" height="360" alt="SAVE bank D: slots D1–D4." loading="lazy"></a><figcaption>SAVE bank D: slots D1–D4.</figcaption></figure>
+<figure><a class="screen" href="screenshots/save-bank-e.png"><img src="screenshots/save-bank-e.png" width="360" height="360" alt="SAVE bank E: slots E1–E4." loading="lazy"></a><figcaption>SAVE bank E: slots E1–E4.</figcaption></figure>
+<figure><a class="screen" href="screenshots/save-bank-f.png"><img src="screenshots/save-bank-f.png" width="360" height="360" alt="SAVE bank F: slots F1–F4." loading="lazy"></a><figcaption>SAVE bank F: slots F1–F4.</figcaption></figure>
 </div>
-<p class="note">Current piterfly frames are rendered from this source tree. Before images are schematic reconstructions of the legacy step layout using the new GPL icons, not historical screenshots or hardware photos. Full step views also appear in parameter-page footers and recording summaries. The 64-step limit is inherited from SLOOP.</p>
-<h2 id="navigation">See where you are in the options</h2>
-<p>Compact page indicators beside the BPM show how many pages are available and which one you are on. They follow your colour theme, with a contrasting active dot, and disappear when a section has only one page.</p>
-<div class="comparison">
-<figure>
-<h3>Legacy layout · reconstruction</h3>
-<p class="screen-name">GLO → MASTER — Global effects</p>
-<a class="screen" href="screenshots/layout-options-before.png" aria-label="Open schematic legacy options layout"><img src="screenshots/layout-options-before.png" width="720" height="720" loading="lazy" alt="Schematic legacy MASTER layout using current GPL icons: 64-step track at step 39, without a visible playback pointer in the 16-step footer"></a>
-<figcaption>The page number is only at the bottom. The footer shows 16 steps; the pointer disappears once playback passes step 16.</figcaption>
-</figure>
-<figure class="after">
-<h3>After · piterfly</h3>
-<p class="screen-name">GLO → MASTER — Global effects</p>
-<a class="screen" href="screenshots/piterfly-options-after.png" aria-label="Open full-size piterfly options screenshot"><img src="screenshots/piterfly-options-after.png" width="720" height="720" loading="lazy" alt="piterfly MASTER options: page indicators beside the BPM and all 64 steps in four rows, with step 39 outlined in white"></a>
-<figcaption>The active page is marked at the top. Below, all 64 steps fit in four rows and the white outline follows playback into the third row.</figcaption>
-</figure>
+<h2>128 SONG positions</h2><p>The device SONG page arranges up to 128 positions, up from 16. Each position selects a stored pattern for 1–64 bars. These screens show example positions 63–67 and 125–128 using A1/A2. SONG REC captures pattern switches and duration; quick CHAIN retains eight entries.</p><div class="comparison"><figure><a class="screen" href="screenshots/song-positions-63-67.png"><img src="screenshots/song-positions-63-67.png" width="360" alt="Device SONG: positions 63–67." loading="lazy"></a><figcaption>Device SONG: positions 63–67.</figcaption></figure>
+<figure><a class="screen" href="screenshots/song-position-128.png"><img src="screenshots/song-position-128.png" width="360" alt="Device SONG: positions 125–128." loading="lazy"></a><figcaption>Device SONG: positions 125–128.</figcaption></figure>
 </div>
-<p class="note">Both illustrations use the same notes, 64-step track and playback step 39 with the green theme. The legacy view is a schematic reconstruction with current GPL icons. GLO now has 10 pages, including MIDI THRU.</p>
-<p class="note">On HOME, FX and other parameter pages, PRESETS selects the track and ALGORITHM browses its sounds or drum kits. You can change the source sound while keeping GRANUL, including FREEZE. The active NOTES editor keeps its existing pair: PRESETS zooms, ALGORITHM selects the track. SONG, system settings and held-button controls keep their assignments; track selection stays locked during a free take.</p>
-<section class="midi-visual" aria-labelledby="midi-thru">
-<h2 id="midi-thru">Play an external synth with MIDI THRU</h2>
-<p>Play a note into the FM-1 and pass it on to an external synth. Turn THRU on for the tracks you need; each sends the received notes and velocity on its assigned MIDI channel.</p>
-<div class="setup-callout"><p><strong>Using a Mac and MidiPipe?</strong> Follow the <a href="midipipe.html">FM-1 + Behringer D MINI setup guide</a> for the exact MyPipe tool order, USB and audio wiring, channel assignments and the difference between sequencer output and live keyboard THRU.</p></div>
-<div class="midi-map">
-<h3 class="midi-pixel">One switch per track</h3>
-<p>Default channel assignments, with IN = NOTES. The arrows show what happens when each track’s THRU switch is ON.</p>
-<table class="midi-routing" aria-label="Default MIDI THRU routing for the four FM-1 tracks">
-<thead><tr><th scope="col">Incoming MIDI<br>USB / TRS</th><th scope="col">FM-1 track</th><th scope="col">USB MIDI out</th></tr></thead>
-<tbody>
-<tr style="--track:#61a1ff"><th scope="row">Channel 1</th><td><div class="midi-hop"><span class="midi-arrow" aria-hidden="true">→</span><span>Track 1<small>THRU ON</small></span><span class="midi-arrow" aria-hidden="true">→</span></div></td><td>Channel 1</td></tr>
-<tr style="--track:#1ecc70"><th scope="row">Channel 2</th><td><div class="midi-hop"><span class="midi-arrow" aria-hidden="true">→</span><span>Track 2<small>THRU ON</small></span><span class="midi-arrow" aria-hidden="true">→</span></div></td><td>Channel 2</td></tr>
-<tr style="--track:#ffc618"><th scope="row">Channel 3</th><td><div class="midi-hop"><span class="midi-arrow" aria-hidden="true">→</span><span>Track 3<small>THRU ON</small></span><span class="midi-arrow" aria-hidden="true">→</span></div></td><td>Channel 3</td></tr>
-<tr style="--track:#ff621a"><th scope="row">Channel 10</th><td><div class="midi-hop"><span class="midi-arrow" aria-hidden="true">→</span><span>Track 4<small>DRUMS · THRU ON</small></span><span class="midi-arrow" aria-hidden="true">→</span></div></td><td>Channel 10</td></tr>
-</tbody>
-</table>
-<p class="midi-map-note">THRU OFF stops forwarding that track’s input. CH1–CH4 in GLO → MIDI are the four track assignments; you can change them. Other input channels follow IN / OTHER routing. This is forwarding for four tracks, rather than an automatic pass-through of all 16 MIDI channels.</p>
-</div>
-<h3 class="midi-example-title">Example: Behringer D MINI on MIDI channel 1</h3>
-<div class="midi-flow" role="group" aria-label="Controller channel 1 to FM-1 track 1, then USB MIDI through a host to the Behringer on channel 1">
-<div class="midi-node"><h4>Controller</h4><p class="midi-channel">Channel 1</p><p>USB / TRS MIDI IN</p></div>
-<span class="midi-arrow" aria-hidden="true">→</span>
-<div class="midi-node active"><h4>FM-1</h4><p class="midi-channel">TRK1 ON</p><p class="midi-level">LEVEL 0</p><p>Internal sound: silent</p></div>
-<span class="midi-arrow" aria-hidden="true">→</span>
-<div class="midi-node"><h4>MIDI host</h4><p>Computer or host/interface</p><p>Routes FM-1 USB MIDI to the synth</p></div>
-<span class="midi-arrow" aria-hidden="true">→</span>
-<div class="midi-node active"><h4>Behringer</h4><p class="midi-channel">Channel 1</p><p>External synth plays</p></div>
-</div>
-<p class="midi-flow-caption">LEVEL 0 silences the FM-1’s internal track 1. MIDI notes still reach the Behringer. Set the Behringer’s receive channel to 1 and listen to its own audio output.</p>
-<div class="midi-settings">
-<figure>
-<h3>1. Assign the MIDI channels</h3>
-<p class="screen-name">GLO → MIDI</p>
-<a class="screen" href="screenshots/piterfly-midi-channels.png" aria-label="Open MIDI channel settings"><img src="screenshots/piterfly-midi-channels.png" width="720" height="720" loading="lazy" alt="FM-1 MIDI page: CH1 is 1, CH2 is 2, CH3 is 3, CH4 is 10"></a>
-<figcaption><strong>CH1 = 1</strong> assigns track 1 to MIDI channel 1. The fourth track is the drum track, on MIDI channel 10 here.</figcaption>
-</figure>
-<figure>
-<h3>2. Receive input notes</h3>
-<p class="screen-name">GLO → MIDI 2</p>
-<a class="screen" href="screenshots/piterfly-midi-input.png" aria-label="Open MIDI input settings"><img src="screenshots/piterfly-midi-input.png" width="720" height="720" loading="lazy" alt="FM-1 MIDI 2 page: IN is NOTES, OTHER is OFF, OUT is SEQ, BEND is 2"></a>
-<figcaption><strong>IN = NOTES</strong> routes channel 1 input to track 1. <strong>OTHER = OFF</strong> ignores unassigned channels. <strong>OUT = SEQ</strong> also sends recorded patterns; live THRU works with either KEYS or SEQ.</figcaption>
-</figure>
-<figure>
-<h3>3. Enable forwarding for track 1</h3>
-<p class="screen-name">GLO → MIDI THRU</p>
-<a class="screen" href="screenshots/piterfly-midi-thru.png" aria-label="Open per-track MIDI THRU settings"><img src="screenshots/piterfly-midi-thru.png" width="720" height="720" loading="lazy" alt="FM-1 MIDI THRU page: TRK1 ON, TRK2 OFF, TRK3 OFF, TRK4 OFF"></a>
-<figcaption><strong>TRK1 = ON.</strong> Only track 1 forwards input in this example. Leave the other switches OFF unless you need them.</figcaption>
-</figure>
-<figure>
-<h3>4. Silence the internal sound</h3>
-<p class="screen-name">HOME → Track 1</p>
-<a class="screen" href="screenshots/piterfly-midi-home.png" aria-label="Open HOME with track 1 volume at zero"><img src="screenshots/piterfly-midi-home.png" width="720" height="720" loading="lazy" alt="FM-1 HOME: track 1 selected with a blue frame, LEVEL is zero, other tracks keep their volume"></a>
-<figcaption>Select track 1 with <strong>PRESETS</strong>, then turn <strong>KNOB 2 · LEVEL</strong> down to <strong>0</strong>. MIDI forwarding continues.</figcaption>
-</figure>
-</div>
-<p class="note">Actual firmware UI renders, rather than hardware photos. THRU and channel assignments survive power-off and pattern changes; LEVEL belongs to each pattern. Keep track 1’s LEVEL at zero in the patterns used for this setup. THRU forwards Note On/Off and velocity; CC, sustain and pitch bend are not forwarded. The FM-1’s TRS jack is an input; forwarded MIDI leaves over USB.</p>
-</section>
-<h2 id="granular">Live granular processing · experimental</h2>
-<p>Turn any track into a granular texture, including FM and drum synth sounds. Select GRANUL on the existing INSERT page: knob 1 selects the effect, knob 2 selects a parameter pair, and knobs 3–4 edit its values. SELECT navigates between FX pages normally. FREEZE holds a fragment and keeps the cloud playing after the original notes end.</p>
-<div class="comparison">
-<figure>
-<h3>Sound controls</h3>
-<p class="screen-name">FX → INSERT → GRANUL — Pair 1/4</p>
-<a class="screen" href="screenshots/piterfly-granular-sound.png" aria-label="Open GRANUL size and density controls"><img src="screenshots/piterfly-granular-sound.png" width="720" height="720" loading="lazy" alt="GRANUL on track 1: INSRT, PARAM 1/4, SIZE 40 ms, DENSITY 20 per second; buffer capacity and LIVE status below"></a>
-<figcaption>Pair 1/4 adjusts SIZE and DENSITY. Knob 2 also selects PITCH/MIX, POS/SPREAD and CAPTURE/BUF. INSRT stays under knob 1 in every view. Margins and dividing lines match CHOR.</figcaption>
-</figure>
-<figure class="after">
-<h3>Capture · same INSERT page</h3>
-<p class="screen-name">FX → INSERT → GRANUL — Pair 4/4</p>
-<a class="screen" href="screenshots/piterfly-granular-source.png" aria-label="Open GRANUL capture and buffer display"><img src="screenshots/piterfly-granular-source.png" width="720" height="720" loading="lazy" alt="The same INSERT page with PARAM 4/4: CAPTURE set to FREEZE and read-only buffer capacity 3343 ms; all 64 steps remain visible"></a>
-<figcaption>Pair 4/4 switches LIVE/FREEZE; BUF shows the assigned capacity. Status and all 64 steps remain visible in every view.</figcaption>
-</figure>
-</div>
-<p>Changing a sound or engine keeps an active GRANUL insert and its settings. FREEZE preserves the captured audio; LIVE captures the new sound. Parameter edits update only changed fields, without blanking the screen.</p>
-<p class="note">The shared memory provides about 3.34 seconds for one granular track, 1.67 seconds each for two, 1.11 for three, or 0.84 for four. The other tracks and existing effects remain available. Capture is mono at 22.05 kHz using lossy 8-bit µ-law; dry audio retains its original quality. Four grains per track bound processing work. This development build still needs timing and listening tests on a physical FM-1.</p>
-<aside class="tradeoff">
-<p><strong>The trade-off: three user sample banks instead of four.</strong> USR4’s 80 KiB is reused for pattern storage. USR1–USR3, factory samples and SYN1–SYN4 remain available.</p>
-<p><strong>Back up before installing.</strong> Existing A–D patterns migrate to A1–A4, but USR4 is repurposed. Song-file import replaces all 24 pattern slots and the working loop, including empty slots.</p>
-</aside>
-<p class="note">Software tests cover storage, migration, playback, UI and the web editor. This version has not yet been validated on a physical FM-1; screen readability and real power-cut behaviour remain to be checked.</p>
-<aside class="support-project" aria-label="Support piterfly">
-  <div><strong>Enjoying piterfly?</strong><p>Support my work on piterfly with a coffee.</p></div>
-  <a class="support-link" href="https://buymeacoffee.com/piotrwoznil" target="_blank" rel="noopener noreferrer">Buy me a coffee <span aria-hidden="true">↗</span></a>
-</aside>
-<footer>
-<div class="footer-links">
-<nav aria-label="Next steps"><a href="../installer/">Back to installer</a><a href="../editor/">Open web editor</a></nav>
-<a class="creator-link" href="https://youtube.com/@piter_fly" target="_blank" rel="noopener noreferrer">Visit my YouTube <span aria-hidden="true">↗</span></a>
-</div>
-<p>piterfly 1.0.1 builds on SLOOP 2.8.5 and Felucca. Original authorship and GPL-3.0 licensing are retained.</p>
-</footer>
-</main>
-<script>
+<h2>Live granular INSERT</h2>
+<p>Reshape live audio with SIZE/DENSITY, PITCH/MIX, POS/SPREAD and LIVE/FREEZE. Sound changes retain the active effect and frozen history. Work is balanced across both processor cores. MIX 0 pauses capture and keeps earlier history. BUF displays the available duration.</p>
+<div class="comparison"><figure><a class="screen" href="screenshots/piterfly-granular-sound.png"><img src="screenshots/piterfly-granular-sound.png" width="360" alt="GRANUL SIZE and DENSITY." loading="lazy"></a><figcaption>GRANUL SIZE and DENSITY.</figcaption></figure>
+<figure><a class="screen" href="screenshots/granular-pitch-mix.png"><img src="screenshots/granular-pitch-mix.png" width="360" alt="GRANUL PITCH and MIX." loading="lazy"></a><figcaption>GRANUL PITCH and MIX.</figcaption></figure>
+<figure><a class="screen" href="screenshots/granular-pos-spread.png"><img src="screenshots/granular-pos-spread.png" width="360" alt="GRANUL POS and SPREAD." loading="lazy"></a><figcaption>GRANUL POS and SPREAD.</figcaption></figure>
+<figure><a class="screen" href="screenshots/piterfly-granular-source.png"><img src="screenshots/piterfly-granular-source.png" width="360" alt="GRANUL FREEZE and available BUF." loading="lazy"></a><figcaption>GRANUL FREEZE and available BUF.</figcaption></figure>
+</div><h2>Selective kick ducking</h2>
+<p>FX → FILTER → DUCK enables or disables kick-driven ducking for each synth part. MASTER → DUCK sets the overall depth. Let chords breathe while your lead stays in front.</p>
+<figure class="single-screen"><a class="screen" href="screenshots/piterfly-duck.png"><img src="screenshots/piterfly-duck.png" width="360" alt="Per-synth DUCK switch in FX → FILTER." loading="lazy"></a><figcaption>Per-synth DUCK switch in FX → FILTER.</figcaption></figure>
+<section id="midi-thru">
+<h2>MIDI THRU: add a physical instrument</h2>
+<p>Forward incoming Note On/Off and velocity per track to an external synth such as the Behringer D MINI. For USB, use a computer or MIDI host. MIDI carries notes; connect FM-1 and D MINI audio separately to your mixer. CC, sustain and pitch bend are not forwarded.</p>
+<figure class="rig-diagram"><a href="midi-rig.svg"><img src="midi-rig.svg" width="1100" height="660" alt="Connection map: keyboard, FM-1 and D MINI each connect by USB to the computer; FM-1 and D MINI audio go separately to the mixer." loading="lazy"></a><figcaption>Three USB data cables, one host, two separate audio outputs. Green: MIDI notes. Yellow: audio. Open the diagram to enlarge it.</figcaption></figure>
+<ol class="connection-steps">
+<li>Connect the keyboard, FM-1 and D MINI separately to the computer by USB, directly or through a data hub. Keep a MIDI router such as MidiPipe running: keyboard → FM-1, then FM-1 → D MINI. Avoid a parallel keyboard → D MINI route that would duplicate notes.</li>
+<li>For this channel-1 example, set the keyboard transmit channel, FM-1 CH1 and D MINI receive channel to 1. On FM-1, use IN = NOTES, TRK1 THRU = ON and track 1 LEVEL = 0. Enable OUT = SEQ to play recorded patterns on D MINI too. Tracks 2–7 and drums remain available for internal sounds.</li>
+<li>Connect the FM-1 audio output and D MINI audio output to separate mixer or audio-interface inputs. D MINI enriches the combined sound with its own synthesis; its audio does not pass through FM-1 GRANUL or DUCK.</li>
+</ol>
+<p><a class="setup-guide-link" href="midipipe.html">FM-1 + Behringer D MINI setup guide →</a></p>
+<div class="comparison"><figure><a class="screen" href="screenshots/midi-tracks-4-7.png"><img src="screenshots/midi-tracks-4-7.png" width="360" alt="MIDI channel assignments for synth parts 4–7." loading="lazy"></a><figcaption>MIDI channel assignments for synth parts 4–7.</figcaption></figure>
+<figure><a class="screen" href="screenshots/midi-thru-tracks-4-7.png"><img src="screenshots/midi-thru-tracks-4-7.png" width="360" alt="Independent THRU switches for synth parts 4–7." loading="lazy"></a><figcaption>Independent THRU switches for synth parts 4–7.</figcaption></figure>
+</div><h2>Storage and migration</h2>
+<p>Back up before upgrading. USR1 retains 80 KiB for samples; USR2/3/4 hold patterns. Factory samples and SYN1–SYN4 remain available. FUN9 projects import FUN1–FUN7, move the old drum part to track 8 and start the added synth parts empty. Live granular audio history is temporary.</p>
+</section></main><script>
 const TRANSLATIONS = {
   "pl": {
-    "piterfly vs SLOOP — what changes?": "piterfly a SLOOP — co się zmienia?",
-    "Navigation": "Nawigacja",
-    "← Installer": "← Instalator",
-    "Web editor": "Edytor webowy",
-    "What changes with piterfly?": "Co się zmienia w piterfly?",
-    "A SLOOP 2.8.5 variant for the M-VAVE FM-1, with more room for patterns and a clearer view of long sequences. The same four tracks and up to 64 steps per track.": "Wariant SLOOP 2.8.5 dla M-VAVE FM-1 z większą liczbą patternów i czytelniejszym widokiem długich sekwencji. Te same cztery ścieżki i do 64 kroków na każdej.",
-    "24 stored patterns instead of 4.": "24 zapisane patterny zamiast 4.",
-    "Six banks, A1–F4, each storing a complete four-track loop.": "Sześć banków, A1–F4. Każdy pattern przechowuje kompletną pętlę z czterema ścieżkami.",
-    "128 song positions instead of 16.": "128 pozycji utworu zamiast 16.",
-    "Arrange patterns in order, with 1–64 bars per position.": "Układaj patterny w kolejności, z 1–64 taktami na każdą pozycję.",
-    "Clearer controls.": "Czytelniejsza obsługa.",
-    "Full step overviews, track-coloured selection frames that turn red during recording, page-navigation dots and save/delete icons.": "Pełne widoki kroków, ramki wyboru w kolorach ścieżek, które podczas nagrywania zmieniają się na czerwone, kropki nawigacji między stronami oraz ikony zapisu i kasowania.",
-    "Control external instruments with MIDI THRU.": "Sterowanie zewnętrznymi instrumentami przez MIDI THRU.",
-    "Forward incoming notes per track; turn its internal volume down to play only your external synth.": "Przekazuj odbierane nuty osobno dla każdej ścieżki. Ścisz jej wewnętrzne brzmienie, aby grał tylko zewnętrzny syntezator.",
-    "See the channel 1 setup.": "Zobacz konfigurację kanału 1.",
-    "Explicit save status.": "Jednoznaczny status zapisu.",
-    "PENDING means waiting for flash; SAVED confirms completion. Failed settings writes are retried, and song files are checked before import starts.": "PENDING oznacza oczekiwanie na zapis do pamięci flash, a SAVED potwierdza jego zakończenie. Nieudany zapis ustawień jest ponawiany, a pliki utworów są sprawdzane przed rozpoczęciem importu.",
-    "Different track lengths, before and after": "Różne długości ścieżek — przed i po",
-    "HOME — Track overview": "HOME — Przegląd ścieżek",
-    "Tracks 1–4: 64, 32, 12 and 8 steps. Long tracks show only the current group of 16 during playback.": "Ścieżki 1–4: 64, 32, 12 i 8 kroków. Podczas odtwarzania długich ścieżek widać tylko bieżącą grupę 16 kroków.",
-    "After · piterfly": "Po · piterfly",
-    "Open full-size piterfly screenshot": "Otwórz zrzut ekranu piterfly w pełnym rozmiarze",
-    "piterfly HOME with 64, 32, 12 and 8 steps: four rows, two rows, twelve cells and eight cells, with playback outlines": "HOME w piterfly: 64, 32, 12 i 8 kroków — cztery rzędy, dwa rzędy, dwanaście i osiem pól, z ramkami odtwarzania",
-    "The same 64 / 32 / 12 / 8 steps, all visible. Each track keeps its own loop length; white outlines show playback.": "Te same 64 / 32 / 12 / 8 kroków, wszystkie widoczne. Każda ścieżka zachowuje własną długość pętli, a białe ramki wskazują odtwarzany krok.",
-    "See where you are in the options": "Wiesz, na której stronie opcji jesteś",
-    "Compact page indicators beside the BPM show how many pages are available and which one you are on. They follow your colour theme, with a contrasting active dot, and disappear when a section has only one page.": "Niewielkie wskaźniki obok BPM pokazują liczbę dostępnych stron i bieżącą pozycję. Korzystają z wybranego motywu kolorystycznego, z kontrastową kropką aktywnej strony. Znikają, jeśli sekcja ma tylko jedną stronę.",
-    "GLO → MASTER — Global effects": "GLO → MASTER — Efekty globalne",
-    "The page number is only at the bottom. The footer shows 16 steps; the pointer disappears once playback passes step 16.": "Numer strony jest tylko na dole. Stopka pokazuje 16 kroków; po przekroczeniu kroku 16 wskaźnik odtwarzania znika.",
-    "Open full-size piterfly options screenshot": "Otwórz opcje piterfly w pełnym rozmiarze",
-    "piterfly MASTER options: page indicators beside the BPM and all 64 steps in four rows, with step 39 outlined in white": "Opcje MASTER w piterfly: wskaźniki stron przy BPM i wszystkie 64 kroki w czterech rzędach, z białą ramką na kroku 39",
-    "The active page is marked at the top. Below, all 64 steps fit in four rows and the white outline follows playback into the third row.": "Aktywna strona jest zaznaczona u góry. Na dole wszystkie 64 kroki mieszczą się w czterech rzędach, a biała ramka podąża za odtwarzaniem do trzeciego rzędu.",
-    "On HOME, FX and other parameter pages, PRESETS selects the track and ALGORITHM browses its sounds or drum kits. You can change the source sound while keeping GRANUL, including FREEZE. The active NOTES editor keeps its existing pair: PRESETS zooms, ALGORITHM selects the track. SONG, system settings and held-button controls keep their assignments; track selection stays locked during a free take.": "Na HOME, FX i pozostałych stronach parametrów PRESETS wybiera ścieżkę, a ALGORITHM zmienia jej brzmienie lub zestaw perkusyjny. Zmiana brzmienia zachowuje GRANUL, również z FREEZE. Aktywny edytor NOTES zachowuje dotychczasową parę: PRESETS zmienia zoom, ALGORITHM wybiera ścieżkę. SONG, ustawienia systemowe i kombinacje z przytrzymanymi przyciskami zachowują swoje przypisania. Podczas swobodnego nagrania wybór ścieżki pozostaje zablokowany.",
-    "Play an external synth with MIDI THRU": "Graj na zewnętrznym syntezatorze przez MIDI THRU",
-    "Play a note into the FM-1 and pass it on to an external synth. Turn THRU on for the tracks you need; each sends the received notes and velocity on its assigned MIDI channel.": "Zagraj nutę do FM-1 i przekaż ją dalej do zewnętrznego syntezatora. Włącz THRU na wybranych ścieżkach. Każda wysyła odebrane nuty i ich siłę uderzenia na przypisanym kanale MIDI.",
-    "Using a Mac and MidiPipe?": "Używasz Maca i MidiPipe?",
-    "Follow the": "Skorzystaj z poradnika",
-    "FM-1 + Behringer D MINI setup guide": "konfiguracji FM-1 + Behringer D MINI",
-    "for the exact MyPipe tool order, USB and audio wiring, channel assignments and the difference between sequencer output and live keyboard THRU.": "— znajdziesz w nim dokładną kolejność narzędzi MyPipe, połączenia USB i audio, przypisania kanałów oraz różnicę między wyjściem sekwencera a THRU klawiatury granej na żywo.",
-    "One switch per track": "Osobny przełącznik dla każdej ścieżki",
-    "Default channel assignments, with IN = NOTES. The arrows show what happens when each track’s THRU switch is ON.": "Domyślne przypisania kanałów przy IN = NOTES. Strzałki pokazują działanie przy włączonym THRU danej ścieżki.",
-    "Default MIDI THRU routing for the four FM-1 tracks": "Domyślne przekazywanie MIDI THRU dla czterech ścieżek FM-1",
-    "Incoming MIDI": "Wejście MIDI",
-    "FM-1 track": "Ścieżka FM-1",
-    "USB MIDI out": "Wyjście USB MIDI",
-    "Channel 1": "Kanał 1",
-    "Track 1": "Ścieżka 1",
-    "Channel 2": "Kanał 2",
-    "Track 2": "Ścieżka 2",
-    "Channel 3": "Kanał 3",
-    "Track 3": "Ścieżka 3",
-    "Channel 10": "Kanał 10",
-    "Track 4": "Ścieżka 4",
-    "DRUMS · THRU ON": "PERKUSJA · THRU ON",
-    "THRU OFF stops forwarding that track’s input. CH1–CH4 in GLO → MIDI are the four track assignments; you can change them. Other input channels follow IN / OTHER routing. This is forwarding for four tracks, rather than an automatic pass-through of all 16 MIDI channels.": "THRU OFF wyłącza przekazywanie wejścia danej ścieżki. CH1–CH4 w GLO → MIDI to przypisania czterech ścieżek — możesz je zmienić. Inne kanały wejściowe podlegają ustawieniom IN / OTHER. To przekazywanie dla czterech ścieżek, a nie automatyczne przesyłanie wszystkich 16 kanałów MIDI.",
-    "Example: Behringer D MINI on MIDI channel 1": "Przykład: Behringer D MINI na kanale MIDI 1",
-    "Controller channel 1 to FM-1 track 1, then USB MIDI through a host to the Behringer on channel 1": "Kontroler na kanale 1 do ścieżki 1 FM-1, następnie USB MIDI przez host do Behringera na kanale 1",
-    "Controller": "Kontroler",
-    "Internal sound: silent": "Wewnętrzne brzmienie: wyciszone",
-    "MIDI host": "Host MIDI",
-    "Computer or host/interface": "Komputer lub host/interfejs",
-    "Routes FM-1 USB MIDI to the synth": "Przekazuje USB MIDI z FM-1 do syntezatora",
-    "External synth plays": "Gra zewnętrzny syntezator",
-    "LEVEL 0 silences the FM-1’s internal track 1. MIDI notes still reach the Behringer. Set the Behringer’s receive channel to 1 and listen to its own audio output.": "LEVEL 0 wycisza wewnętrzne brzmienie ścieżki 1 w FM-1. Nuty MIDI nadal docierają do Behringera. Ustaw jego kanał odbioru na 1 i słuchaj dźwięku z jego własnego wyjścia audio.",
-    "1. Assign the MIDI channels": "1. Przypisz kanały MIDI",
-    "Open MIDI channel settings": "Otwórz ustawienia kanałów MIDI",
-    "FM-1 MIDI page: CH1 is 1, CH2 is 2, CH3 is 3, CH4 is 10": "Strona MIDI w FM-1: CH1 = 1, CH2 = 2, CH3 = 3, CH4 = 10",
-    "assigns track 1 to MIDI channel 1. The fourth track is the drum track, on MIDI channel 10 here.": "przypisuje ścieżkę 1 do kanału MIDI 1. Czwarta ścieżka jest perkusyjna, tutaj na kanale MIDI 10.",
-    "2. Receive input notes": "2. Włącz odbieranie nut",
-    "Open MIDI input settings": "Otwórz ustawienia wejścia MIDI",
-    "FM-1 MIDI 2 page: IN is NOTES, OTHER is OFF, OUT is SEQ, BEND is 2": "Strona MIDI 2 w FM-1: IN = NOTES, OTHER = OFF, OUT = SEQ, BEND = 2",
-    "routes channel 1 input to track 1.": "kieruje wejście kanału 1 do ścieżki 1.",
-    "ignores unassigned channels.": "ignoruje nieprzypisane kanały.",
-    "also sends recorded patterns; live THRU works with either KEYS or SEQ.": "wysyła również nagrane patterny; THRU na żywo działa zarówno z KEYS, jak i SEQ.",
-    "3. Enable forwarding for track 1": "3. Włącz przekazywanie dla ścieżki 1",
-    "Open per-track MIDI THRU settings": "Otwórz ustawienia MIDI THRU dla ścieżek",
-    "FM-1 MIDI THRU page: TRK1 ON, TRK2 OFF, TRK3 OFF, TRK4 OFF": "Strona MIDI THRU w FM-1: TRK1 ON, TRK2 OFF, TRK3 OFF, TRK4 OFF",
-    "Only track 1 forwards input in this example. Leave the other switches OFF unless you need them.": "W tym przykładzie tylko ścieżka 1 przekazuje wejście. Pozostałe przełączniki zostaw wyłączone, jeśli ich nie potrzebujesz.",
-    "4. Silence the internal sound": "4. Wycisz wewnętrzne brzmienie",
-    "HOME → Track 1": "HOME → Ścieżka 1",
-    "Open HOME with track 1 volume at zero": "Otwórz HOME z wyciszoną ścieżką 1",
-    "FM-1 HOME: track 1 selected with a blue frame, LEVEL is zero, other tracks keep their volume": "HOME w FM-1: ścieżka 1 wybrana niebieską ramką, LEVEL = 0, pozostałe ścieżki zachowują głośność",
-    "Select track 1 with": "Wybierz ścieżkę 1 pokrętłem",
-    ", then turn": ", następnie zmniejsz",
-    "down to": "do",
-    ". MIDI forwarding continues.": ". Przekazywanie MIDI działa dalej.",
-    "Actual firmware UI renders, rather than hardware photos. THRU and channel assignments survive power-off and pattern changes; LEVEL belongs to each pattern. Keep track 1’s LEVEL at zero in the patterns used for this setup. THRU forwards Note On/Off and velocity; CC, sustain and pitch bend are not forwarded. The FM-1’s TRS jack is an input; forwarded MIDI leaves over USB.": "To rendery rzeczywistego interfejsu firmware, a nie zdjęcia urządzenia. THRU i przypisania kanałów są zachowywane po wyłączeniu zasilania i zmianie patternu; LEVEL jest zapisywany w każdym patternie osobno. W używanych tu patternach pozostaw LEVEL ścieżki 1 na zerze. THRU przekazuje Note On/Off i siłę uderzenia; nie przekazuje CC, sustain ani pitch bend. Gniazdo TRS w FM-1 jest wejściem; przekazywane MIDI wychodzi przez USB.",
-    "Live granular processing · experimental": "Granular na żywo · eksperymentalny",
-    "Turn any track into a granular texture, including FM and drum synth sounds. Select GRANUL on the existing INSERT page: knob 1 selects the effect, knob 2 selects a parameter pair, and knobs 3–4 edit its values. SELECT navigates between FX pages normally. FREEZE holds a fragment and keeps the cloud playing after the original notes end.": "Zamień dowolną ścieżkę w teksturę granularną, również brzmienia FM i syntezy perkusyjnej. Wybierz GRANUL na istniejącej stronie INSERT: pokrętło 1 wybiera efekt, pokrętło 2 parę parametrów, a pokrętła 3–4 edytują ich wartości. SELECT normalnie przełącza strony FX. FREEZE zatrzymuje fragment i podtrzymuje chmurę dźwięku po zakończeniu pierwotnych nut.",
-    "Sound controls": "Parametry brzmienia",
-    "FX → INSERT → GRANUL — Pair 1/4": "FX → INSERT → GRANUL — Para 1/4",
-    "Open GRANUL size and density controls": "Otwórz parametry rozmiaru i gęstości GRANUL",
-    "GRANUL on track 1: INSRT, PARAM 1/4, SIZE 40 ms, DENSITY 20 per second; buffer capacity and LIVE status below": "GRANUL na ścieżce 1: INSRT, PARAM 1/4, SIZE 40 ms, DENSITY 20 na sekundę; niżej pojemność bufora i status LIVE",
-    "Pair 1/4 adjusts SIZE and DENSITY. Knob 2 also selects PITCH/MIX, POS/SPREAD and CAPTURE/BUF. INSRT stays under knob 1 in every view. Margins and dividing lines match CHOR.": "Para 1/4 reguluje SIZE i DENSITY. Pokrętło 2 wybiera też PITCH/MIX, POS/SPREAD i CAPTURE/BUF. INSRT pozostaje pod pokrętłem 1 w każdym widoku. Marginesy i linie podziału odpowiadają CHOR.",
-    "Capture · same INSERT page": "Przechwytywanie · ta sama strona INSERT",
-    "FX → INSERT → GRANUL — Pair 4/4": "FX → INSERT → GRANUL — Para 4/4",
-    "Open GRANUL capture and buffer display": "Otwórz przechwytywanie i widok bufora GRANUL",
-    "The same INSERT page with PARAM 4/4: CAPTURE set to FREEZE and read-only buffer capacity 3343 ms; all 64 steps remain visible": "Ta sama strona INSERT z PARAM 4/4: CAPTURE = FREEZE, pojemność bufora tylko do odczytu 3343 ms; wszystkie 64 kroki pozostają widoczne",
-    "Pair 4/4 switches LIVE/FREEZE; BUF shows the assigned capacity. Status and all 64 steps remain visible in every view.": "Para 4/4 przełącza LIVE/FREEZE; BUF pokazuje przydzieloną pojemność. Status i wszystkie 64 kroki pozostają widoczne w każdym widoku.",
-    "Changing a sound or engine keeps an active GRANUL insert and its settings. FREEZE preserves the captured audio; LIVE captures the new sound. Parameter edits update only changed fields, without blanking the screen.": "Zmiana brzmienia lub silnika zachowuje aktywny efekt GRANUL i jego ustawienia. FREEZE zachowuje przechwycony dźwięk; LIVE przechwytuje nowe brzmienie. Edycja parametrów odświeża tylko zmienione pola, bez wygaszania ekranu.",
-    "The shared memory provides about 3.34 seconds for one granular track, 1.67 seconds each for two, 1.11 for three, or 0.84 for four. The other tracks and existing effects remain available. Capture is mono at 22.05 kHz using lossy 8-bit µ-law; dry audio retains its original quality. Four grains per track bound processing work. This development build still needs timing and listening tests on a physical FM-1.": "Wspólna pamięć zapewnia około 3,34 s dla jednej ścieżki granularnej, po 1,67 s dla dwóch, 1,11 s dla trzech lub 0,84 s dla czterech. Pozostałe ścieżki i istniejące efekty nadal działają. Przechwytywanie jest monofoniczne, 22,05 kHz, ze stratną kompresją 8-bit µ-law; sygnał bez efektu zachowuje pierwotną jakość. Cztery ziarna na ścieżkę ograniczają koszt obliczeń. Ta wersja rozwojowa nadal wymaga pomiarów czasu i testów odsłuchowych na fizycznym FM-1.",
-    "The trade-off: three user sample banks instead of four.": "Kompromis: trzy banki własnych sampli zamiast czterech.",
-    "USR4’s 80 KiB is reused for pattern storage. USR1–USR3, factory samples and SYN1–SYN4 remain available.": "80 KiB banku USR4 służy do przechowywania patternów. USR1–USR3, fabryczne sample i SYN1–SYN4 pozostają dostępne.",
-    "Back up before installing.": "Zrób kopię zapasową przed instalacją.",
-    "Existing A–D patterns migrate to A1–A4, but USR4 is repurposed. Song-file import replaces all 24 pattern slots and the working loop, including empty slots.": "Dotychczasowe patterny A–D są przenoszone do A1–A4, ale USR4 zmienia przeznaczenie. Import pliku utworu zastępuje wszystkie 24 sloty patternów i roboczą pętlę, również pustymi slotami.",
-    "Software tests cover storage, migration, playback, UI and the web editor. This version has not yet been validated on a physical FM-1; screen readability and real power-cut behaviour remain to be checked.": "Testy programowe obejmują przechowywanie danych, migrację, odtwarzanie, interfejs i edytor webowy. Ta wersja nie została jeszcze zweryfikowana na fizycznym FM-1; czytelność ekranu i zachowanie przy rzeczywistej utracie zasilania wymagają sprawdzenia.",
-    "Support piterfly": "Wesprzyj piterfly",
-    "Enjoying piterfly?": "Podoba Ci się piterfly?",
-    "Support my work on piterfly with a coffee.": "Wesprzyj moją pracę nad piterfly, stawiając mi kawę.",
-    "Buy me a coffee": "Postaw mi kawę",
-    "Next steps": "Kolejne kroki",
-    "Back to installer": "Wróć do instalatora",
-    "Open web editor": "Otwórz edytor webowy",
-    "piterfly 1.0.1 builds on SLOOP 2.8.5 and Felucca. Original authorship and GPL-3.0 licensing are retained.": "piterfly 1.0.1 bazuje na SLOOP 2.8.5 i Felucca. Zachowano oznaczenia oryginalnych autorów i licencję GPL-3.0.",
-    "piterfly": "piterfly",
-    "USB / TRS MIDI IN": "USB / TRS MIDI IN",
-    "FM-1": "FM-1",
-    "TRK1 ON": "TRK1 ON",
-    "↗": "↗",
-    "LEVEL 0": "LEVEL 0",
-    "Behringer": "Behringer",
-    "GLO → MIDI": "GLO → MIDI",
-    "CH1 = 1": "CH1 = 1",
-    "GLO → MIDI 2": "GLO → MIDI 2",
-    "IN = NOTES": "IN = NOTES",
-    "OTHER = OFF": "OTHER = OFF",
-    "OUT = SEQ": "OUT = SEQ",
-    "GLO → MIDI THRU": "GLO → MIDI THRU",
-    "TRK1 = ON.": "TRK1 = ON.",
-    "PRESETS": "PRESETS",
-    "KNOB 2 · LEVEL": "KNOB 2 · LEVEL",
-    "0": "0",
-    "USB / TRS": "USB / TRS",
-    "→": "→",
-    "THRU ON": "THRU ON",
+    "Piterfly 1.1.0 — an expanded FM-1": "Piterfly 1.1.0 — rozbudowany FM-1",
+    "Installer": "Instalator",
+    "Web editor": "Edytor internetowy",
+    "D MINI setup": "Połączenie D MINI",
     "Language": "Język",
-    "Visit my YouTube": "Zobacz mój YouTube",
-    "Legacy layout · reconstruction": "Poprzedni układ · rekonstrukcja",
-    "Open schematic legacy HOME layout": "Otwórz schematyczną rekonstrukcję poprzedniego HOME",
-    "Schematic legacy HOME layout with current GPL icons: 64, 32, 12 and 8 steps; long tracks show the current group of 16": "Schemat poprzedniego HOME z nowymi ikonami GPL: 64, 32, 12 i 8 kroków; długie ścieżki pokazują bieżącą grupę 16",
-    "Current piterfly frames are rendered from this source tree. Before images are schematic reconstructions of the legacy step layout using the new GPL icons, not historical screenshots or hardware photos. Full step views also appear in parameter-page footers and recording summaries. The 64-step limit is inherited from SLOOP.": "Widoki piterfly wyrenderowano z tego drzewa źródeł. Obrazy poprzedniego układu to schematyczne rekonstrukcje z nowymi ikonami GPL, a nie historyczne zrzuty ani zdjęcia urządzenia. Pełne widoki kroków są też w stopkach stron parametrów i podsumowaniach nagrywania. Limit 64 kroków pochodzi ze SLOOP.",
-    "Open schematic legacy options layout": "Otwórz schematyczny poprzedni układ opcji",
-    "Schematic legacy MASTER layout using current GPL icons: 64-step track at step 39, without a visible playback pointer in the 16-step footer": "Schemat poprzedniego MASTER z nowymi ikonami GPL: ścieżka 64-krokowa na kroku 39, bez wskaźnika w 16-krokowej stopce",
-    "Both illustrations use the same notes, 64-step track and playback step 39 with the green theme. The legacy view is a schematic reconstruction with current GPL icons. GLO now has 10 pages, including MIDI THRU.": "Obie ilustracje pokazują te same nuty, ścieżkę 64-krokową i krok odtwarzania 39 w zielonym motywie. Poprzedni widok jest schematyczną rekonstrukcją z obecnymi ikonami GPL. GLO ma teraz 10 stron, w tym MIDI THRU."
+    "piterfly": "piterfly",
+    "Piterfly 1.1.0": "Piterfly 1.1.0",
+    "An alternative OS for the M-VAVE FM-1, built on SLOOP and its Felucca foundation. Tested on the physical FM-1 and accepted by the project owner.": "Alternatywny system dla M-VAVE FM-1, zbudowany na bazie SLOOP i jego fundamentu Felucca. Sprawdzony na fizycznym FM-1 i zaakceptowany przez właściciela projektu.",
+    "Seven synth parts + dedicated drums": "Siedem ścieżek syntezatora + osobna perkusja",
+    "Four additional normal synth tracks: engines, presets, notes, effects and MIDI routing. Eight synth voices are shared across the seven parts; drums have their own voices.": "Cztery dodatkowe, normalne ścieżki syntezatora: silniki, presety, nuty, efekty i routing MIDI. Siedem ścieżek dzieli osiem głosów syntezy; perkusja ma osobne głosy.",
+    "See all 64 note steps": "Zobacz wszystkie 64 kroki nutowe",
+    "Tracks 1–4": "Ścieżki 1–4",
+    "Tracks 5–8": "Ścieżki 5–8",
+    "Full step views, distinct playback and edit cursors, track-coloured frames, recording indicators and page dots improve readability. The note-step capacity remains 64. PRESETS selects the track; ALGORITHM selects the sound.": "Pełne widoki kroków, osobne kursory odtwarzania i edycji, kolorowe ramki ścieżek, oznaczenia nagrywania i kropki stron poprawiają czytelność. Limit kroków nutowych nadal wynosi 64. PRESETS wybiera ścieżkę, ALGORITHM brzmienie.",
+    "Live granular INSERT": "Granularny INSERT na żywo",
+    "Reshape live audio with SIZE/DENSITY, PITCH/MIX, POS/SPREAD and LIVE/FREEZE. Sound changes retain the active effect and frozen history. Work is balanced across both processor cores. MIX 0 pauses capture and keeps earlier history. BUF displays the available duration.": "Zmieniaj audio przez SIZE/DENSITY, PITCH/MIX, POS/SPREAD i LIVE/FREEZE. Zmiana barwy zachowuje aktywny efekt i zamrożoną historię. Praca jest dzielona między oba rdzenie. MIX 0 zatrzymuje przechwytywanie i zachowuje wcześniejszą historię. BUF pokazuje dostępny czas.",
+    "Selective kick ducking": "Wybór ścieżek reagujących na stopę",
+    "FX → FILTER → DUCK enables or disables kick-driven ducking for each synth part. MASTER → DUCK sets the overall depth. Let chords breathe while your lead stays in front.": "FX → FILTER → DUCK włącza lub wyłącza ducking wyzwalany stopą dla każdej ścieżki syntezatora. MASTER → DUCK ustawia wspólną głębokość. Akordy mogą pulsować, a lead pozostać na pierwszym planie.",
+    "MIDI THRU: add a physical instrument": "MIDI THRU: dołącz fizyczny instrument",
+    "Forward incoming Note On/Off and velocity per track to an external synth such as the Behringer D MINI. For USB, use a computer or MIDI host. MIDI carries notes; connect FM-1 and D MINI audio separately to your mixer. CC, sustain and pitch bend are not forwarded.": "Przekazuj Note On/Off i velocity danej ścieżki do zewnętrznego syntezatora, np. Behringera D MINI. USB wymaga komputera lub hosta MIDI. MIDI przekazuje nuty; audio FM-1 i D MINI podłącz osobno do miksera. CC, sustain i pitch bend nie są przekazywane.",
+    "Storage and migration": "Pamięć i migracja",
+    "Back up before upgrading. USR1 retains 80 KiB for samples; USR2/3/4 hold patterns. Factory samples and SYN1–SYN4 remain available. FUN9 projects import FUN1–FUN7, move the old drum part to track 8 and start the added synth parts empty. Live granular audio history is temporary.": "Przed aktualizacją wykonaj kopię. USR1 zachowuje 80 KiB na sample; USR2/3/4 przechowują patterny. Fabryczne sample i SYN1–SYN4 pozostają dostępne. Projekty FUN9 importują FUN1–FUN7, przenoszą dawną perkusję na ścieżkę 8 i pozostawiają nowe ścieżki puste. Historia audio granulara jest tymczasowa.",
+    "Device SONG: positions 63–67.": "SONG urządzenia: pozycje 63–67.",
+    "Device SONG: positions 125–128.": "SONG urządzenia: pozycje 125–128.",
+    "GRANUL SIZE and DENSITY.": "GRANUL: SIZE i DENSITY.",
+    "GRANUL FREEZE and available BUF.": "GRANUL: FREEZE i dostępny BUF.",
+    "Per-synth DUCK switch in FX → FILTER.": "Przełącznik DUCK syntezatora w FX → FILTER.",
+    "MIDI channel assignments for synth parts 4–7.": "Przypisania kanałów MIDI syntezatorów 4–7.",
+    "Independent THRU switches for synth parts 4–7.": "Niezależne przełączniki THRU syntezatorów 4–7.",
+    "Illustrations reproduce the actual 240 × 240 FM-1 firmware screens with example music data; they are not photographs of the physical display.": "Ilustracje odwzorowują rzeczywiste ekrany firmware FM-1 240 × 240 z przykładowymi danymi muzycznymi; nie są zdjęciami fizycznego wyświetlacza.",
+    "Hold SAVE and turn KNOB 1: six banks A–F provide 24 pattern slots, four on each device screen. A1/A2 are occupied in this example; the other slots are empty.": "Przytrzymaj SAVE i obracaj KNOB 1: sześć banków A–F daje 24 sloty patternów, po cztery na ekranie urządzenia. W przykładzie A1/A2 są zajęte, pozostałe sloty są puste.",
+    "SAVE bank A: slots A1–A4.": "SAVE, bank A: sloty A1–A4.",
+    "SAVE bank B: slots B1–B4.": "SAVE, bank B: sloty B1–B4.",
+    "SAVE bank C: slots C1–C4.": "SAVE, bank C: sloty C1–C4.",
+    "SAVE bank D: slots D1–D4.": "SAVE, bank D: sloty D1–D4.",
+    "SAVE bank E: slots E1–E4.": "SAVE, bank E: sloty E1–E4.",
+    "SAVE bank F: slots F1–F4.": "SAVE, bank F: sloty F1–F4.",
+    "24 pattern slots": "24 sloty patternów",
+    "Banks A1–F4 provide 24 complete pattern slots, up from four. Each pattern holds all eight tracks, sounds and mix.": "Banki A1–F4 dają 24 miejsca na kompletne patterny, zamiast czterech. Każdy pattern przechowuje osiem ścieżek, brzmienia i miks.",
+    "128 SONG positions": "128 pozycji SONG",
+    "The device SONG page arranges up to 128 positions, up from 16. Each position selects a stored pattern for 1–64 bars. These screens show example positions 63–67 and 125–128 using A1/A2. SONG REC captures pattern switches and duration; quick CHAIN retains eight entries.": "Strona SONG urządzenia mieści do 128 pozycji, zamiast 16. Każda wybiera zapisany pattern na 1–64 takty. Ekrany pokazują przykładowe pozycje 63–67 i 125–128 z A1/A2. SONG REC zapisuje przełączenia i czas grania; szybki CHAIN zachowuje osiem pozycji.",
+    "GRANUL PITCH and MIX.": "GRANUL: PITCH i MIX.",
+    "GRANUL POS and SPREAD.": "GRANUL: POS i SPREAD.",
+    "Connection map: keyboard, FM-1 and D MINI each connect by USB to the computer; FM-1 and D MINI audio go separately to the mixer.": "Schemat: klawiatura, FM-1 i D MINI łączą się osobno przez USB z komputerem; audio FM-1 i D MINI trafia osobno do miksera.",
+    "Three USB data cables, one host, two separate audio outputs. Green: MIDI notes. Yellow: audio. Open the diagram to enlarge it.": "Trzy kable USB do danych, jeden host, dwa osobne wyjścia audio. Zielony: nuty MIDI. Żółty: audio. Otwórz schemat, aby go powiększyć.",
+    "Connect the keyboard, FM-1 and D MINI separately to the computer by USB, directly or through a data hub. Keep a MIDI router such as MidiPipe running: keyboard → FM-1, then FM-1 → D MINI. Avoid a parallel keyboard → D MINI route that would duplicate notes.": "Podłącz klawiaturę, FM-1 i D MINI osobno przez USB do komputera, bezpośrednio lub przez hub do danych. Pozostaw uruchomiony router MIDI, np. MidiPipe: klawiatura → FM-1, następnie FM-1 → D MINI. Unikaj równoległej drogi klawiatura → D MINI, która dublowałaby nuty.",
+    "For this channel-1 example, set the keyboard transmit channel, FM-1 CH1 and D MINI receive channel to 1. On FM-1, use IN = NOTES, TRK1 THRU = ON and track 1 LEVEL = 0. Enable OUT = SEQ to play recorded patterns on D MINI too. Tracks 2–7 and drums remain available for internal sounds.": "W tym przykładzie ustaw kanał nadawania klawiatury, FM-1 CH1 i kanał odbioru D MINI na 1. Na FM-1 ustaw IN = NOTES, TRK1 THRU = ON i LEVEL ścieżki 1 = 0. Włącz OUT = SEQ, aby D MINI grał także zapisane patterny. Ścieżki 2–7 i perkusja pozostają dostępne dla wewnętrznych brzmień.",
+    "Connect the FM-1 audio output and D MINI audio output to separate mixer or audio-interface inputs. D MINI enriches the combined sound with its own synthesis; its audio does not pass through FM-1 GRANUL or DUCK.": "Podłącz wyjścia audio FM-1 i D MINI do osobnych wejść miksera lub interfejsu audio. D MINI wzbogaca wspólne brzmienie własną syntezą; jego audio nie przechodzi przez GRANUL ani DUCK w FM-1.",
+    "FM-1 + Behringer D MINI setup guide →": "Poradnik połączenia FM-1 + Behringer D MINI →"
   },
   "es": {
-    "piterfly vs SLOOP — what changes?": "piterfly frente a SLOOP: ¿qué cambia?",
-    "Navigation": "Navegación",
-    "← Installer": "← Instalador",
+    "Piterfly 1.1.0 — an expanded FM-1": "Piterfly 1.1.0 — un FM-1 ampliado",
+    "Installer": "Instalador",
     "Web editor": "Editor web",
-    "What changes with piterfly?": "¿Qué cambia con piterfly?",
-    "A SLOOP 2.8.5 variant for the M-VAVE FM-1, with more room for patterns and a clearer view of long sequences. The same four tracks and up to 64 steps per track.": "Una variante de SLOOP 2.8.5 para el M-VAVE FM-1, con más espacio para patrones y una vista más clara de las secuencias largas. Las mismas cuatro pistas y hasta 64 pasos por pista.",
-    "24 stored patterns instead of 4.": "24 patrones guardados en lugar de 4.",
-    "Six banks, A1–F4, each storing a complete four-track loop.": "Seis bancos, A1–F4. Cada patrón guarda un bucle completo de cuatro pistas.",
-    "128 song positions instead of 16.": "128 posiciones de canción en lugar de 16.",
-    "Arrange patterns in order, with 1–64 bars per position.": "Ordena los patrones con entre 1 y 64 compases por posición.",
-    "Clearer controls.": "Controles más claros.",
-    "Full step overviews, track-coloured selection frames that turn red during recording, page-navigation dots and save/delete icons.": "Vistas completas de los pasos, marcos de selección del color de cada pista que se vuelven rojos al grabar, puntos de navegación entre páginas e iconos de guardar y borrar.",
-    "Control external instruments with MIDI THRU.": "Controla instrumentos externos con MIDI THRU.",
-    "Forward incoming notes per track; turn its internal volume down to play only your external synth.": "Reenvía las notas recibidas por pista; baja su volumen interno para que solo suene el sintetizador externo.",
-    "See the channel 1 setup.": "Ver la configuración del canal 1.",
-    "Explicit save status.": "Estado de guardado explícito.",
-    "PENDING means waiting for flash; SAVED confirms completion. Failed settings writes are retried, and song files are checked before import starts.": "PENDING indica que el guardado en flash está pendiente; SAVED confirma que ha terminado. Los ajustes se vuelven a guardar si falla la escritura, y los archivos de canción se comprueban antes de importarlos.",
-    "Different track lengths, before and after": "Distintas longitudes de pista, antes y después",
-    "HOME — Track overview": "HOME — Vista de las pistas",
-    "Tracks 1–4: 64, 32, 12 and 8 steps. Long tracks show only the current group of 16 during playback.": "Pistas 1–4: 64, 32, 12 y 8 pasos. Las pistas largas solo muestran el grupo actual de 16 durante la reproducción.",
-    "After · piterfly": "Después · piterfly",
-    "Open full-size piterfly screenshot": "Abrir la captura de piterfly a tamaño completo",
-    "piterfly HOME with 64, 32, 12 and 8 steps: four rows, two rows, twelve cells and eight cells, with playback outlines": "HOME de piterfly con 64, 32, 12 y 8 pasos: cuatro filas, dos filas, doce y ocho celdas, con marcos de reproducción",
-    "The same 64 / 32 / 12 / 8 steps, all visible. Each track keeps its own loop length; white outlines show playback.": "Los mismos 64 / 32 / 12 / 8 pasos, todos visibles. Cada pista conserva su propia longitud de bucle; los marcos blancos indican la reproducción.",
-    "See where you are in the options": "Sabe en qué página de opciones estás",
-    "Compact page indicators beside the BPM show how many pages are available and which one you are on. They follow your colour theme, with a contrasting active dot, and disappear when a section has only one page.": "Los pequeños indicadores junto al BPM muestran cuántas páginas hay y cuál está activa. Siguen tu tema de colores, con un punto activo que contrasta, y desaparecen si la sección solo tiene una página.",
-    "GLO → MASTER — Global effects": "GLO → MASTER — Efectos globales",
-    "The page number is only at the bottom. The footer shows 16 steps; the pointer disappears once playback passes step 16.": "El número de página solo aparece abajo. El pie muestra 16 pasos; el indicador desaparece cuando la reproducción supera el paso 16.",
-    "Open full-size piterfly options screenshot": "Abrir las opciones de piterfly a tamaño completo",
-    "piterfly MASTER options: page indicators beside the BPM and all 64 steps in four rows, with step 39 outlined in white": "Opciones MASTER de piterfly: indicadores junto al BPM y los 64 pasos en cuatro filas, con el paso 39 enmarcado en blanco",
-    "The active page is marked at the top. Below, all 64 steps fit in four rows and the white outline follows playback into the third row.": "La página activa se marca arriba. Abajo, los 64 pasos caben en cuatro filas y el marco blanco sigue la reproducción hasta la tercera fila.",
-    "On HOME, FX and other parameter pages, PRESETS selects the track and ALGORITHM browses its sounds or drum kits. You can change the source sound while keeping GRANUL, including FREEZE. The active NOTES editor keeps its existing pair: PRESETS zooms, ALGORITHM selects the track. SONG, system settings and held-button controls keep their assignments; track selection stays locked during a free take.": "En HOME, FX y las demás páginas de parámetros, PRESETS selecciona la pista y ALGORITHM cambia sus sonidos o kits de batería. Puedes cambiar el sonido de origen conservando GRANUL, incluso con FREEZE. El editor NOTES activo mantiene su pareja de controles: PRESETS cambia el zoom y ALGORITHM selecciona la pista. SONG, los ajustes del sistema y los controles con botones mantenidos conservan sus funciones; la selección de pista queda bloqueada durante una toma libre.",
-    "Play an external synth with MIDI THRU": "Toca un sintetizador externo con MIDI THRU",
-    "Play a note into the FM-1 and pass it on to an external synth. Turn THRU on for the tracks you need; each sends the received notes and velocity on its assigned MIDI channel.": "Toca una nota hacia el FM-1 y pásala a un sintetizador externo. Activa THRU en las pistas que necesites; cada una envía las notas recibidas y su velocidad por el canal MIDI asignado.",
-    "Using a Mac and MidiPipe?": "¿Usas un Mac y MidiPipe?",
-    "Follow the": "Consulta la",
-    "FM-1 + Behringer D MINI setup guide": "guía de configuración de FM-1 + Behringer D MINI",
-    "for the exact MyPipe tool order, USB and audio wiring, channel assignments and the difference between sequencer output and live keyboard THRU.": "para ver el orden exacto de las herramientas de MyPipe, las conexiones USB y de audio, los canales y la diferencia entre la salida del secuenciador y el THRU del teclado en directo.",
-    "One switch per track": "Un interruptor por pista",
-    "Default channel assignments, with IN = NOTES. The arrows show what happens when each track’s THRU switch is ON.": "Asignaciones predeterminadas de canales con IN = NOTES. Las flechas muestran qué ocurre cuando THRU está activado en cada pista.",
-    "Default MIDI THRU routing for the four FM-1 tracks": "Enrutamiento MIDI THRU predeterminado para las cuatro pistas del FM-1",
-    "Incoming MIDI": "Entrada MIDI",
-    "FM-1 track": "Pista del FM-1",
-    "USB MIDI out": "Salida USB MIDI",
-    "Channel 1": "Canal 1",
-    "Track 1": "Pista 1",
-    "Channel 2": "Canal 2",
-    "Track 2": "Pista 2",
-    "Channel 3": "Canal 3",
-    "Track 3": "Pista 3",
-    "Channel 10": "Canal 10",
-    "Track 4": "Pista 4",
-    "DRUMS · THRU ON": "BATERÍA · THRU ON",
-    "THRU OFF stops forwarding that track’s input. CH1–CH4 in GLO → MIDI are the four track assignments; you can change them. Other input channels follow IN / OTHER routing. This is forwarding for four tracks, rather than an automatic pass-through of all 16 MIDI channels.": "THRU OFF deja de reenviar la entrada de esa pista. CH1–CH4 en GLO → MIDI son las asignaciones de las cuatro pistas; puedes cambiarlas. Los demás canales de entrada siguen IN / OTHER. Es un reenvío para cuatro pistas, no un paso automático de los 16 canales MIDI.",
-    "Example: Behringer D MINI on MIDI channel 1": "Ejemplo: Behringer D MINI en el canal MIDI 1",
-    "Controller channel 1 to FM-1 track 1, then USB MIDI through a host to the Behringer on channel 1": "Controlador en el canal 1 hacia la pista 1 del FM-1; después, USB MIDI a través de un host hacia el Behringer en el canal 1",
-    "Controller": "Controlador",
-    "Internal sound: silent": "Sonido interno: silenciado",
-    "MIDI host": "Host MIDI",
-    "Computer or host/interface": "Ordenador o host/interfaz",
-    "Routes FM-1 USB MIDI to the synth": "Dirige el USB MIDI del FM-1 al sintetizador",
-    "External synth plays": "Suena el sintetizador externo",
-    "LEVEL 0 silences the FM-1’s internal track 1. MIDI notes still reach the Behringer. Set the Behringer’s receive channel to 1 and listen to its own audio output.": "LEVEL 0 silencia el sonido interno de la pista 1 del FM-1. Las notas MIDI siguen llegando al Behringer. Ajusta su canal de recepción a 1 y escucha su propia salida de audio.",
-    "1. Assign the MIDI channels": "1. Asigna los canales MIDI",
-    "Open MIDI channel settings": "Abrir los ajustes de canales MIDI",
-    "FM-1 MIDI page: CH1 is 1, CH2 is 2, CH3 is 3, CH4 is 10": "Página MIDI del FM-1: CH1 = 1, CH2 = 2, CH3 = 3, CH4 = 10",
-    "assigns track 1 to MIDI channel 1. The fourth track is the drum track, on MIDI channel 10 here.": "asigna la pista 1 al canal MIDI 1. La cuarta pista es la de batería, aquí en el canal MIDI 10.",
-    "2. Receive input notes": "2. Recibe las notas de entrada",
-    "Open MIDI input settings": "Abrir los ajustes de entrada MIDI",
-    "FM-1 MIDI 2 page: IN is NOTES, OTHER is OFF, OUT is SEQ, BEND is 2": "Página MIDI 2 del FM-1: IN = NOTES, OTHER = OFF, OUT = SEQ, BEND = 2",
-    "routes channel 1 input to track 1.": "dirige la entrada del canal 1 a la pista 1.",
-    "ignores unassigned channels.": "ignora los canales sin asignar.",
-    "also sends recorded patterns; live THRU works with either KEYS or SEQ.": "también envía los patrones grabados; THRU en directo funciona tanto con KEYS como con SEQ.",
-    "3. Enable forwarding for track 1": "3. Activa el reenvío para la pista 1",
-    "Open per-track MIDI THRU settings": "Abrir los ajustes MIDI THRU por pista",
-    "FM-1 MIDI THRU page: TRK1 ON, TRK2 OFF, TRK3 OFF, TRK4 OFF": "Página MIDI THRU del FM-1: TRK1 ON, TRK2 OFF, TRK3 OFF, TRK4 OFF",
-    "Only track 1 forwards input in this example. Leave the other switches OFF unless you need them.": "En este ejemplo, solo la pista 1 reenvía su entrada. Deja los demás interruptores desactivados si no los necesitas.",
-    "4. Silence the internal sound": "4. Silencia el sonido interno",
-    "HOME → Track 1": "HOME → Pista 1",
-    "Open HOME with track 1 volume at zero": "Abrir HOME con el volumen de la pista 1 a cero",
-    "FM-1 HOME: track 1 selected with a blue frame, LEVEL is zero, other tracks keep their volume": "HOME del FM-1: pista 1 seleccionada con un marco azul, LEVEL = 0; las demás pistas conservan su volumen",
-    "Select track 1 with": "Selecciona la pista 1 con",
-    ", then turn": ", después baja",
-    "down to": "a",
-    ". MIDI forwarding continues.": ". El reenvío MIDI sigue funcionando.",
-    "Actual firmware UI renders, rather than hardware photos. THRU and channel assignments survive power-off and pattern changes; LEVEL belongs to each pattern. Keep track 1’s LEVEL at zero in the patterns used for this setup. THRU forwards Note On/Off and velocity; CC, sustain and pitch bend are not forwarded. The FM-1’s TRS jack is an input; forwarded MIDI leaves over USB.": "Son imágenes generadas por la interfaz real del firmware, no fotos del dispositivo. THRU y los canales se conservan al apagar y al cambiar de patrón; LEVEL pertenece a cada patrón. Mantén LEVEL de la pista 1 a cero en los patrones usados para esta configuración. THRU reenvía Note On/Off y velocidad; no reenvía CC, sustain ni pitch bend. El conector TRS del FM-1 es una entrada; el MIDI reenviado sale por USB.",
-    "Live granular processing · experimental": "Procesamiento granular en directo · experimental",
-    "Turn any track into a granular texture, including FM and drum synth sounds. Select GRANUL on the existing INSERT page: knob 1 selects the effect, knob 2 selects a parameter pair, and knobs 3–4 edit its values. SELECT navigates between FX pages normally. FREEZE holds a fragment and keeps the cloud playing after the original notes end.": "Convierte cualquier pista en una textura granular, incluidos los sonidos FM y de síntesis de batería. Selecciona GRANUL en la página INSERT existente: el mando 1 elige el efecto, el mando 2 una pareja de parámetros y los mandos 3–4 editan sus valores. SELECT cambia entre las páginas FX con normalidad. FREEZE retiene un fragmento y mantiene la nube sonora cuando terminan las notas originales.",
-    "Sound controls": "Controles de sonido",
-    "FX → INSERT → GRANUL — Pair 1/4": "FX → INSERT → GRANUL — Pareja 1/4",
-    "Open GRANUL size and density controls": "Abrir los controles de tamaño y densidad de GRANUL",
-    "GRANUL on track 1: INSRT, PARAM 1/4, SIZE 40 ms, DENSITY 20 per second; buffer capacity and LIVE status below": "GRANUL en la pista 1: INSRT, PARAM 1/4, SIZE 40 ms, DENSITY 20 por segundo; debajo, capacidad del búfer y estado LIVE",
-    "Pair 1/4 adjusts SIZE and DENSITY. Knob 2 also selects PITCH/MIX, POS/SPREAD and CAPTURE/BUF. INSRT stays under knob 1 in every view. Margins and dividing lines match CHOR.": "La pareja 1/4 ajusta SIZE y DENSITY. El mando 2 también selecciona PITCH/MIX, POS/SPREAD y CAPTURE/BUF. INSRT sigue en el mando 1 en todas las vistas. Los márgenes y las líneas divisorias coinciden con CHOR.",
-    "Capture · same INSERT page": "Captura · la misma página INSERT",
-    "FX → INSERT → GRANUL — Pair 4/4": "FX → INSERT → GRANUL — Pareja 4/4",
-    "Open GRANUL capture and buffer display": "Abrir la captura y la vista del búfer de GRANUL",
-    "The same INSERT page with PARAM 4/4: CAPTURE set to FREEZE and read-only buffer capacity 3343 ms; all 64 steps remain visible": "La misma página INSERT con PARAM 4/4: CAPTURE en FREEZE y capacidad de búfer de solo lectura de 3343 ms; los 64 pasos siguen visibles",
-    "Pair 4/4 switches LIVE/FREEZE; BUF shows the assigned capacity. Status and all 64 steps remain visible in every view.": "La pareja 4/4 alterna LIVE/FREEZE; BUF muestra la capacidad asignada. El estado y los 64 pasos siguen visibles en todas las vistas.",
-    "Changing a sound or engine keeps an active GRANUL insert and its settings. FREEZE preserves the captured audio; LIVE captures the new sound. Parameter edits update only changed fields, without blanking the screen.": "Cambiar de sonido o motor conserva el efecto GRANUL activo y sus ajustes. FREEZE conserva el audio capturado; LIVE captura el nuevo sonido. La edición de parámetros solo actualiza los campos modificados, sin dejar la pantalla en blanco.",
-    "The shared memory provides about 3.34 seconds for one granular track, 1.67 seconds each for two, 1.11 for three, or 0.84 for four. The other tracks and existing effects remain available. Capture is mono at 22.05 kHz using lossy 8-bit µ-law; dry audio retains its original quality. Four grains per track bound processing work. This development build still needs timing and listening tests on a physical FM-1.": "La memoria compartida ofrece unos 3,34 s para una pista granular, 1,67 s para cada una de dos, 1,11 s para tres o 0,84 s para cuatro. Las demás pistas y efectos siguen disponibles. La captura es mono a 22,05 kHz con compresión con pérdida µ-law de 8 bits; el audio sin efecto mantiene su calidad original. Cuatro granos por pista limitan el trabajo de procesamiento. Esta versión de desarrollo todavía necesita mediciones de tiempo y pruebas de escucha en un FM-1 físico.",
-    "The trade-off: three user sample banks instead of four.": "El compromiso: tres bancos de muestras propias en lugar de cuatro.",
-    "USR4’s 80 KiB is reused for pattern storage. USR1–USR3, factory samples and SYN1–SYN4 remain available.": "Los 80 KiB de USR4 se reutilizan para guardar patrones. USR1–USR3, las muestras de fábrica y SYN1–SYN4 siguen disponibles.",
-    "Back up before installing.": "Haz una copia de seguridad antes de instalar.",
-    "Existing A–D patterns migrate to A1–A4, but USR4 is repurposed. Song-file import replaces all 24 pattern slots and the working loop, including empty slots.": "Los patrones A–D existentes se migran a A1–A4, pero USR4 cambia de función. Importar un archivo de canción sustituye las 24 posiciones de patrones y el bucle de trabajo, incluidas las posiciones vacías.",
-    "Software tests cover storage, migration, playback, UI and the web editor. This version has not yet been validated on a physical FM-1; screen readability and real power-cut behaviour remain to be checked.": "Las pruebas de software cubren almacenamiento, migración, reproducción, interfaz y editor web. Esta versión todavía no se ha validado en un FM-1 físico; quedan por comprobar la legibilidad de la pantalla y el comportamiento ante cortes de alimentación reales.",
-    "Support piterfly": "Apoya piterfly",
-    "Enjoying piterfly?": "¿Te gusta piterfly?",
-    "Support my work on piterfly with a coffee.": "Apoya mi trabajo en piterfly invitándome a un café.",
-    "Buy me a coffee": "Invítame a un café",
-    "Next steps": "Próximos pasos",
-    "Back to installer": "Volver al instalador",
-    "Open web editor": "Abrir el editor web",
-    "piterfly 1.0.1 builds on SLOOP 2.8.5 and Felucca. Original authorship and GPL-3.0 licensing are retained.": "piterfly 1.0.1 se basa en SLOOP 2.8.5 y Felucca. Se conservan la autoría original y la licencia GPL-3.0.",
-    "piterfly": "piterfly",
-    "USB / TRS MIDI IN": "USB / TRS MIDI IN",
-    "FM-1": "FM-1",
-    "TRK1 ON": "TRK1 ON",
-    "↗": "↗",
-    "LEVEL 0": "LEVEL 0",
-    "Behringer": "Behringer",
-    "GLO → MIDI": "GLO → MIDI",
-    "CH1 = 1": "CH1 = 1",
-    "GLO → MIDI 2": "GLO → MIDI 2",
-    "IN = NOTES": "IN = NOTES",
-    "OTHER = OFF": "OTHER = OFF",
-    "OUT = SEQ": "OUT = SEQ",
-    "GLO → MIDI THRU": "GLO → MIDI THRU",
-    "TRK1 = ON.": "TRK1 = ON.",
-    "PRESETS": "PRESETS",
-    "KNOB 2 · LEVEL": "KNOB 2 · LEVEL",
-    "0": "0",
-    "USB / TRS": "USB / TRS",
-    "→": "→",
-    "THRU ON": "THRU ON",
+    "D MINI setup": "Conexión D MINI",
     "Language": "Idioma",
-    "Visit my YouTube": "Visita mi YouTube",
-    "Legacy layout · reconstruction": "Diseño anterior · reconstrucción",
-    "Open schematic legacy HOME layout": "Abrir la reconstrucción del diseño anterior de HOME",
-    "Schematic legacy HOME layout with current GPL icons: 64, 32, 12 and 8 steps; long tracks show the current group of 16": "Esquema del HOME anterior con iconos GPL actuales: 64, 32, 12 y 8 pasos; las pistas largas muestran el grupo actual de 16",
-    "Current piterfly frames are rendered from this source tree. Before images are schematic reconstructions of the legacy step layout using the new GPL icons, not historical screenshots or hardware photos. Full step views also appear in parameter-page footers and recording summaries. The 64-step limit is inherited from SLOOP.": "Las vistas actuales de piterfly se generan desde este código fuente. Las imágenes del diseño anterior son reconstrucciones esquemáticas con los nuevos iconos GPL, no capturas históricas ni fotos del dispositivo. Las vistas completas de pasos también aparecen en los pies de las páginas de parámetros y en los resúmenes de grabación. El límite de 64 pasos procede de SLOOP.",
-    "Open schematic legacy options layout": "Abrir el esquema del diseño anterior de opciones",
-    "Schematic legacy MASTER layout using current GPL icons: 64-step track at step 39, without a visible playback pointer in the 16-step footer": "Esquema del MASTER anterior con iconos GPL actuales: pista de 64 pasos en el paso 39, sin indicador en el pie de 16 pasos",
-    "Both illustrations use the same notes, 64-step track and playback step 39 with the green theme. The legacy view is a schematic reconstruction with current GPL icons. GLO now has 10 pages, including MIDI THRU.": "Ambas ilustraciones usan las mismas notas, pista de 64 pasos y paso de reproducción 39 con el tema verde. La vista anterior es una reconstrucción esquemática con los iconos GPL actuales. GLO tiene ahora 10 páginas, incluida MIDI THRU."
+    "piterfly": "piterfly",
+    "Piterfly 1.1.0": "Piterfly 1.1.0",
+    "An alternative OS for the M-VAVE FM-1, built on SLOOP and its Felucca foundation. Tested on the physical FM-1 and accepted by the project owner.": "Un sistema alternativo para el M-VAVE FM-1, basado en SLOOP y su base Felucca. Probado en un FM-1 físico y aceptado por el propietario del proyecto.",
+    "Seven synth parts + dedicated drums": "Siete partes de sintetizador + batería dedicada",
+    "Four additional normal synth tracks: engines, presets, notes, effects and MIDI routing. Eight synth voices are shared across the seven parts; drums have their own voices.": "Cuatro pistas de sintetizador adicionales con motores, presets, notas, efectos y MIDI. Las siete partes comparten ocho voces; la batería tiene sus propias voces.",
+    "See all 64 note steps": "Ve los 64 pasos de notas",
+    "Tracks 1–4": "Pistas 1–4",
+    "Tracks 5–8": "Pistas 5–8",
+    "Full step views, distinct playback and edit cursors, track-coloured frames, recording indicators and page dots improve readability. The note-step capacity remains 64. PRESETS selects the track; ALGORITHM selects the sound.": "Vistas completas, cursores de reproducción y edición separados, marcos por color, indicadores de grabación y puntos de página mejoran la lectura. Se mantienen 64 pasos de notas. PRESETS elige la pista; ALGORITHM el sonido.",
+    "Live granular INSERT": "INSERT granular en directo",
+    "Reshape live audio with SIZE/DENSITY, PITCH/MIX, POS/SPREAD and LIVE/FREEZE. Sound changes retain the active effect and frozen history. Work is balanced across both processor cores. MIX 0 pauses capture and keeps earlier history. BUF displays the available duration.": "Transforma el audio con SIZE/DENSITY, PITCH/MIX, POS/SPREAD y LIVE/FREEZE. Cambiar de sonido conserva el efecto activo y el historial congelado. El trabajo se reparte entre ambos núcleos. MIX 0 pausa la captura y conserva el historial. BUF muestra la duración disponible.",
+    "Selective kick ducking": "Ducking selectivo con el bombo",
+    "FX → FILTER → DUCK enables or disables kick-driven ducking for each synth part. MASTER → DUCK sets the overall depth. Let chords breathe while your lead stays in front.": "FX → FILTER → DUCK activa o desactiva el ducking por bombo de cada parte. MASTER → DUCK ajusta la profundidad global. Los acordes respiran mientras el lead sigue al frente.",
+    "MIDI THRU: add a physical instrument": "MIDI THRU: añade un instrumento físico",
+    "Forward incoming Note On/Off and velocity per track to an external synth such as the Behringer D MINI. For USB, use a computer or MIDI host. MIDI carries notes; connect FM-1 and D MINI audio separately to your mixer. CC, sustain and pitch bend are not forwarded.": "Reenvía Note On/Off y velocidad por pista a un sintetizador externo como el Behringer D MINI. USB requiere un ordenador o host MIDI. MIDI lleva notas; conecta el audio de FM-1 y D MINI por separado al mezclador. No se reenvían CC, sustain ni pitch bend.",
+    "Storage and migration": "Almacenamiento y migración",
+    "Back up before upgrading. USR1 retains 80 KiB for samples; USR2/3/4 hold patterns. Factory samples and SYN1–SYN4 remain available. FUN9 projects import FUN1–FUN7, move the old drum part to track 8 and start the added synth parts empty. Live granular audio history is temporary.": "Haz una copia antes de actualizar. USR1 conserva 80 KiB para muestras; USR2/3/4 almacenan patrones. Se mantienen las muestras de fábrica y SYN1–SYN4. FUN9 importa FUN1–FUN7, mueve la batería a la pista 8 y deja vacías las partes nuevas. El historial de audio granular es temporal.",
+    "Device SONG: positions 63–67.": "SONG del dispositivo: posiciones 63–67.",
+    "Device SONG: positions 125–128.": "SONG del dispositivo: posiciones 125–128.",
+    "GRANUL SIZE and DENSITY.": "GRANUL: SIZE y DENSITY.",
+    "GRANUL FREEZE and available BUF.": "GRANUL: FREEZE y BUF disponible.",
+    "Per-synth DUCK switch in FX → FILTER.": "Interruptor DUCK por sintetizador en FX → FILTER.",
+    "MIDI channel assignments for synth parts 4–7.": "Asignaciones de canales MIDI para las partes 4–7.",
+    "Independent THRU switches for synth parts 4–7.": "Interruptores THRU independientes para las partes 4–7.",
+    "Illustrations reproduce the actual 240 × 240 FM-1 firmware screens with example music data; they are not photographs of the physical display.": "Las ilustraciones reproducen las pantallas reales del firmware FM-1 de 240 × 240 con datos musicales de ejemplo; no son fotos de la pantalla física.",
+    "Hold SAVE and turn KNOB 1: six banks A–F provide 24 pattern slots, four on each device screen. A1/A2 are occupied in this example; the other slots are empty.": "Mantén SAVE y gira KNOB 1: seis bancos A–F ofrecen 24 espacios de patrones, cuatro por pantalla. En este ejemplo A1/A2 están ocupados y el resto vacíos.",
+    "SAVE bank A: slots A1–A4.": "SAVE banco A: espacios A1–A4.",
+    "SAVE bank B: slots B1–B4.": "SAVE banco B: espacios B1–B4.",
+    "SAVE bank C: slots C1–C4.": "SAVE banco C: espacios C1–C4.",
+    "SAVE bank D: slots D1–D4.": "SAVE banco D: espacios D1–D4.",
+    "SAVE bank E: slots E1–E4.": "SAVE banco E: espacios E1–E4.",
+    "SAVE bank F: slots F1–F4.": "SAVE banco F: espacios F1–F4.",
+    "24 pattern slots": "24 espacios de patrones",
+    "Banks A1–F4 provide 24 complete pattern slots, up from four. Each pattern holds all eight tracks, sounds and mix.": "Los bancos A1–F4 ofrecen 24 espacios para patrones completos, antes cuatro. Cada patrón guarda ocho pistas, sonidos y mezcla.",
+    "128 SONG positions": "128 posiciones SONG",
+    "The device SONG page arranges up to 128 positions, up from 16. Each position selects a stored pattern for 1–64 bars. These screens show example positions 63–67 and 125–128 using A1/A2. SONG REC captures pattern switches and duration; quick CHAIN retains eight entries.": "La página SONG del dispositivo admite 128 posiciones, antes 16. Cada una elige un patrón durante 1–64 compases. Las pantallas muestran posiciones 63–67 y 125–128 con A1/A2. SONG REC graba cambios y duración; CHAIN conserva ocho entradas.",
+    "GRANUL PITCH and MIX.": "GRANUL: PITCH y MIX.",
+    "GRANUL POS and SPREAD.": "GRANUL: POS y SPREAD.",
+    "Connection map: keyboard, FM-1 and D MINI each connect by USB to the computer; FM-1 and D MINI audio go separately to the mixer.": "Esquema: teclado, FM-1 y D MINI se conectan por USB al ordenador; sus salidas de audio van por separado al mezclador.",
+    "Three USB data cables, one host, two separate audio outputs. Green: MIDI notes. Yellow: audio. Open the diagram to enlarge it.": "Tres cables USB de datos, un host y dos salidas de audio separadas. Verde: notas MIDI. Amarillo: audio. Abre el esquema para ampliarlo.",
+    "Connect the keyboard, FM-1 and D MINI separately to the computer by USB, directly or through a data hub. Keep a MIDI router such as MidiPipe running: keyboard → FM-1, then FM-1 → D MINI. Avoid a parallel keyboard → D MINI route that would duplicate notes.": "Conecta por separado el teclado, FM-1 y D MINI al ordenador por USB, directamente o mediante un hub de datos. Mantén abierto un router MIDI como MidiPipe: teclado → FM-1, después FM-1 → D MINI. Evita una ruta paralela teclado → D MINI que duplique las notas.",
+    "For this channel-1 example, set the keyboard transmit channel, FM-1 CH1 and D MINI receive channel to 1. On FM-1, use IN = NOTES, TRK1 THRU = ON and track 1 LEVEL = 0. Enable OUT = SEQ to play recorded patterns on D MINI too. Tracks 2–7 and drums remain available for internal sounds.": "En este ejemplo, ajusta a 1 el canal de transmisión del teclado, CH1 del FM-1 y el canal de recepción del D MINI. En FM-1 usa IN = NOTES, TRK1 THRU = ON y LEVEL de la pista 1 = 0. Activa OUT = SEQ para reproducir también los patrones grabados en D MINI. Las pistas 2–7 y la batería siguen disponibles para sonidos internos.",
+    "Connect the FM-1 audio output and D MINI audio output to separate mixer or audio-interface inputs. D MINI enriches the combined sound with its own synthesis; its audio does not pass through FM-1 GRANUL or DUCK.": "Conecta las salidas de audio de FM-1 y D MINI a entradas separadas del mezclador o interfaz. D MINI enriquece el sonido conjunto con su propia síntesis; su audio no pasa por GRANUL ni DUCK del FM-1.",
+    "FM-1 + Behringer D MINI setup guide →": "Guía de conexión de FM-1 + Behringer D MINI →"
   }
 };
 const LANGUAGES = ["en", "pl", "es"];

@@ -22,7 +22,7 @@ struct felucca_dbg {
 static volatile uint32_t audio_halves, audio_max_us;
 static volatile uint32_t t5_nested_ticks;              /* TIMER4 ticks TIMER5 spent nested in this ISR (main.c) */
 #define SCOPE_N 512u
-static int16_t scope_buf[SCOPE_N], scope_bufr[SCOPE_N];   /* left, right (the visualiser): the mix at full level */
+static int16_t scope_buf[SCOPE_N] __attribute__((section(".lowram"))), scope_bufr[SCOPE_N] __attribute__((section(".lowram")));   /* left, right (the visualiser): the mix at full level */
 static uint32_t scope_w;
 
 static void audio_block(int32_t *out, uint32_t n)       /* mix (fx.c), then Q15 -> 24 bit */

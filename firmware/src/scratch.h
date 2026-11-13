@@ -14,4 +14,13 @@ static union {
     uint8_t st[4096 - 256];                  /* ST_PAYLOAD_MAX (storage.c) */
     int16_t vis[2][512];                     /* VIS_FFT (ui_vis.c): left, right */
     int16_t snap[512];                       /* SCOPE_N (ui_draw.c) */
-} main_scratch __attribute__((aligned(4)));
+} main_scratch
+#ifdef __APPLE__
+__attribute__((aligned(4)));
+#else
+__attribute__((section(".noinit.scratch"),aligned(4)));
+#endif
+/* The editor may hold the project staging buffer across USB requests. */
+static uint8_t project_stage_busy;
+static uint32_t project_stage_ms;
+static int project_stage_locked(uint32_t now) { return project_stage_busy && now-project_stage_ms<15000u; }

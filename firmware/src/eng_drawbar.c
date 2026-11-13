@@ -179,10 +179,10 @@ static void drawbar_block(track_t *t)
 
 static void drawbar_note_on(track_t *t, voice_t *v)
 {
-    uint32_t vi = (uint32_t)(v - t->v) % NVOICE, k, held = 0;
+    uint32_t vi = voice_index(t,v) % NVOICE, k, held = 0;
     drw_vc_t *V = &drw_of(t)->v[vi];
     for (k = 0; k < NVOICE; k++)                        /* single trigger: another key of the part held? */
-        if (&t->v[k] != v && t->v[k].active && t->v[k].gate && t->v[k].stage != 4u)
+        if (voice_at(t,k) != v && voice_at(t,k)->active && voice_at(t,k)->gate && voice_at(t,k)->stage != 4u)
             held = 1;
     if (!V->init) {                                     /* the wheels: spread start phases, then free running */
         for (k = 0; k < DRW_NP; k++)
@@ -200,7 +200,7 @@ static void drawbar_render(track_t *t, voice_t *v, int32_t *out, uint32_t n, con
 {
     drw_part_t *P = drw_of(t);
     const drw_trk_t *T = &P->t;
-    drw_vc_t *V = &P->v[(uint32_t)(v - t->v) % NVOICE];
+    drw_vc_t *V = &P->v[voice_index(t,v) % NVOICE];
     int32_t acc[CTL], perc1, clk0, clk1;
     uint32_t i, k;
     if (n > CTL)

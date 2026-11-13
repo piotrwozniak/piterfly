@@ -96,7 +96,7 @@ static phys_slot_t *phys_slot_of(track_t *t, voice_t *v)
     if (t < &trk[0] || t >= &trk[NPART])
         return 0;
     p = (uint32_t)(t - trk);
-    i = (uint32_t)(v - t->v);
+    i = voice_index(t,v);
     big = (uint32_t)t->p[P_E0] % PM_COUNT == PM_SYMP;
     if (i >= phys_poly(t))
         return 0;

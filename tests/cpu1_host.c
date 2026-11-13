@@ -16,6 +16,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
 
 static struct {
     int init, mode, chaos, on, pending;                  /* pending: a job handed over and not waited yet */
@@ -78,7 +79,16 @@ static void cpu1_host_init(void)
 }
 
 static int cpu1_on(void) { cpu1_host_init(); return c1h.on; }
-static uint32_t cpu1_ticks(void) { return 0; }
+static uint32_t cpu1_ticks(void)
+{
+#ifdef CPU1_HOST_TIMING
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint32_t)((uint64_t)ts.tv_sec * 24000000u + (uint64_t)ts.tv_nsec * 24u / 1000u);
+#else
+    return 0;
+#endif
+}
 static uint32_t cpu1_host_jobs(void) { return c1h.jobs; }
 static uint32_t cpu1_host_timeouts(void) { return c1h.timeouts; }
 static int cpu1_host_mode(void) { cpu1_host_init(); return c1h.mode; }

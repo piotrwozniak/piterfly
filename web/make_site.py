@@ -92,7 +92,7 @@ def licence_page(out, version, raw, release_dir=None):
 
 
 ICONS = ("icon-192.png", "icon-512.png", "icon-maskable-512.png")
-SCREENSHOTS = ('cursors.png', 'glo-64.png', 'home-64.png', 'layout-home-before.png', 'layout-options-before.png', 'piterfly-granular-sound.png', 'piterfly-granular-source.png', 'piterfly-home-after.png', 'piterfly-midi-channels.png', 'piterfly-midi-home.png', 'piterfly-midi-input.png', 'piterfly-midi-thru.png', 'piterfly-options-after.png', 'rec-ready-64.png')
+SCREENSHOTS = ('cursors.png', 'glo-64.png', 'granular-pitch-mix.png', 'granular-pos-spread.png', 'home-64.png', 'home-tracks-5-8.png', 'midi-thru-tracks-4-7.png', 'midi-tracks-4-7.png', 'piterfly-duck.png', 'piterfly-granular-sound.png', 'piterfly-granular-source.png', 'piterfly-home-after.png', 'piterfly-midi-channels.png', 'piterfly-midi-home.png', 'piterfly-midi-input.png', 'piterfly-midi-thru.png', 'piterfly-options-after.png', 'rec-ready-64.png', 'save-bank-a.png', 'save-bank-b.png', 'save-bank-c.png', 'save-bank-d.png', 'save-bank-e.png', 'save-bank-f.png', 'song-position-128.png', 'song-positions-63-67.png')
 
 
 def app_files(out, version, fw_name):
@@ -119,7 +119,7 @@ def app_files(out, version, fw_name):
         if (app / "editor" / f).exists():
             keep["editor/" + f] = app / "editor" / f
     keep["changes/"] = app / "changes" / "index.html"
-    for asset in ("changes.css", "midipipe.html"):
+    for asset in ("changes.css", "midipipe.html", "midi-rig.svg"):
         keep["changes/" + asset] = app / "changes" / asset
     for f in (app / "changes").rglob("*.png"):
         keep[f.relative_to(app).as_posix()] = f
@@ -177,7 +177,7 @@ def main(pkg, version, out, release_dir=None):
     logo = HERE.parent / "assets" / "piterfly" / "arcade-web.png"
     logo_uri = "data:image/png;base64," + base64.b64encode(logo.read_bytes()).decode()
     html = html.replace("<!--LOGO-->", f'<img src="{logo_uri}" width="446" height="304" alt="piterfly">')
-    build_info = '<section id="build-info" style="border:2px solid #ffc618;padding:16px;margin:20px 0;color:#ffc618"><strong style="font-size:24px">piterfly · 24 PATTERNS</strong><br>6 banks A–F · 64 steps per track · 3 sample banks · 128 song entries<br><small>USR4 becomes pattern storage. Back up before installing.</small></section>' if "24-patterns" in version else ""
+    build_info = '<section id="build-info" style="border:2px solid #ffc618;padding:16px;margin:20px 0"><strong>Piterfly 1.1.0 · 7 SYNTH PARTS + DRUMS</strong><br>24 patterns · 128 SONG positions · 64 note steps · USR1 samples</section>' if version == "1.1.0" else ""
     html = html.replace("<!--BUILD_INFO-->", build_info)
     inst, ed, fw = out / "webapp" / "installer", out / "webapp" / "editor", out / "firmware"
     for d in (inst, ed, fw):
@@ -226,8 +226,8 @@ def main(pkg, version, out, release_dir=None):
     changes = out / "webapp" / "changes"
     changes.mkdir(parents=True, exist_ok=True)
     shutil.copy(HERE / "changes.html", changes / "index.html")
-    for asset in ("changes.css", "midipipe.html"):
-        shutil.copy(HERE / asset, changes / asset)
+    for asset in ("changes.css", "midipipe.html", "midi-rig.svg"):
+        shutil.copy(HERE.parent / "assets/piterfly/midi-rig.svg" if asset == "midi-rig.svg" else HERE / asset, changes / asset)
     shutil.copy(logo, changes / "logo.png")
     screenshots = changes / "screenshots"
     screenshots.mkdir(exist_ok=True)

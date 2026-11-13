@@ -15,7 +15,10 @@ static const char *const VIS_NAME[VIS_N] = {"OSCILLOSCOPE", "SPECTRUM", "SPECTRO
 #define VIS_FFT 512u
 #define VIS_SG_W 48u                                /* spectrogram: 48 columns of 5 px, 72 rows of 3 px */
 #define VIS_SG_H 72u
-static int16_t vis_re[VIS_FFT] __attribute__((section(".pool"))), vis_im[VIS_FFT] __attribute__((section(".pool")));
+/* FFT ends before canvas drawing starts. Finish the previous LCD DMA first. */
+#define vis_re ((int16_t *)cv_px)
+#define vis_im ((int16_t *)cv_px+VIS_FFT)
+_Static_assert(sizeof cv_px>=VIS_FFT*4u,"canvas holds FFT scratch");
 #include "scratch.h"                                /* sloop-lab: this frame's scope snapshot, in the shared scratch */
 #define vis_l (main_scratch.vis[0])
 #define vis_r (main_scratch.vis[1])
@@ -154,6 +157,7 @@ static uint32_t vis_beat_q8(void)
 }
 static void vis_fft(void)
 {
+    lcd_sync();
     uint32_t i, j = 0, bit, len;
     for (i = 0; i < VIS_FFT; i++) {                 /* Hann window */
         int32_t w = (32768 - icos(i * 2u)) >> 1;
@@ -220,13 +224,14 @@ static void vis_update(void)
     }
     /* the tracks' peaks since the last look (as the TRACKS meters take them) and the notes that started */
     fm1_irq_off();
-    for (i = 0; i < NPART; i++) {
-        pk[i] = trk[i].peak;
-        trk[i].peak = 0;
+    uint32_t base=song.sel&~3u;
+    for (i = 0; i < 4u; i++) {
+        uint32_t k=base+i;
+        pk[i] = k==TRK_DRUM?drums.peak:trk[k].peak;
+        trk[k].peak = 0;
     }
-    pk[3] = drums.peak;
     drums.peak = 0;
-    hit = vis_hit;
+    hit = vis_hit >> base;
     vis_hit = 0;
     if (vis_kick_hit) {
         vis_kick_hit = 0;
@@ -234,11 +239,11 @@ static void vis_update(void)
     }
     fm1_irq_on();
     for (i = 0; i < 4u; i++) {
-        int32_t v = trk_level(i) && !trk[i].p[P_MUTE] ? vis_lvl(pk[i]) : 0;   /* (as the TRACKS meters) */
+        int32_t v = trk_level(base+i) && !trk[base+i].p[P_MUTE] ? vis_lvl(pk[i]) : 0;   /* (as the TRACKS meters) */
         vs.lvl[i] = (int16_t)v;
         if ((hit >> i) & 1u) {
             vs.flash[i] = 8;
-            vs.wn[i] = (uint8_t)(2u + vis_note[i] % 12u / 2u);
+            vs.wn[i] = (uint8_t)(2u + vis_note[base+i] % 12u / 2u);
             if (vs.wamp[i] < 1000) vs.wamp[i] = 1000;
             if (vs.bh[i] < 8 * 256)                 /* BOUNCE: a kick, unless already high up */
                 vs.bv[i] = (int16_t)(3 * 256 + 51 * (int32_t)i);
@@ -420,7 +425,7 @@ static void vis_meters(void)
     for (i = 0; i < 5u; i++) {
         int32_t x0 = 10 + (int32_t)i * 46, on = vs.vu[i] * 24 / 1000, pk = vs.pk[i] * 24 / 1000;
         uint16_t c = i < 4u ? TE_COL[i] : C_WHITE;
-        char lab[2] = {(char)(i < 4u ? '1' + i : 'M'), 0};
+        char lab[2] = {(char)(i < 4u ? '1' + (song.sel&~3u) + i : 'M'), 0};
         for (k = 0; k < 24u; k++) {
             int32_t y = 206 - (int32_t)k * 8;
             uint16_t col = (int32_t)k < on ? (k < 18u ? c : k < 22u ? TE_COL[2] : RGB(255, 44, 52)) : TE_G1;
@@ -477,7 +482,7 @@ static void vis_tape(void)
     b[1] = (char)('0' + (s / 4u + 1u) / 10u % 10u);
     b[2] = (char)('0' + (s / 4u + 1u) % 10u);
     b[3] = '.';
-    b[4] = (char)('1' + s % 4u);
+    b[4] = (char)('1' + (song.sel&~3u) + s % 4u);
     b[5] = 0;
     cv_text(8, 24, &FONT_S, b, C_WHITE);
     fmt_int(b, song.g[G_BPM]);
@@ -511,7 +516,7 @@ static void vis_bounce(void)
         vis_ellipse(x, 205, sh < 4 ? 4 : sh, 3, te_gray(RGB(30, 30, 34)));
         vis_ellipse(x, y, 16 + sq, 16 - sq, TE_COL[i]);
         {
-            char lab[2] = {(char)('1' + i), 0};
+            char lab[2] = {(char)('1' + (song.sel&~3u) + i), 0};
             cv_text(x - 4, 220, &FONT_S, lab, TE_COL[i]);
         }
     }
@@ -540,7 +545,7 @@ static void vis_wires(void)
     uint32_t i, x;
     for (i = 0; i < 4u; i++) {
         int32_t y0 = 40 + (int32_t)i * 52, amp = vs.wamp[i] * 22 / 1000, py = y0;
-        char lab[2] = {(char)('1' + i), 0};
+        char lab[2] = {(char)('1' + (song.sel&~3u) + i), 0};
         for (x = 0; x < 240u; x += 2u) {           /* a standing wave: the string's shape x its swing */
             uint32_t a = x * 512u / 240u, cyc = i == 3u ? 8u : vs.wn[i] ? vs.wn[i] : 2u;   /* sin(pi x / L) */
             int32_t env = isin(a), wv = isin(x * cyc * 1024u / 240u + vs.wph * (3u + i));

@@ -241,10 +241,10 @@ UI_SMALL static void swing_str(char *b, int32_t v)            /* 0 straight .. 1
 UI_SMALL static void studio_tracks_draw(void)
 {
     static uint32_t head, rows[NTRK], footer;
-    uint32_t i, j;
+    uint32_t i, j, base=song.sel&~3u;
     int32_t sect = song.playing && live_sec >= 0 ? live_sec : (int32_t)song.g[G_SLOT] - 1;   /* (2.7.2) the section playing */
     te_header("tracks", TE_G3, &head, sect);
-    for (i = 0; i < NTRK; i++) {
+    for (i = base; i < base+4u; i++) {
         track_t *t = &trk[i];
         char b[24], e[16];
         uint32_t selected = song.sel == i, len = (uint32_t)clamp(t->p[P_SLEN], 1, 64);
@@ -252,7 +252,7 @@ UI_SMALL static void studio_tracks_draw(void)
         uint32_t silent = trk_silent(t) || !level, pos = t->seq_idx % len;
         uint32_t rec = (song.playing && ((song.rec >> i) & 1u)) || (ft_on && ft_trk % NTRK == i);
         uint32_t solo = (song.solo >> i) & 1u, h;
-        uint16_t col = TE_COL[i], dim = TE_DIM[i];
+        uint16_t col = TE_COL[i&3u], dim = TE_DIM[i&3u];
         if (i == TRK_DRUM) {
             str_cpy(b, DRUM_KIT_NAMES[drum_kit()], sizeof b);
             te_lower(e, "drums", sizeof e);
@@ -304,7 +304,7 @@ UI_SMALL static void studio_tracks_draw(void)
             cv_rect(198, 23, (int32_t)level * 38 / 127, 5, selected ? col : TE_G3);
         if (selected || rec)
             cv_outline(0, 0, 240, 36, rec ? TE_RED : col);
-        cv_blit(0, 40 + i * 36);
+        cv_blit(0, 40 + (i-base) * 36);
     }
     }
     {   /* KNOB 1 swing (the global groove), 2 level, 3 steps, 4 pan of the selected track */
@@ -778,13 +778,13 @@ UI_SMALL static void rec_rows(uint32_t rt, uint32_t take, uint32_t y0, uint32_t 
         return;
     *cache = sig;
     CV_BANDS(240, 76, C_BLACK) {
-    for (i = 0; i < NTRK; i++) {
+    for (i = (rt&~3u); i < (rt&~3u)+4u; i++) {
         const track_t *t = &trk[i];
         uint32_t len = (uint32_t)clamp(t->p[P_SLEN], 1, 64), armed = i == rt;
-        int32_t y = (int32_t)i * 19;
+        int32_t y = (int32_t)(i-(rt&~3u)) * 19;
         char b[16];
         if (armed) cv_rect(0, y, 240, 18, TE_RED), cv_rect(1, y + 1, 238, 16, C_BLACK);
-        cv_rect(4, y + 3, 12, 12, armed ? TE_COL[i] : TE_DIM[i]);
+        cv_rect(4, y + 3, 12, 12, armed ? TE_COL[i&3u] : TE_DIM[i&3u]);
         if (i == TRK_DRUM) str_cpy(b, DRUM_KIT_NAMES[drum_kit()], sizeof b);
         else trk_short_name(i, b);
         b[10] = 0;
@@ -795,7 +795,7 @@ UI_SMALL static void rec_rows(uint32_t rt, uint32_t take, uint32_t y0, uint32_t 
         for (j = 0; j < len; j++) {
             int32_t sy = pages == 1u ? y + 5 : y + 1 + (int32_t)(j / 16u) * pitch;
             cv_rect(106 + (int32_t)(j % 16u) * 8, sy, 6, height,
-                    trk_step_on(t, j) ? (armed ? TE_COL[i] : TE_DIM[i]) : TE_G1);
+                    trk_step_on(t, j) ? (armed ? TE_COL[i&3u] : TE_DIM[i&3u]) : TE_G1);
         }
     }
     cv_blit(0, y0);

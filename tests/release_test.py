@@ -10,7 +10,7 @@ from build import release_identity, PRODUCT
 from prepare_release import tree_hash
 
 assert PRODUCT == "FM-1_1120101"
-for version in ("1.0.0", "1.0.1", "1.0.0-beta.2", "0.9-beta"):
+for version in ("1.1.0", "1.0.0", "1.0.1", "1.0.0-beta.2", "0.9-beta"):
     assert release_identity(version) == PRODUCT
 assert len(PRODUCT) <= 20 and len("ota-" + PRODUCT) <= 27
 assert all((ord(c) + i + 1) & 0xFF != 0x7D for i, c in enumerate(PRODUCT))

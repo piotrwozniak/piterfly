@@ -60,6 +60,12 @@
   .creator-link a { display: inline-block; padding: 8px 0; text-underline-offset: 4px; }
   .creator-link a:hover { color: var(--fg); }
   .creator-link a:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+  .docs-entry { position: relative; display: block; margin: 0 0 28px; padding: 20px 64px 20px 22px; border-left: 6px solid var(--yellow); border-radius: 10px; background: var(--green); color: #07180e; text-decoration: none; }
+  .docs-entry strong { display: block; margin: 4px 0; font-size: clamp(21px, 4vw, 28px); line-height: 1.25; }
+  .docs-entry .docs-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .docs-entry .docs-arrow { position: absolute; right: 22px; top: 50%; transform: translateY(-50%); font-size: 32px; }
+  .docs-entry:hover { background: var(--yellow); }
+  .docs-entry:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
 </style>
 </head>
 <body>
@@ -69,7 +75,13 @@
   <!--STUDIO_GUIDE-->
   <!--BANNER-->
   <h1 data-t="heading">Firmware for the M-VAVE FM-1</h1>
-  <p class="lead" data-t="lead">A groovebox you play live: four tracks — three synths and a drum machine — 12 synth engines (with six-operator FM and DX7 patches), 153 sounds, 37 drum kits from 808 to techno, amapiano and ambient, your own samples and drum kits, 27 punch-in effects. House, techno, hip-hop, drum &amp; bass, synthwave, lo-fi, ambient: make what you want. No factory patterns, nothing to load: everything you hear, you play.</p>
+  <p class="lead" data-t="lead">Piterfly 1.1.0: an alternative OS for the M-VAVE FM-1, built on SLOOP. Seven synth parts plus drums, 24 patterns, 128 SONG positions, clearer 64-step views, live granular INSERT, selective kick ducking and MIDI THRU for external instruments.</p>
+  <a class="docs-entry" href="../changes/">
+    <span class="docs-eyebrow" data-t="docsLabel">Piterfly documentation</span>
+    <strong data-t="changes">piterfly vs SLOOP — what changes?</strong>
+    <span data-t="docsIntro">Start here: features, FM-1 screens and connection guides.</span>
+    <span class="docs-arrow" aria-hidden="true">→</span>
+  </a>
   <div class="tiles">
     <div class="tile" style="--c: var(--blue)"><b>153</b><span data-t="sounds">sounds, 12 engines, your samples</span></div>
     <div class="tile" style="--c: var(--green)"><b>37</b><span data-t="kits">drum kits, 909 to afro, + your own</span></div>
@@ -79,7 +91,6 @@
   <p data-t="intro"></p>
   <p data-t="warn"></p>
   <!--BUILD_INFO-->
-  <p><a class="ed" href="../changes/" data-t="changes">piterfly vs SLOOP — what changes?</a></p>
   <p><button id="go" disabled data-t="install"></button></p>
   <progress id="bar" max="100" value="0"></progress>
   <p id="status"></p>
@@ -155,12 +166,14 @@ const TEXT = {
     "pageTitle": "piterfly installer",
     "language": "Language",
     "heading": "Firmware for the M-VAVE FM-1",
-    "lead": "A groovebox you play live: four tracks — three synths and a drum machine — 12 synth engines (with six-operator FM and DX7 patches), 153 sounds, 37 drum kits from 808 to techno, amapiano and ambient, your own samples and drum kits, 27 punch-in effects. House, techno, hip-hop, drum & bass, synthwave, lo-fi, ambient: make what you want. No factory patterns, nothing to load: everything you hear, you play.",
+    "lead": "Piterfly 1.1.0: an alternative OS for the M-VAVE FM-1, built on SLOOP. Seven synth parts plus drums, 24 patterns, 128 SONG positions, clearer 64-step views, live granular INSERT, selective kick ducking and MIDI THRU for external instruments.",
     "sounds": "sounds, 12 engines, your samples",
     "kits": "drum kits, 909 to afro, + your own",
     "effects": "punch-in fx: hold fx + key",
     "record": "no click: the loop follows you",
     "changes": "piterfly vs SLOOP — what changes?",
+    "docsLabel": "Piterfly documentation",
+    "docsIntro": "Start here: features, FM-1 screens and connection guides.",
     "supportTitle": "Enjoying piterfly?",
     "supportText": "Support my work on piterfly with a coffee.",
     "coffee": "Buy me a coffee",
@@ -217,12 +230,14 @@ const TEXT = {
     "pageTitle": "Instalator piterfly",
     "language": "Język",
     "heading": "Firmware dla M-VAVE FM-1",
-    "lead": "Groovebox do grania na żywo: cztery ścieżki — trzy syntezatory i automat perkusyjny — 12 silników syntezy (w tym sześciooperatorowe FM i presety DX7), 153 brzmienia, 37 zestawów perkusyjnych od 808 po techno, amapiano i ambient, własne sample i zestawy perkusyjne oraz 27 efektów chwilowych. House, techno, hip-hop, drum & bass, synthwave, lo-fi, ambient: twórz, co chcesz. Bez fabrycznych patternów i wczytywania gotowców: wszystko, co słyszysz, grasz sam.",
+    "lead": "Piterfly 1.1.0: alternatywny system dla M-VAVE FM-1, zbudowany na bazie SLOOP. Siedem ścieżek syntezatora i perkusja, 24 patterny, 128 pozycji SONG, czytelne widoki 64 kroków, granularny INSERT, wybór ścieżek duckingu i MIDI THRU do instrumentów zewnętrznych.",
     "sounds": "brzmienia, 12 silników, własne sample",
     "kits": "zestawy perkusyjne, od 909 po afro, + własne",
     "effects": "efekty chwilowe: przytrzymaj FX + klawisz",
     "record": "bez kliku: pętla podąża za Tobą",
     "changes": "piterfly a SLOOP — co się zmienia?",
+    "docsLabel": "Dokumentacja Piterfly",
+    "docsIntro": "Zacznij tutaj: funkcje, ekrany FM-1 i poradniki połączeń.",
     "supportTitle": "Podoba Ci się piterfly?",
     "supportText": "Wesprzyj moją pracę nad piterfly, stawiając mi kawę.",
     "coffee": "Postaw mi kawę",
@@ -279,12 +294,14 @@ const TEXT = {
     "pageTitle": "Instalador de piterfly",
     "language": "Idioma",
     "heading": "Firmware para el M-VAVE FM-1",
-    "lead": "Una groovebox para tocar en directo: cuatro pistas — tres sintetizadores y una caja de ritmos — 12 motores de síntesis (con FM de seis operadores y sonidos DX7), 153 sonidos, 37 kits de batería desde 808 hasta techno, amapiano y ambient, tus propias muestras y kits, y 27 efectos momentáneos. House, techno, hip-hop, drum & bass, synthwave, lo-fi, ambient: crea lo que quieras. Sin patrones de fábrica ni nada que cargar: todo lo que escuchas lo tocas tú.",
+    "lead": "Piterfly 1.1.0: un sistema alternativo para el M-VAVE FM-1, basado en SLOOP. Siete partes de sintetizador y batería, 24 patrones, 128 posiciones SONG, vistas claras de 64 pasos, INSERT granular, ducking selectivo y MIDI THRU para instrumentos externos.",
     "sounds": "sonidos, 12 motores, tus muestras",
     "kits": "kits de batería, de 909 a afro, + los tuyos",
     "effects": "efectos momentáneos: mantén FX + una tecla",
     "record": "sin metrónomo: el bucle te sigue",
     "changes": "piterfly frente a SLOOP: ¿qué cambia?",
+    "docsLabel": "Documentación de Piterfly",
+    "docsIntro": "Empieza aquí: funciones, pantallas del FM-1 y guías de conexión.",
     "supportTitle": "¿Te gusta piterfly?",
     "supportText": "Apoya mi trabajo en piterfly invitándome a un café.",
     "coffee": "Invítame a un café",

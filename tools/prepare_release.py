@@ -24,7 +24,8 @@ from check_public_export import validate
 from source_inventory import seal, verified_files
 
 ROOT = Path(__file__).resolve().parents[1]
-EXCLUDED = ("docs/webapp/", "docs/firmware/", "docs/index.html")
+EXCLUDED = ("docs/webapp/", "docs/firmware/", "docs/index.html", "promo/", "assets/logo/",
+            "assets/screens/", "assets/piterfly/proposals/", "assets/piterfly/screenshots/sloop-")
 
 
 def sha(path):
@@ -107,16 +108,18 @@ def main(out=None):
     notices = out / f"piterfly-{version}-licences.zip"
     with zipfile.ZipFile(notices, "w", compression=zipfile.ZIP_DEFLATED) as z:
         for name in ["LICENSE", "LICENSING.md", "THIRD_PARTY_NOTICES.md", "PROVENANCE.md", "PUBLIC_EXPORT.json", "docs/ICON-RIGHTS.md",
-                     "docs/RELEASE-1.0.0.md", "docs/RELEASE-1.0.1.md", "assets/icons-LICENSE.txt", "assets/piterfly/LICENSE.txt",
+                     "docs/RELEASE-1.0.0.md", "docs/RELEASE-1.0.1.md", f"docs/RELEASE-{version}.md", "assets/icons-LICENSE.txt", "assets/piterfly/LICENSE.txt",
                      "assets/samples-cc0/ATTRIBUTION.txt", "assets/hiphop-pack/CREDITS.txt",
                      *[p.relative_to(source).as_posix() for p in sorted((source / "LICENSES").glob("*.txt"))]]:
             z.write(source / name, name)
     artifacts = {p.name: {"bytes": p.stat().st_size, "sha256": sha(p)} for p in sorted(out.iterdir()) if p.suffix in (".fwsc", ".bin", ".gz", ".zip", ".wasm", ".json")}
     info = {"version": version, "product": product, "prepared_utc": datetime.now(timezone.utc).isoformat(),
-            "local_only": True, "git_repository_created": False, "distribution_status": "sanitized distribution candidate; excluded inherited artwork absent; local review only",
+            "local_only": True, "git_repository_created": False, "distribution_status": "Piterfly 1.1.0 release; reviewed public source export",
             "origin_commit": provenance["origin_commit"],
             "base_commit": base, "source_tree_sha256": source_id, "artifacts": artifacts,
-            "protocol": 15, "project_format": "FUN7", "settings_format": "PER4",
+            "protocol": int(re.search(r"#define ED_PROTO (\d+)u", (source / "firmware/src/editor.c").read_text())[1]),
+            "project_format": bytes.fromhex(re.search(r"#define PROJ_MAGIC 0x([0-9A-Fa-f]+)u", (source / "firmware/src/project.c").read_text())[1]).decode("ascii"),
+            "settings_format": "PER4",
             "configuration": "default; all FELUCCA_* environment overrides removed",
             "python": platform.python_version(), "docker_image": build.DOCKER_IMAGE,
             "toolchain_files": {n: sha(tc / n) for n in ["pi32v2/bin/clang", "pi32v2/bin/ld", "common/bin/objcopy", "common/bin/objdump"]},
@@ -126,7 +129,7 @@ def main(out=None):
     (out / "SHA256SUMS").write_text(''.join(f'{meta["sha256"]}  {name}\n' for name, meta in sorted(sums.items())))
     print(f"Local piterfly {version}: {out}")
     print(f"Exact source tree SHA-256: {source_id}")
-    print("Sanitized distribution candidate. Not published or flashed; review the manifest and test results before distribution.")
+    print("Release files prepared locally; matching sources, licences and checksums recorded.")
 
 
 if __name__ == "__main__":

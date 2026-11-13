@@ -188,7 +188,7 @@ static void fm6_track_loaded(const track_t *t)
     if (tr < NPART && t->eng_req == ENGI_FM6) {
         uint32_t i, any = 0;
         for (i = 0; i < NVOICE; i++)
-            any |= t->v[i].active;
+            any |= voice_at(t,i)->active;
         if (any && (t->pold || t->xf_on)) {             /* the old sound still fading out (voice.c sound_change): */
             fm6_pend |= (uint8_t)(1u << tr);           /* its patch stays until then (fm6_poll; engine_block holds */
             return;                                     /* the new notes for it) */
@@ -281,7 +281,7 @@ static fm6_note_t *fm6_note_of(track_t *t, voice_t *v)
     uint32_t i;
     if (!P)
         return 0;
-    i = (uint32_t)(v - t->v);
+    i = voice_index(t,v);
     return i < FM6_POLY ? &P->note[i] : 0;
 }
 

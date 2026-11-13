@@ -53,7 +53,7 @@ VERSION = None                      # default: firmware/src/version.h
 
 
 def release_identity(version):
-    # The updater has two version digits; the full semantic version is in INFO and build metadata.
+    # The product identity is independent of the semantic version in INFO and build metadata.
     m = re.fullmatch(r"([0-9])\.([0-9])(?:\.(0|[1-9][0-9]*))?(-[A-Za-z0-9]+(?:[.-][A-Za-z0-9]+)*)?", version)
     if not m:
         raise ValueError("use X.Y.Z or X.Y[-suffix], with single-digit major/minor")
@@ -343,15 +343,7 @@ def main():
         gen, ldr = ex.submit(generate), ex.submit(build_loader)
         gen.result()
         ota = ldr.result()
-    try:
-        img, syms, dis, rt = build_app()
-    except SystemExit:
-        # The text-only piterfly splash avoids the stored arcade artwork.
-        if "overflow" not in LAST_ERR or os.environ.get("FELUCCA_LOGO_TEXT") == "1":
-            raise
-        print("build: the flash is full: building again with the boot logo as text (FELUCCA_LOGO_TEXT=1)")
-        os.environ["FELUCCA_LOGO_TEXT"] = "1"
-        img, syms, dis, rt = build_app()
+    img, syms, dis, rt = build_app()
     errors, notes = check(img, syms, dis, rt)
     hal_err = mmio_check()
     errors += hal_err

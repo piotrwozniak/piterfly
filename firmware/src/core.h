@@ -1,16 +1,20 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* Felucca core types: tracks, voices, engines, parameters.
- * Four tracks: tracks 1..3 are synth parts (each its own engine, preset, parameters,
- * voices and 64-step pattern), track 4 is the GM drum part (drums.c; its own voices,
+ * Eight tracks: tracks 1..7 are synth parts (each its own engine, preset, parameters,
+ * voices and 64-step pattern), track 8 is the GM drum part (drums.c; its own voices,
  * pattern and the pattern parameters of its track_t). The parts share one budget of
  * NVOICE sounding voices (voice.c). */
 #include <stdint.h>
 #define NVOICE 8                 /* voices per part, and the budget shared by all parts */
 #define NPOLY 8
-#define NPART 3                  /* synth parts: tracks 1..3 */
-#define NTRK 4                   /* + the drum track */
-#define TRK_DRUM 3
+#ifndef FELUCCA_SYNTH_PARTS
+#define FELUCCA_SYNTH_PARTS 7
+#endif
+#define NPART FELUCCA_SYNTH_PARTS
+#define NTRK (NPART + 1)
+#define TRK_DRUM NPART
+_Static_assert(NPART == 3 || NPART == 7, "supported track layouts");
 #define IT_GRAIN 9u
 enum { V_POLY, V_MONO, V_LEGATO, V_UNISON };   /* P_VOICE */
 #define NSTEP 64
@@ -108,8 +112,13 @@ enum {                          /* global parameters */
     G_FXFADE,                   /* SLOOP 2.7.2, the FX layer (FX held), SELECT: how fast a punch-in FX fades in and out, 0 (instant, as
                                  * before) .. 15 (punch.c; a setting of the FM-1, kept in BEND's byte) */
     G_THRU1, G_THRU2, G_THRU3, G_THRU4, /* MIDI note forwarding, per track; device settings */
+    G_CH4, G_CH5, G_CH6, G_CH7,
+    G_THRU5, G_THRU6, G_THRU7, G_THRU8,
+    G_DUCK1, G_DUCK2, G_DUCK3, G_DUCK4, G_DUCK5, G_DUCK6, G_DUCK7,
     G_COUNT
 };
+static uint32_t trk_ch_param(uint32_t i) { return i == TRK_DRUM ? G_DRCH : i < 3u ? G_CH1 + i : G_CH4 + i - 3u; }
+static uint32_t trk_thru_param(uint32_t i) { return i == TRK_DRUM ? G_THRU4 : i < 3u ? G_THRU1 + i : G_THRU5 + i - 3u; }
 
 /* ----------------------------------------------------------- voices --- */
 typedef struct {
@@ -228,7 +237,11 @@ _Static_assert(sizeof(step_t) == 10 && sizeof(dstep_t) == 10, "a step is 10 byte
 typedef struct {                 /* a lock: on step `step` the track's p[param] is `val` (4 bytes) */
     uint8_t step;                /* 0xFF = a free slot */
     uint8_t param;               /* P_* (a lockable one: p_lockable) */
+#if NPART > 3
+    int8_t val;
+#else
     int16_t val;
+#endif
 } plock_t;
 #define LOCK_FREE 0xFFu
 /* a step's condition (SLOOP 2.4 fill, GLO + key 9 / 10): plays always, only during a fill, never during one */
@@ -239,7 +252,11 @@ typedef struct track {
     uint8_t engine, preset;      /* engine: what the audio ISR renders */
     uint8_t eng_req;             /* engine the UI asked for (the ISR switches at a block start) */
     uint8_t user;                /* user preset slot + 1 the sound came from (UI), 0 = none */
+#if NPART > 3
+    uint8_t v[NVOICE];           /* handles into the shared sounding/fade pool */
+#else
     voice_t v[NVOICE];
+#endif
     /* LFO */
     uint32_t lfo_ph;
     int32_t lfo_val;             /* Q15 */
@@ -271,8 +288,11 @@ typedef struct track {
     /* the locks in force (seq.c lock_step): the params overridden now, what they were, what the lock set */
     uint8_t lk_n;
     uint8_t lk_param[NLOCK];
-    int16_t lk_base[NLOCK];
-    int16_t lk_set[NLOCK];
+#if NPART > 3
+    int8_t lk_base[NLOCK], lk_set[NLOCK];
+#else
+    int16_t lk_base[NLOCK], lk_set[NLOCK];
+#endif
     uint32_t seq_abs;            /* the step of the transport grid last played (seq.c trk_grid), SEQ_NONE */
     int16_t bend, bend_s;        /* 2.6: MIDI pitch bend -8192..8191 (seq.c), and as it glides (voice.c, a block at a time) */
     uint16_t seq_idx;            /* its index in the pattern */
@@ -341,7 +361,37 @@ typedef struct {
     int32_t batt_raw;            /* smoothed ADC ch3 (battery divider), 0 = not read yet */
 } song_t;
 
-static track_t trk[NTRK];        /* the instrument: three parts and the drum track */
+#if NPART > 3
+static track_t trk[NTRK] __attribute__((section(".noinit.tracks")));
+#define VOICE_SLOTS (NVOICE * 3u)
+static voice_t voice_pool[VOICE_SLOTS] __attribute__((section(".lowram")));
+static uint8_t voice_owner[VOICE_SLOTS];
+static voice_t voice_silent;
+static voice_t *voice_at(const track_t *t,uint32_t i) { return t->v[i] ? &voice_pool[t->v[i]-1u] : &voice_silent; }
+static uint32_t voice_index(const track_t *t,const voice_t *v) { for(uint32_t i=0;i<NVOICE;i++) if(voice_at(t,i)==v) return i; return NVOICE; }
+static voice_t *voice_claim(track_t *t,uint32_t i)
+{
+    if(t->v[i]) return voice_at(t,i);
+    uint32_t best=VOICE_SLOTS;
+    for(uint32_t k=0;k<VOICE_SLOTS;k++) {
+        uint32_t owner=voice_owner[k], p=owner? (owner-1u)/NVOICE:NPART, v=owner?(owner-1u)%NVOICE:0;
+        if(p>=NPART || trk[p].v[v]!=k+1u || (!voice_pool[k].active && !voice_pool[k].pend)) { best=k; break; }
+        if(voice_pool[k].stage==4u && (best==VOICE_SLOTS || voice_pool[k].age<voice_pool[best].age)) best=k;
+    }
+    /* Eight live voices and at most sixteen retained fade slots. */
+    if(best==VOICE_SLOTS) return 0;
+    uint32_t owner=voice_owner[best];
+    if(owner && trk[(owner-1u)/NVOICE].v[(owner-1u)%NVOICE]==best+1u) trk[(owner-1u)/NVOICE].v[(owner-1u)%NVOICE]=0;
+    memset(&voice_pool[best],0,sizeof voice_pool[best]);
+    t->v[i]=(uint8_t)(best+1u); voice_owner[best]=(uint8_t)((t-trk)*NVOICE+i+1u);
+    return &voice_pool[best];
+}
+#else
+static track_t trk[NTRK];
+static voice_t *voice_at(const track_t *t,uint32_t i) { return (voice_t *)&t->v[i]; }
+static voice_t *voice_claim(track_t *t,uint32_t i) { return &t->v[i]; }
+static uint32_t voice_index(const track_t *t,const voice_t *v) { return (uint32_t)(v-t->v); }
+#endif        /* the instrument: synth parts and the drum track */
 static song_t song;
 
 /* The transport clock (seq.c runs it). One unit = one sample at 1 BPM: a beat is BEAT_U units at any

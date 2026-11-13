@@ -19,6 +19,18 @@ static uint32_t trk_def_engine(uint32_t i)       /* ui.c TRK_DEF: ANALOG, DIGITA
     return i < NPART ? E[i] : 0u;
 }
 #include "../firmware/src/project.c"
+typedef project_t current_project_t;
+#define project_t project_v7_t
+#define proj_trk_t proj_trk_v7_t
+#define PROJ_MAGIC PROJ_MAGIC_V7
+#define pt_get p7_get
+#define pt_set p7_set
+#define pt_micro p7_micro
+#define pt_fill p7_fill
+#define pt_set_mf p7_set_mf
+#define proj_import proj_legacy_import
+#define proj_ok proj_v7_ok
+#define proj_sum proj_v7_sum
 
 static int check(const char *what, int ok)
 {
@@ -347,6 +359,15 @@ int main(void)
               (t == TRK_DRUM ? dstep_mask(&q.t[t].dstep[0]) == 0u : q.t[t].step[0].time == ST_REST);
     bad += check("FUN1 -> FUN6: track 1 mapped, tracks 2..4 defaults", ok);
 
+#undef pt_get
+#undef pt_set
+#undef pt_set_mf
+#undef proj_import
+#undef proj_ok
+#undef proj_sum
+#define pt_set pc_param_put
+#define pt_get pc_param_get
+    { current_project_t q, q2;
     /* capture / apply: the working project round trip (nudges and locks too) */
     host_tracks_init();
     for (t = 0; t < NTRK; t++)
@@ -442,7 +463,7 @@ int main(void)
             ok &= !drum_tune[l] && !drum_dec[l];
         drum_tune[3] = 7, drum_dec[9] = -4;
         proj_capture(&q2);
-        q2.t[TRK_DRUM].e[2] ^= 0x10;                 /* (a value of an older SLOOP's engine there: the check fails) */
+        q2.drum_tw[1] ^= 0x10;                 /* (a value of an older SLOOP's engine there: the check fails) */
         proj_apply(&q2, 1);
         ok &= !drum_tune[3] && !drum_dec[9];
         memset(drum_tune, 0, sizeof drum_tune), memset(drum_dec, 0, sizeof drum_dec);
@@ -461,10 +482,10 @@ int main(void)
     }
     /* a damaged image: a nudge out of range, a lock on a parameter that cannot lock, on a step past the end,
      * with a value past the range: clamped, freed, freed, clamped */
-    q.t[1].lock[5].step = 4, q.t[1].lock[5].param = P_SLEN, q.t[1].lock[5].val = 8;
-    q.t[1].lock[6].step = 64, q.t[1].lock[6].param = P_E0, q.t[1].lock[6].val = 1;
-    q.t[1].lock[7].step = 4, q.t[1].lock[7].param = P_LEVEL, q.t[1].lock[7].val = 999;
-    q.t[1].lock[8].step = 4, q.t[1].lock[8].param = 200, q.t[1].lock[8].val = 1;
+    { plock_t l={4,P_SLEN,8}; pc_lock_put(q.t[1].lock[5],&l); }
+    { plock_t l={64,P_E0,1}; pc_lock_put(q.t[1].lock[6],&l); }
+    { plock_t l={4,P_LEVEL,999}; pc_lock_put(q.t[1].lock[7],&l); }
+    { plock_t l={4,200,1}; pc_lock_put(q.t[1].lock[8],&l); }
     pt_set_mf(&q.t[1], 4, 0, FC_FILL), pt_set_mf(&q.t[1], 5, 0, FC_NOFILL);   /* steps 5, 6: fill only, no fill; */
     pt_set_mf(&q.t[1], 6, 0, 3), pt_set_mf(&q.t[1], 7, 0, 3);                    /* 7, 8: 3 (-> normal) */
     pt_set(&q.t[1], P_ITYPE, 200);                 /* an INSERT type past the list: clamped */
@@ -478,6 +499,7 @@ int main(void)
     q2 = q;
     bad += check("2.6 SAVE > PROJECT > ERASE: an object of no bytes is no project (an empty slot, older SLOOP too)",
                  !proj_import(&q2, &q, 0));
+    }
     printf("%s\n", bad ? "PROJECT FORMAT TEST FAILED" : "project format test passed");
     return bad != 0;
 }

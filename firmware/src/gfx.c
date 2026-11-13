@@ -22,13 +22,17 @@ typedef struct {               /* proportional, see tools/gen_font.py */
     const uint8_t *bw;         /* bitmap width per glyph (starts FONT_PAD left of the pen) */
     const uint16_t *off;       /* byte offset of each glyph */
     const uint8_t *data;
-    uint8_t bits;              /* SLOOP 2.6: 1 = 1 bit a pixel (a pixel font: glyph rows one after the other, high
+    uint8_t bits;              /* 2: cropped 8-bit rows, header = top << 4 | (rows - 1), 255 = blank.
+                                * SLOOP 2.6: 1 = 1 bit a pixel (a pixel font: glyph rows one after the other, high
                                 * bit first, each glyph from a whole byte); 0 = 2 pixels a byte, alpha 0..15 */
+    uint8_t fixed_adv, fixed_bw; /* uniform metrics need no per-character tables */
 } felucca_font_t;
+static uint32_t font_advance(const felucca_font_t *f, uint32_t gi) { return f->adv ? f->adv[gi] : f->fixed_adv; }
+static uint32_t font_bitmap_width(const felucca_font_t *f, uint32_t gi) { return f->bw ? f->bw[gi] : f->fixed_bw; }
 #include "felucca_font.h"
 
 #ifndef CV_ROWS
-#define CV_ROWS 32u
+#define CV_ROWS 16u
 #endif
 #define CV_MAX (240u * CV_ROWS)      /* all larger surfaces are rendered in bands */
 static uint16_t cv_px[CV_MAX] __attribute__((section(".pool")));
@@ -220,7 +224,7 @@ static inline void cv_pset(int32_t x, int32_t y, uint16_t c)
         cv_px[(uint32_t)y * cv_w + (uint32_t)x] = swap16(c);
 }
 
-static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c)
+UI_SMALL static void cv_rect(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t c)
 {
     int32_t x1 = x + w, y1 = y + h + cv_oy - (int32_t)cv_band, i;
     uint16_t sc = swap16(c);
@@ -247,7 +251,7 @@ static void cv_outline(int32_t x, int32_t y, int32_t w, int32_t h, uint16_t col)
 }
 
 
-static void cv_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t c)
+UI_SMALL static void cv_line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t c)
 {
     int32_t dx = x1 > x0 ? x1 - x0 : x0 - x1, sx = x0 < x1 ? 1 : -1;
     int32_t dy = y1 > y0 ? y0 - y1 : y1 - y0, sy = y0 < y1 ? 1 : -1;
@@ -281,7 +285,7 @@ static uint32_t glyph(const felucca_font_t *f, uint32_t ch)
 }
 
 /* text, alpha-blended onto the background with colour c; returns the end x */
-static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
+UI_SMALL static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char *s, uint16_t c)
 {
     uint16_t ramp[16];
     uint32_t a;
@@ -290,8 +294,19 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
     for (; *s; s++) {
         uint32_t gi = glyph(f, (uint8_t)*s), gx, gy, w, bpr;
         const uint8_t *gd;
-        w = f->bw[gi];
+        w = font_bitmap_width(f, gi);
         gd = f->data + f->off[gi];
+        if (f->bits == 2u) {
+            if (gd[0] != 255u) {
+                uint32_t top = gd[0] >> 4, rows = (gd[0] & 15u) + 1u;
+                for (gy = 0; gy < (rows << f->sh); gy++)
+                    for (gx = 0; gx < (8u << f->sh); gx++)
+                        if ((gd[1u + (gy >> f->sh)] >> (7u - (gx >> f->sh))) & 1u)
+                            cv_pset(x + (int32_t)gx, y + (int32_t)((top << f->sh) + gy), ramp[15]);
+            }
+            x += font_advance(f, gi);
+            continue;
+        }
         if (f->bits == 1u) {                           /* on / off pixels: full colour where a bit is set */
             uint32_t sw = w >> f->sh;
             for (gy = 0; gy < f->h; gy++)
@@ -300,7 +315,7 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
                     if ((gd[i >> 3] >> (7u - (i & 7u))) & 1u)
                         cv_pset(x - f->pad + (int32_t)gx, y + (int32_t)gy, ramp[15]);
                 }
-            x += f->adv[gi];
+            x += font_advance(f, gi);
             continue;
         }
         bpr = ((w >> f->sh) + 1u) / 2u;
@@ -311,7 +326,7 @@ static int32_t cv_text(int32_t x, int32_t y, const felucca_font_t *f, const char
                 if (v)
                     cv_pset(x - f->pad + (int32_t)gx, y + (int32_t)gy, ramp[v]);
             }
-        x += f->adv[gi];
+        x += font_advance(f, gi);
     }
     return x;
 }
@@ -320,21 +335,23 @@ static int32_t text_w(const felucca_font_t *f, const char *s)
 {
     int32_t w = 0;
     for (; *s; s++)
-        w += f->adv[glyph(f, (uint8_t)*s)];
+        w += font_advance(f, glyph(f, (uint8_t)*s));
     return w;
 }
 
 /* one-shot: text in a box, cleared to black, blitted */
-static void draw_text_box(uint32_t x, uint32_t y, uint32_t w, const felucca_font_t *f, const char *s,
+UI_SMALL static void draw_text_box(uint32_t x, uint32_t y, uint32_t w, const felucca_font_t *f, const char *s,
                           uint16_t c, int align)
 {
     int32_t tw = text_w(f, s), tx = 0;
-    cv_begin(w, f->h, C_BLACK);
+
     if (align == 1)
         tx = ((int32_t)w - tw) / 2;
     else if (align == 2)
         tx = (int32_t)w - tw;
+    CV_BANDS(w,f->h,C_BLACK) {
     cv_text(tx, 0, f, s, c);
     cv_blit(x, y);
+    }
     lcd_sync();                     /* one-shots (boot, crash, UBOOT, update) finish here */
 }

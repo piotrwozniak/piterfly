@@ -3,7 +3,7 @@
 # Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
 """Target-side cost estimate of the hot DSP code, from the pi32v2 objdump listing tools/build.py writes
 (build/felucca.dis). For each engine's render function and the audio ISR: the instructions
-inside loops (every address range closed by a backward branch: the per-sample loops and what they
+inside loops (address spans closed by natural back edges: the per-sample loops and what they
 contain), and the hardware divides and calls in them. cost = the loop instructions, each weighted 4 per
 level of nesting (an inner loop runs several times per sample) and 1 + 8 for a divide (many cycles). A static count, not a cycle count: it changes only when the compiled code changes,
 so it is exact run to run, and it catches a render loop that grew (more work per sample, a new divide,
@@ -49,16 +49,93 @@ def functions(path):
     return out
 
 
-def cost(insns):
-    """loops: one span per loop head (the farthest backward branch to it); an instruction inside d
-    spans weighs NEST ** (d - 1) (an inner loop runs several times per pass of the outer one)"""
-    lo = insns[0][0]
+def loop_heads(insns):
+    """A backwards conditional branch can be acyclic after cold-block layout.
+    Count it only when its target dominates the branch; retain conservative
+    address spans for the resulting loops, as the existing budgets expect.
+    """
+    index = {address: i for i, (address, _) in enumerate(insns)}
+    size = len(insns)
+    successors = [[] for _ in insns]
+    predecessors = [[] for _ in insns]
+    candidates = []
+    for i, (address, text) in enumerate(insns):
+        match = TARGET.search(text)
+        if match and int(match[1], 16) in index:
+            target = int(match[1], 16)
+            successors[i].append(index[target])
+            if target <= address:
+                candidates.append((target,address))
+        elif "goto " in text:
+            return legacy_loop_heads(insns)  # Unknown indirect/escaping edge: do not lower the estimate.
+        if i + 1 < size and not text.startswith(("goto ", "rets", "reti")):
+            successors[i].append(i + 1)
+        for target in successors[i]:
+            predecessors[target].append(i)
+    reachable, pending = {0}, [0]
+    while pending:
+        for target in successors[pending.pop()]:
+            if target not in reachable:
+                reachable.add(target)
+                pending.append(target)
+    all_bits = sum(1 << i for i in reachable)
+    dominators = [all_bits] * size
+    dominators[0] = 1
+    changed = True
+    while changed:
+        changed = False
+        for i in sorted(reachable - {0}):
+            common = all_bits
+            for predecessor in predecessors[i]:
+                if predecessor in reachable:
+                    common &= dominators[predecessor]
+            common |= 1 << i
+            if common != dominators[i]:
+                dominators[i] = common
+                changed = True
+    heads, back_edges = {}, set()
+    for head, end in candidates:
+        if index[end] not in reachable:
+            continue
+        if dominators[index[end]] & (1 << index[head]):
+            heads[head] = max(heads.get(head, end), end)
+            back_edges.add((index[end], index[head]))
+    # Removing natural back edges leaves a DAG for reducible control flow.
+    # A cold branch can participate in an outer loop without being a back edge.
+    incoming = {i: 0 for i in reachable}
+    for source in reachable:
+        for target in successors[source]:
+            if (source, target) not in back_edges:
+                incoming[target] += 1
+    pending = [i for i, count in incoming.items() if not count]
+    visited = 0
+    while pending:
+        source = pending.pop()
+        visited += 1
+        for target in successors[source]:
+            if (source, target) in back_edges:
+                continue
+            incoming[target] -= 1
+            if not incoming[target]:
+                pending.append(target)
+    if visited != len(reachable):
+        return legacy_loop_heads(insns)  # Irreducible cycle: retain the old upper bound.
+    return heads
+
+
+def legacy_loop_heads(insns):
     heads = {}
-    for a, t in insns:
-        m = TARGET.search(t)
-        if m and lo <= int(m.group(1), 16) < a:
-            h = int(m.group(1), 16)
-            heads[h] = max(heads.get(h, a), a)
+    for address, text in insns:
+        match = TARGET.search(text)
+        if match and insns[0][0] <= int(match[1], 16) <= address:
+            head = int(match[1], 16)
+            heads[head] = max(heads.get(head, address), address)
+    return heads
+
+
+def cost(insns):
+    """One span per natural loop head; nested spans retain the original x4 weight."""
+    heads = loop_heads(insns)
     n = divs = calls = 0
     w = 0
     for a, t in insns:

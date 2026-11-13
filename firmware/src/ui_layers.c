@@ -452,10 +452,14 @@ UI_SMALL static void layer_key(uint32_t layer, uint32_t k, uint32_t down)
     case LY_MIX:
         if (k == 1u) {                                      /* (2.6) the black key F#3: MIDI LEARN on / off */
             ml_toggle();
-        } else if (w >= 0 && w < 4) {
-            trk[w].p[P_MUTE] = (int16_t)!trk[w].p[P_MUTE];
+        }
+#if NPART > 3
+        else if(k==3u) { track_select(song.sel^4u); ui.layer_used=1; }
+#endif
+        else if (w >= 0 && w < 4) {
+            trk[(song.sel&~3u)+(uint32_t)w].p[P_MUTE] = (int16_t)!trk[(song.sel&~3u)+(uint32_t)w].p[P_MUTE];
         } else if (w >= 4 && w < 8) {
-            song.solo ^= (uint8_t)(1u << (w - 4));
+            song.solo ^= (uint8_t)(1u << ((song.sel&~3u)+(uint32_t)w-4u));
         } else if (w == 8) {
             fill_held = 1;                                  /* FILL while held */
         } else if (w == 9) {
@@ -593,7 +597,8 @@ UI_SMALL static void layer_knobs(uint32_t layer)
             }
             break;
         case LY_MIX: {
-            int16_t *lv = k == TRK_DRUM ? &song.g[G_DRLVL] : &trk[k].p[P_LEVEL];
+            uint32_t ti=(song.sel&~3u)+k;
+            int16_t *lv = ti == TRK_DRUM ? &song.g[G_DRLVL] : &trk[ti].p[P_LEVEL];
             *lv = (int16_t)clamp(*lv + accel(EN_K1 + k, s, 127), 0, 127);
             break;
         }
@@ -751,7 +756,7 @@ static const char *layer_sub_shown = "";                 /* the sub line last dr
 UI_SMALL static void layer_screen_draw(void)
 {
     static uint32_t head, tiles, foot;
-    static tile_t tl[PUNCH_NFX];                        /* 16 (the punch layer: 27) */
+    tile_t tl[PUNCH_NFX];                        /* 16 (the punch layer: 27) */
     static char v[4][10], sub[24];
     const char *lab[4] = {"", "", "", ""}, *val[4] = {v[0], v[1], v[2], v[3]};
     int32_t ratio[4] = {-1, -1, -1, -1};
@@ -1010,21 +1015,25 @@ UI_SMALL static void layer_screen_draw(void)
         break;
     }
     case LY_MIX: {                                      /* mute 1..4, solo 1..4, fill / fill bar, tap */
+        uint32_t base=song.sel&~3u;
         col = C_WHITE;
-        str_cpy(sub, "mute  solo  fill  tap", sizeof sub);
+        str_cpy(sub, base?"5-8: mute solo fill tap":"1-4: mute solo fill tap", sizeof sub);
         for (i = 0; i < 4u; i++) {
-            int m = trk[i].p[P_MUTE] != 0, so = (song.solo >> i) & 1u;
+            int m = trk[base+i].p[P_MUTE] != 0, so = (song.solo >> (base+i)) & 1u;
             str_cpy(tl[i].lab, "mute 1", 8);
-            tl[i].lab[5] = (char)('1' + i);
+            tl[i].lab[5] = (char)('1' + base+i);
             tl[i].bg = m ? TE_G2 : TE_COL[i];
             tl[i].fg = m ? TE_G3 : C_BLACK;
             str_cpy(tl[4 + i].lab, "solo 1", 8);
-            tl[4 + i].lab[5] = (char)('1' + i);
+            tl[4 + i].lab[5] = (char)('1' + base+i);
             tl[4 + i].bg = so ? C_WHITE : TE_G1;
             tl[4 + i].fg = so ? C_BLACK : TE_G3;
             tl[4 + i].top = TE_DIM[i];
 
         }
+#if NPART > 3
+        str_cpy(tl[17].lab,"bank",8); tl[17].bg=TE_G2; tl[17].fg=C_WHITE;
+#endif
         str_cpy(tl[8].lab, "fill", 8);                  /* key 9: held = a fill; key 10: the next bar is one */
         tl[8].bg = fill_now ? C_WHITE : TE_G1;
         tl[8].fg = fill_now ? C_BLACK : TE_G4;
@@ -1038,9 +1047,9 @@ UI_SMALL static void layer_screen_draw(void)
         str_cpy(tl[14].lab, "tap>", 8);
         tl[14].bg = C_BLACK;
         for (i = 0; i < 4u; i++) {
-            uint32_t lv = trk_level(i);
-            static const char *const L[4] = {"1", "2", "3", "4"};
-            lab[i] = L[i];
+            uint32_t lv = trk_level(base+i);
+            static const char *const L[8] = {"1", "2", "3", "4", "5", "6", "7", "8"};
+            lab[i] = L[base+i];
             fmt_int(v[i], (int32_t)lv * 100 / 127);
             ratio[i] = (int32_t)lv * 1000 / 127;
         }

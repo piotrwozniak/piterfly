@@ -17,7 +17,7 @@ static uint32_t section_bars(uint32_t s)
     if (!proj_ok(p))
         return 1;
     for (k = 0; k < NTRK; k++) {
-        uint32_t len = (uint32_t)clamp(p->t[k].p[P_SLEN], 1, NSTEP), u = div_units((uint32_t)p->t[k].p[P_SDIV] % NDIV_STEP);
+        uint32_t len = (uint32_t)clamp(pt_get(&p->t[k],P_SLEN), 1, NSTEP), u = div_units((uint32_t)pt_get(&p->t[k],P_SDIV) % NDIV_STEP);
         uint32_t b = (len * u + 4u * BEAT_U - 1u) / (4u * BEAT_U);   /* (64 x 8 beats fits 32 bits) */
         if (b > bars)
             bars = b;
@@ -49,7 +49,7 @@ static void arrangement_apply(uint32_t scene)
 
 /* ---- song mode keeps the loop you made: PLAY in song mode puts it aside (each section then plays
  * over the tracks), STOP (or the song's end) brings it back */
-static project_t song_keep __attribute__((section(".pool")));
+static project_t song_keep;
 static uint8_t song_kept;
 static void song_backup(void)                  /* (audio ISR: seq_start) */
 {

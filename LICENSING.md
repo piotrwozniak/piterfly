@@ -1,6 +1,6 @@
 # piterfly licensing and provenance
 
-piterfly **1.0.1** is modified SLOOP 2.8.5, based on Felucca by Leo Kuroshita
+piterfly **1.1.0** is modified SLOOP 2.8.5, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. Its code is **GPL-3.0-only**, except for the
 components below. Original notices and authorship are retained.
 
@@ -9,7 +9,7 @@ generated from original piterfly geometry in `tools/gen_pixel_icons.py`. The
 inherited atlas, historical/proposal screenshots and SLOOP artwork whose terms
 were not established are excluded, together with the inherited Git history.
 Replacement does not relicense those omitted materials. See [icon rights](docs/ICON-RIGHTS.md),
-[release preparation](docs/RELEASE-1.0.0.md), [notices](THIRD_PARTY_NOTICES.md)
+[release contents](docs/RELEASE-1.1.0.md), [notices](THIRD_PARTY_NOTICES.md)
 and [export provenance](PROVENANCE.md).
 
 ## Code and complete source
@@ -43,6 +43,7 @@ The source manifest identifies the original main commit and the exact exported s
 | Older Felucca atlas and historical screenshots | Excluded from this tree and its history; permission not established | Original reservation retained; docs/ICON-RIGHTS.md |
 | Inherited SLOOP graphics and pre-replacement proposals | Excluded from this export | PUBLIC_EXPORT.json records exact paths and hashes; authorship remains credited |
 | piterfly artwork and derived branding | GPL-3.0-only | User owns the artwork and selected GPL on 2026-11-08; assets/piterfly/LICENSE.txt |
+| FM-1 and D MINI product images in promo/public/products/ | Third-party product-image rights retained; not relicensed under GPL | Source URLs and original image hashes: promo/public/products/SOURCES.md; excluded from firmware source/archive/site |
 | Three embedded JieLi SDK files | Apache-2.0 | Official tag AC79NN_SDK_V1.2.1_2023-12-13, verified hashes; LICENSES/Apache-2.0-JieLi.txt |
 
 The historically mentioned docs/panel.jpg is absent from this checkout. All 16

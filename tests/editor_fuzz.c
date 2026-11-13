@@ -708,13 +708,11 @@ static const char *proj_field(uint32_t off)
     if (off >= t0 + NTRK * ts) { snprintf(b, sizeof b, "sum"); return b; }
     {
         uint32_t k = (off - t0) / ts, o = (off - t0) % ts;
-        if (o < offsetof(proj_trk_t, e)) snprintf(b, sizeof b, "track %u p[%u]", k, o / 2);
-        else if (o < offsetof(proj_trk_t, x)) snprintf(b, sizeof b, "track %u e[%u]", k, (o - (uint32_t)offsetof(proj_trk_t, e)) / 2);
-        else if (o < offsetof(proj_trk_t, engine)) snprintf(b, sizeof b, "track %u x[%u] (p[%u])", k, o - (uint32_t)offsetof(proj_trk_t, x), PROJ_NC6 + o - (uint32_t)offsetof(proj_trk_t, x));
+        if (o < offsetof(proj_trk_t, engine)) snprintf(b,sizeof b,"track %u p[%u]",k,o);
         else if (o < offsetof(proj_trk_t, step)) snprintf(b, sizeof b, "track %u engine/preset", k);
-        else if (o < offsetof(proj_trk_t, mf)) snprintf(b, sizeof b, "track %u step %u byte %u", k, (o - (uint32_t)offsetof(proj_trk_t, step)) / 10, (o - (uint32_t)offsetof(proj_trk_t, step)) % 10);
+        else if (o < offsetof(proj_trk_t, mf)) snprintf(b, sizeof b, "track %u step %u byte %u", k, (o - (uint32_t)offsetof(proj_trk_t, step)) / 8, (o - (uint32_t)offsetof(proj_trk_t, step)) % 8);
         else if (o < offsetof(proj_trk_t, lock)) snprintf(b, sizeof b, "track %u mf[%u]", k, o - (uint32_t)offsetof(proj_trk_t, mf));
-        else snprintf(b, sizeof b, "track %u lock %u", k, (o - (uint32_t)offsetof(proj_trk_t, lock)) / 4);
+        else snprintf(b, sizeof b, "track %u lock %u", k, (o - (uint32_t)offsetof(proj_trk_t, lock)) / 3);
     }
     return b;
 }

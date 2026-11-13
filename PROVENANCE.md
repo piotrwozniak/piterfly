@@ -1,9 +1,9 @@
 # piterfly — distribution-tree provenance
 
-Distribution candidate prepared locally on 2026-11-08. No firmware Release has been published or installed on hardware.
+Piterfly 1.1.0 public source export prepared on 2026-11-13. Piterfly 1.0.0 and 1.0.1 remain published unchanged. The maintainer has tested and accepted the 1.1.0 feature set on a physical M-VAVE FM-1.
 
 This tree derives from `piotrwozniak/fm1-piterfly`, private source commit
-`8d9ac74c4a8b7cac356a850755714dffe0149a87`. That project modifies SLOOP 2.8.5,
+`34f12e3c78116b3ded6fb96bad5fb8e04a660613`. That project modifies SLOOP 2.8.5,
 upstream commit `bac9c05ea7627449405aa10e48da21d75b6c8c56` from
 <https://github.com/isod89/sloop-fm1>, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. The initial export was a plain source directory, without a Git repository or copied .git.
@@ -16,7 +16,7 @@ It contains metadata, not the excluded artwork. The finished release archive's
 `SOURCE_MANIFEST.json` identifies the final build inputs after the changes below.
 SOURCE_INPUTS.json records the reviewed source inventory independently of Git.
 
-## Distribution-only changes
+## Initial distribution adaptations (1.0.0)
 
 - Exclude 46 historical artwork/proposal files: inherited SLOOP logos, upstream
   screenshots, pre-replacement granular proposals and two historical comparisons.
@@ -99,3 +99,7 @@ Felucca loaders. Tests cover the 1.0.0/new-loader transition and the reverse pat
 No storage/data-layout change or audio-engine change accompanies the identity
 change. See [the 1.0.1 notes](docs/RELEASE-1.0.1.md) for format limits and device
 qualification still required. Published 1.0.0 tags and assets stay unchanged.
+
+## Piterfly 1.1.0
+
+Seven synth tracks plus drums, FUN9/protocol 17, selective DUCK, measured dual-core granular balancing and native FM-1 documentation are carried from the current development tree. The public identity, updater compatibility, sealed source inventory and exact-release Pages pipeline introduced in 1.0.1 are retained. The USB MIDI names are piterfly and piterfly Update. Promotional media and private development history remain outside the public source export.

@@ -40,13 +40,13 @@ static uint32_t pow2_q16(int32_t d16)
  * window. Slot = header (magic, count, name, data length, CRC32) + up to 16 zones in the
  * smp_zone_t layout (off relative to the slot's data at +512) + IMA ADPCM data. */
 #include "../hal/fm1_xip.h"   /* relative: hostsim includes this file too */
-#define SMP_USER_SLOTS 3
+#define SMP_USER_SLOTS 1
 #define SMP_USER_BASE 0xA0000u                      /* USR1..USR3: 0xA0000..0xDBFFF */
 #define SMP_USER_SIZE 0x14000u
 #define SMP_USER_OFF(k) (SMP_USER_BASE + (k) * SMP_USER_SIZE)
 #define SMP_USER_DATA 512u
 #define SMP_USER_MAGIC 0x504D5346u                  /* "FSMP" */
-#define SMP_NALL (SMP_NSETS + SMP_USER_SLOTS)
+#define SMP_NALL (SMP_NSETS + 3u) /* retired source IDs stay silent instead of playing a different set */
 typedef struct {
     uint32_t magic;
     uint16_t version;
@@ -57,7 +57,7 @@ typedef struct {
 } smp_user_hdr_t;                                   /* 32 + 16 x 28 = 480 B, data at +512 */
 static smp_zone_t usr_zone[SMP_USER_SLOTS][16];     /* RAM copy, off rebased onto SMP_DATA */
 static uint8_t usr_nz[SMP_USER_SLOTS];
-static const char *const SMP_ALL_NAMES[SMP_NALL] = {SMP_SET_NAMES_INIT, "USR1", "USR2", "USR3"};
+static const char *const SMP_ALL_NAMES[SMP_NALL] = {SMP_SET_NAMES_INIT, "USR1", "USR2 OFF", "USR3 OFF"};
 
 #ifndef SMP_USER_XIP                                /* host tests: a RAM image of the slots */
 #define SMP_USER_XIP(k) fm1_xip_ptr(SMP_USER_OFF((uint32_t)(k)))
@@ -80,8 +80,9 @@ static int smp_zone_ok(const smp_zone_t *z, uint32_t data_len)
 }
 static void smp_user_scan(uint32_t k)
 {
+    if(k>=SMP_USER_SLOTS) return;
     const smp_user_hdr_t *h = (const smp_user_hdr_t *)smp_user_xip(k);
-    static smp_zone_t zs[16];
+    smp_zone_t zs[16];
     uint32_t i, base;
     smp_user_gen++;
     usr_nz[k] = 0;                                  /* (from here no new voice takes the slot) */
@@ -146,7 +147,7 @@ static void sample_note_on(track_t *t, voice_t *v)
         v->s[4] = (int32_t)(zi == 0xFFFFu ? set->z0 : zi);
     } else {                                        /* user slot: silent if empty */
         uint32_t k = si - SMP_NSETS;
-        for (i = 0; i < usr_nz[k]; i++)
+        for (i = 0; k < SMP_USER_SLOTS && i < usr_nz[k]; i++)
             if (v->note >= usr_zone[k][i].lo && v->note <= usr_zone[k][i].hi)
                 zi = 0x8000u | k << 5 | i;
         v->s[4] = (int32_t)(zi == 0xFFFFu ? 0 : zi);

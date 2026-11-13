@@ -518,3 +518,26 @@ LIVE flags2 bit 4 reports pending flash writes without changing the reply length
 INFO reports P_COUNT=74, P_E0=66, protocol=15. Existing common IDs 0–62 remain; POS, SPREAD and CAPTURE use 63–65; engine parameters move to 66–73. TYPE=9 selects the live GRAIN insert. SIZE/DENSITY/PITCH reuse 54/55/56, MIX remains 57. Source controls 63/64 use 0–127; CAPTURE 65 uses 0 LIVE, 1 FREEZE. SIZE maps to 16 named 10–800 ms choices; PITCH maps to 25 semitone choices −12…+12. DENSITY is 1–60 starts/s, subject to four-grain overlap admission. See [LIVE-GRANULAR.md](../docs/LIVE-GRANULAR.md).
 
 Backup/project objects written by this version are FUN7 (3832 bytes); FUN1–FUN6 import and FUN6 journal migration remain supported. User-preset bank headers and 192-byte record sizes stay unchanged; record version 2 packs 53 signed int16 common values, 13 byte-range common values, then eight signed int16 engine values in the existing 144-byte parameter area, little endian. Version-1 records still map by parameter count. Current web restore preflight rejects these newer projects and preset records on older firmware before writing.
+
+## piterfly protocol 17: seven synth parts and drums
+
+INFO reports `ntrk=8`, `G_COUNT=62`, `P_COUNT=74`, `P_E0=66`, `NSTEP=64` and 24 pattern slots. The drum track is index 7; indices 0–6 are normal synth parts. Existing track commands address all eight parts. SMP_INFO reports one 80 KiB slot, USR1. Retired source/kit IDs remain reserved and silent.
+
+Global IDs are append-only. Existing channel IDs 33–35 still address synth parts 1–3; ID 24 remains the drum channel (label DRUM). IDs 54–57 are CH4–CH7. THRU IDs 50–52 address parts 1–3, ID 53 addresses drums, and IDs 58–61 address parts 4–7.
+
+TRACK keeps the existing low solo-mask byte and appends its high bit as one additional byte. LIVE returns eight step/length/meter triples. After the four pattern-ready-mask bytes, LIVE appends one mask-extension byte: bit 0 is mute bit 7, bit 1 is solo bit 7, and bit 2 is REC bit 7. The original mask fields contain bits 0–6. The op-14 result follows this new extension byte. LIVE op 15 takes `track, state` and controls solo independently of the physical panel bank: state 0 clears, 1 sets, 2 toggles.
+
+Project backup objects use FUN9, 6,016 bytes, and need this firmware. The project header retains its magic/size, global, selection and checksum conventions; compact synth steps use eight bytes and locks three. See [the feature notes](../docs/SEVEN-SYNTH-TRACKS.md) and `project_codec.c`. FUN1–FUN7 are imported with their original four-track layouts. Musical patterns retain 24 logical IDs; the working project uses two additional internal journal roots.
+
+MIDI backup object 10 is now 47 bytes. Bytes 0–39 preserve the old MIDI Learn and device-settings layout. Bytes 40–43 hold CH4–CH7, byte 44 the full eight-bit THRU mask, and bytes 45–46 the little-endian bitset containing each MIDI Learn entry's third track bit. A learned entry's original bits 7–8 remain the low two track bits; its parameter code is unchanged. Old 32-, 36- and 40-byte objects import, with the old drum track moved to index 7. Absent new channels default to 4–7.
+
+The editor preflights FUN9 and extended MIDI records against INFO before any restore writes. Nonempty USR2/3 sample objects cannot be restored on this firmware, because those regions hold pattern records. Backup LIST no longer advertises those sample objects.
+### Optional per-track DUCK globals
+
+The experimental per-track DUCK build appends globals 62–68 (one ON/OFF target per
+synth track, default ON); INFO then reports `gcount=69`. Query them through the
+existing GET/SET/DESC/DUMP commands. This does not change protocol 17 or `P_COUNT`.
+Devices with `gcount=62` do not expose these switches. FUN9's two spare bytes hold
+the excluded-target mask followed by `0xD1`; absence of the marker means all targets
+ON. Project size remains 6016 bytes. Old readers ignore those bytes and clear them
+on their next save.

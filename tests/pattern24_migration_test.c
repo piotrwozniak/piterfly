@@ -12,15 +12,15 @@ int main(void)
     for (i = 0; i < 4; i++) {
         trk[0].p[P_SLEN] = 64;
         trk[0].step[63].n = 1; trk[0].step[63].note[0] = (uint8_t)(70 + i);
-        proj_capture(&proj_slot[i]);
-        assert(st_save(OBJ_PROJECT0 + i, &proj_slot[i], sizeof(project_t)) == 0);
+        project_v7_t legacy; legacy_capture(&legacy);
+        assert(st_save(OBJ_PROJECT0 + i, &legacy, sizeof legacy) == 0);
     }
     memset(proj_slot, 0, sizeof proj_slot); memset(&proj_cache, 0, sizeof proj_cache);
     sec_dirty = pb_ready = 0;
     persist_boot();
     for (i = 0; i < 4; i++) {
         assert(project_used(i));
-        assert(project_at(i)->t[0].step[63].note[0] == 70 + i);
+        assert(stored_note(project_at(i),0,63) == 70 + i);
     }
     assert(!project_used(23));
     /* A saved live edit survives a warm reset before reaching flash. */
@@ -29,12 +29,12 @@ int main(void)
     assert(section_store(23));
     song.playing = 0;
     persist_boot();
-    assert(project_at(23)->t[0].step[63].note[0] == 99 && sec_dirty);
+    assert(stored_note(project_at(23),0,63) == 99 && sec_dirty);
     sections_write();
     memset(proj_slot, 0, sizeof proj_slot); memset(&proj_cache, 0, sizeof proj_cache);
     pb_ready = 0; persist_boot();
-    assert(project_at(23)->t[0].step[63].note[0] == 99);
-    assert(project_at(0)->t[0].step[63].note[0] == 70);
+    assert(stored_note(project_at(23),0,63) == 99);
+    assert(stored_note(project_at(0),0,63) == 70);
     /* PER3 settings: old order, lights, SYN kits and MIDI routing all survive. */
     {
         persist_t p, restored;

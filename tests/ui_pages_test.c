@@ -1437,8 +1437,9 @@ int main(int argc, char **argv)
         tap(B_FX); SEL(1);
         check(!strcmp(PT(), "FILTER"), "SELECT on FX: next page, the track FILTER");
         TSEL->p[P_TFLT] = -32; ui.force = 1; frames(2); ppm("page-filter");
-        check(!strcmp(ui.big_l[0], "FILT") && !strcmp(ui.big_v[0], "LP50") && !ui.big_l[1][0],
-              "FILTER page: its one value drawn large (LP50 %)");
+        check(!strcmp(ui.big_l[0], "FILT") && !strcmp(ui.big_v[0], "LP50") && !strcmp(ui.big_l[1], "DUCK") &&
+              !strcmp(ui.big_v[1],song.g[G_DUCK1+song.sel]?"ON":"OFF"),
+              "FILTER page: filter and selected synth's DUCK switch drawn large");
         {   /* the big value in the graph strip: white pixels in the middle of the screen */
             uint32_t x, y, lit = 0;
             for (y = Y_GRAPH + 30; y < Y_GRAPH + 90; y++)
@@ -1990,8 +1991,8 @@ int main(int argc, char **argv)
                 param_format(&GP[G_DRCH], 0, vv, &u);
                 check(m->id[0] == G_CH1 && m->id[1] == G_CH2 && m->id[2] == G_CH3 && m->id[3] == G_DRCH && !strcmp(m2->title, "MIDI 2") &&
                       m2->id[0] == G_ROUTE && m2->id[1] == G_CHOTH && m2->id[2] == G_MIDI && m2->id[3] == G_BEND &&
-                      !strcmp(GP[G_DRCH].label, "CH4") && !strcmp(vv, "OFF"),
-                      "GLO > MIDI: CH1 CH2 CH3 CH4 (the drums); MIDI 2: IN OTHER OUT BEND; CH4 0 reads OFF");
+                      !strcmp(GP[G_DRCH].label, "DRUM") && !strcmp(vv, "OFF"),
+                      "GLO > MIDI: CH1 CH2 CH3 DRUM; MIDI 2: IN OTHER OUT BEND; DRUM 0 reads OFF");
                 song.g[G_CH2] = 2, frame();
                 K(EN_K2, 1);                              /* CH2 2 -> 3: track 3's: on to 4 */
                 check(song.g[G_CH2] == 4 && !strcmp(ui.msg, "CH 3 = TRACK 3"), "GLO > MIDI: CH2 turned onto track 3's channel: on to 4, \"CH 3 = TRACK 3\"");

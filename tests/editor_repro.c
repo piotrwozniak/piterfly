@@ -98,13 +98,13 @@ static int repro_pc(void)
 
 static int repro_vel(void)
 {
-    static project_t p;
+    static project_v7_t p;
     uint8_t a[700];
     uint32_t n, pos = 0, crc, i, k, bad = 0;
     int32_t pk0 = 0, pk1 = 0;
     for (k = 0; k < 2; k++) {
         /* track 1: a note on every step, its velocity 127 (k 0) or 255 (k 1), accent off; the rest silent */
-        proj_capture(&p);
+        legacy_capture(&p);
         for (i = 0; i < NSTEP; i++) {
             step_t *s = &p.t[0].step[i];
             memset(s, 0, sizeof *s);
@@ -112,7 +112,7 @@ static int repro_vel(void)
         }
         for (i = 1; i < NTRK; i++) memset(p.t[i].step, 0, sizeof p.t[i].step);
         p.t[0].p[P_LEVEL] = 100;
-        p.sum = proj_sum(&p);
+        p.sum = proj_v7_sum(&p);
         crc = st_crc32(&p, sizeof p);
         n = 0; a[n++] = 0; a[n++] = 0;
         for (i = 0; i < 5; i++) a[n++] = ((uint32_t)sizeof p >> (7 * i)) & 127;

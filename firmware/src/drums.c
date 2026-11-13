@@ -27,7 +27,7 @@
 #define DRUM_SYN (DRUM_PAIR + 1u)                /* SLOOP 2.5: SYN1..SYN4, your synthesised kits (drum_synth.c dsu) */
 #define DRUM_KITS (DRUM_SYN + DSU_N)
 static const char *const DRUM_KIT_NAMES[] = {"ACOUSTIC", "DEEP", "TIGHT", "BRIGHT", "DUST", DS_KIT_NAME_LIST,
-                                             "USR1", "USR2", "USR3", "REMOVED", "REMOVED",
+                                             "USR1", "REMOVED", "REMOVED", "REMOVED", "REMOVED",
                                              "SYN1", "SYN2", "SYN3", "SYN4"};
 static const char *const DRUM_KIT_STYLES[] = {"STUDIO", "SOFT", "PUNCHY", "BRIGHT", "DUSTY", DS_KIT_STYLE_LIST,
                                               "YOUR KIT", "YOUR KIT", "YOUR KIT", "YOUR KIT", "BIG KIT",

@@ -144,6 +144,49 @@ function attachMock(opt, linkOpt = {}) {
 }
 const emptyStep = { n: 0, notes: [0, 0, 0, 0], time: 2, flags: 0, vel: 0 };
 
+async function editorExpandedMock() {
+  const { m, rq, done } = attachMock({ seven: true });
+  try {
+    const info = E.parse[E.CMD.INFO](await rq(E.req.info()));
+    ok(info.ntrk === 8 && info.patterns === 24 && info.proto === 17 && info.version === "piterfly 1.1.0 (MOCK)", "expanded mock: release identity, eight tracks and 24 slots");
+    for (let i = 0; i < 24; i++) {
+      await rq(E.req.set(1, 0, 100 + i));
+      const saved = E.parse[E.CMD.PROJECT](await rq(E.req.project(1, i)));
+      if (saved.slot !== i || !saved.used) throw new Error("Expanded mock wrapped pattern " + i);
+    }
+    let independent = true;
+    for (let i = 0; i < 24; i++) {
+      await rq(E.req.project(0, i));
+      independent &&= m.state.g[0] === 100 + i;
+    }
+    ok(independent, "expanded mock: all A1-F4 patterns save/load independently");
+    const L = E.parse[E.CMD.BK_LIST](await rq(E.req.bkList()));
+    ok(E.SONGF.SECS.every(id => L.items.some(x => x.id === id && x.len)), "expanded mock: backup lists all 24 populated slots");
+    const original = m.state.settings;
+    const entries = Array.from({length:128}, (_,i) => ({scene:i%24,bars:[4,8,16][i%3]}));
+    const encoded = E.ARR.encode(original,{loop:true,entries});
+    const put = async (id,b) => {
+      let r = E.parse[E.CMD.BK_PUT](await rq(E.req.bkBegin(id,b.length,E.crc32(b))));
+      if (r.rc) return r;
+      for(let off=0;off<b.length;off+=256) await rq(E.req.bkData(id,off,b.subarray(off,off+256)));
+      return E.parse[E.CMD.BK_PUT](await rq(E.req.bkCommit(id)));
+    };
+    const f4id=E.SONGF.SECS[23], f4info=L.items.find(x=>x.id===f4id), f4=new Uint8Array(f4info.len);
+    for(let off=0;off<f4.length;off+=256){const g=E.parse[E.CMD.BK_GET](await rq(E.req.bkGet(f4id,off,Math.min(256,f4.length-off))));if(g.rc)throw Error("F4 backup read failed");f4.set(g.data,off);}
+    m.state.slots[23]=null;
+    const restored=await put(f4id,f4);
+    await rq(E.req.project(0,23));
+    ok(restored.rc===0&&m.state.g[0]===123&&m.state.slots[3].g[0]===103, "expanded mock: F4 backup restores without replacing A4");
+    const r = await put(1,encoded);
+    const decoded = E.ARR.decode(m.state.settings);
+    ok(E.ARR.limit(original) === 128 && r.rc === 0 && decoded.entries.length === 128 && decoded.entries[127].scene === 7, "expanded mock: PER4 retains 128 populated SONG positions");
+    m.sim.play(true);
+    const changed=encoded.slice(); changed[E.ARR.OFF+4+127*2+1]=32;
+    const refused=await put(1,changed);
+    ok(refused.rc === 3 && E.ARR.decode(m.state.settings).entries[127].bars === entries[127].bars, "expanded mock: playing protects late SONG positions from restore");
+  } finally { done(); }
+}
+
 async function editorLibrarian() {
   const { m, rq, done } = attachMock({});
   const C = E.CMD;
@@ -639,7 +682,7 @@ async function editorBackup() {
   }
 
   const ec = readFileSync(join(HERE, "../firmware/src/editor.c"), "utf8");
-  ok(/ED_BK_IDS\[\] = \{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 32, 33, 34, 64,/.test(ec) && /82, 83\}/.test(ec) && E.backupObjects && [10, 11].every((id) => ec.includes(`id == ${id}u`)),
+  ok(/ED_BK_IDS\[\] = \{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 32, 64,/.test(ec) && /82, 83\}/.test(ec) && E.backupObjects && [10, 11].every((id) => ec.includes(`id == ${id}u`)),
     "backup: the object ids == editor.c ED_BK_IDS (35: USR4, 9: SYN kits, 10: MIDI LEARN, 11: theme)");
   await rq(E.req.upStore(3, "BACKUP ME"));
   await rq(E.req.project(1, 2), { timeout: 4000, retries: 0 });
@@ -687,7 +730,7 @@ async function editorV5() {
     && names.indexOf("ED_MICRO_GET") + 1 === C.MICRO_GET && names.indexOf("ED_MICRO_SET") + 1 === C.MICRO_SET
     && names.indexOf("ED_FILL_GET") + 1 === C.FILL_GET && names.indexOf("ED_FILL_SET") + 1 === C.FILL_SET
     && /ED_FM6_GET = 68, ED_FM6_PUT, ED_FM6_LIST, ED_FM6_ERASE/.test(ec) && C.FM6_GET === 68 && C.FM6_ERASE === 71
-    && /#define ED_PROTO 15u/.test(ec) && /ed_b\(ED_PROTO\);/.test(ec)
+    && /#define ED_PROTO 17u/.test(ec) && /ed_b\(ED_PROTO\);/.test(ec)
     && /enum \{ ED_DSYN_LIST = 72, ED_DSYN_GET, ED_DSYN_PUT, ED_DSYN_STORE, ED_DSYN_PLAY \};/.test(readFileSync(join(HERE, "../firmware/src/editor_dsyn.c"), "utf8"))
     && C.DSYN_LIST === 72 && C.DSYN_PLAY === 76, "v5..v12: command numbers and INFO == editor.c / editor_dsyn.c");
   const enumNames = (id) => (new RegExp(`${id}\\[\\] = \\{([^}]*)\\}`).exec(pc) || [])[1].split(",").map((x) => x.trim().replace(/"/g, ""));
@@ -1701,7 +1744,8 @@ async function packages() {
   const logical = py(`import sys; raw = open(sys.argv[1], "rb").read()
 sys.stdout.buffer.write(b"".join(raw[i * 48:i * 48 + 47] for i in range(20)) + raw[960:])`, pkg);
   ok(eq(logicalImage(raw), logical), "fm1pkg.js logicalImage");
-  ok(/^FM-1_9\d\d$/.test(productOf(raw)), "fm1pkg.js productOf");
+  const expected = /#define PITERFLY_PRODUCT "([^"]+)"/.exec(readFileSync(join(HERE, "../firmware/src/version.h"), "utf8"))[1];
+  ok(productOf(raw) === expected, "fm1pkg.js productOf matches configured Piterfly identity");
 }
 
 /* ------------------------------------------------- update protocol (fm1ota.js) --- */
@@ -1775,6 +1819,9 @@ async function updater() {
   const upgrade = new FakeFM1(image, {identity: "FM-1_910", name: "piterfly", finalIdentity: newId, loaderIdentity: "ota-" + newId});
   const upgraded = await new Updater(upgrade.access).install(image, newId);
   ok(upgraded === newId && upgrade.bad === 0, "Piterfly: 1.0.0 -> 1.0.1 with matching long USB identity");
+  const sameIdentity = new FakeFM1(image, {identity: newId, name: "piterfly", finalIdentity: newId, loaderIdentity: "ota-" + newId});
+  ok(await new Updater(sameIdentity.access).install(image, newId) === newId && sameIdentity.bad === 0,
+     "Piterfly: 1.0.1 -> 1.1.0 retains identity through both update stages");
   const interrupted = new FakeFM1(image, {identity: "ota-" + newId, finalIdentity: newId});
   ok(await new Updater(interrupted.access).resume(image) && interrupted.bad === 0, "Piterfly: resume interrupted new long-ID loader");
   const downgrade = new FakeFM1(image, {identity: newId, name: "piterfly", finalIdentity: "FM-1_910"});
@@ -1869,6 +1916,7 @@ async function updater() {
 }
 
 await editorMock();
+await editorExpandedMock();
 await editorLibrarian();
 await editorLive();
 await editorTracks();

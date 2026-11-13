@@ -40,6 +40,7 @@ static float output[CTL * 2];
 void preview_init(void)
 {
     uint32_t i, k;
+    memset(trk,0,sizeof trk);
     memset(user_flash, 0xFF, sizeof user_flash);
     for (i = 0; i < G_COUNT; i++) song.g[i] = GP[i].def;
     song.g[G_SYNC] = 0;
@@ -80,7 +81,7 @@ void preview_global(uint32_t id, int32_t value)
 void preview_select(uint32_t k, uint32_t solo)
 {
     song.sel = (uint8_t)(k % NTRK);
-    song.solo = (uint8_t)(solo & 15u);
+    song.solo = (uint8_t)(solo & ((1u<<NTRK)-1u));
 }
 void preview_step(uint32_t k, uint32_t i)
 {

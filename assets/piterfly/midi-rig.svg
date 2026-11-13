@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="660" viewBox="0 0 1100 660" role="img" aria-labelledby="title desc">
+  <title id="title">Keyboard, FM-1 and Behringer D MINI connection map</title>
+  <desc id="desc">Three USB data cables connect a keyboard, FM-1 and D MINI separately to a computer. The computer routes keyboard notes to FM-1, then routes FM-1 MIDI THRU or sequencer output to D MINI. FM-1 and D MINI have separate audio connections to a mixer or audio interface.</desc>
+  <defs>
+    <marker id="midi" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="#1ecc70"/></marker>
+    <marker id="audio" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#ffc618"/></marker>
+  </defs>
+  <rect width="1100" height="660" rx="18" fill="#0b0b10"/>
+  <g font-family="Helvetica,Arial,sans-serif" font-size="21" fill="#f2f2f2">
+    <g fill="none" stroke-width="3">
+      <path d="M272 150H420" stroke="#1ecc70" marker-end="url(#midi)"/>
+      <path d="M720 150H820" stroke="#1ecc70" marker-end="url(#midi)"/>
+      <path d="M570 222V330" stroke="#1ecc70" marker-start="url(#midi)" marker-end="url(#midi)"/>
+      <path d="M570 450V590H700" stroke="#ffc618" marker-end="url(#audio)"/>
+      <path d="M944 200V545" stroke="#ffc618" marker-end="url(#audio)"/>
+    </g>
+    <g fill="#111118" stroke-width="2">
+      <rect x="32" y="100" width="240" height="100" rx="10" stroke="#287cff"/>
+      <rect x="420" y="80" width="300" height="140" rx="10" stroke="#1ecc70"/>
+      <rect x="820" y="100" width="248" height="100" rx="10" stroke="#ff621a"/>
+      <rect x="420" y="330" width="300" height="120" rx="10" stroke="#287cff"/>
+      <rect x="700" y="550" width="368" height="90" rx="10" stroke="#ffc618"/>
+    </g>
+    <g text-anchor="middle">
+      <g font-size="27" font-weight="700">
+        <text x="152" y="142">USB keyboard</text><text x="570" y="124">Computer / host</text>
+        <text x="944" y="142">Behringer D MINI</text><text x="570" y="373">FM-1 / Piterfly</text>
+        <text x="884" y="587">Mixer / audio interface</text>
+      </g>
+      <g fill="#c4c4ce">
+        <text x="152" y="176">Transmit: channel 1</text><text x="570" y="159">Keyboard → FM-1</text>
+        <text x="570" y="190">FM-1 → D MINI</text><text x="944" y="176">Receive: channel 1</text>
+        <text x="570" y="408">TRK1 THRU ON · LEVEL 0</text><text x="884" y="620">Two separate audio inputs</text>
+      </g>
+    </g>
+    <g fill="#1ecc70" text-anchor="middle"><text x="345" y="131">USB MIDI</text><text x="770" y="131">USB</text></g>
+    <text x="592" y="280" fill="#1ecc70">USB MIDI ↕</text>
+    <g fill="#ffc618"><text x="590" y="512">FM-1 audio</text><text x="966" y="382" transform="rotate(90 966 382)">D MINI audio</text></g>
+    <g font-size="20">
+      <path d="M32 35H72" stroke="#1ecc70" stroke-width="3"/><text x="84" y="42">MIDI / notes</text>
+      <path d="M265 35H305" stroke="#ffc618" stroke-width="3"/><text x="317" y="42">Audio / sound</text>
+      <text x="32" y="530" fill="#c4c4ce">3 USB data cables → 1 computer</text>
+      <text x="32" y="563" fill="#c4c4ce">Arrows show signal direction.</text>
+      <text x="32" y="596" fill="#c4c4ce">FM-1 USB carries MIDI both ways.</text>
+    </g>
+  </g>
+</svg>

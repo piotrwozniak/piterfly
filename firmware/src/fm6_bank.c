@@ -80,6 +80,7 @@ static void fm6_bank_changed(void)
  * stopped (the caller checks: a sector erase silences the audio) */
 static int fm6_bank_put(uint32_t k, const uint8_t *pk)
 {
+    project_stage_busy=0;
     fm6_bank_t *b = (fm6_bank_t *)&proj_tmp;
     uint8_t v[FP_SIZE + 1u];
     if (k >= FM6_BANK_N)

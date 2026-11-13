@@ -146,11 +146,12 @@ UI_SMALL static void page_entered(void)
  * turned, and says whose it was. Every frame (ui_input) */
 UI_SMALL static void midi_chan_fix(void)
 {
-    static const uint8_t ID[4] = {G_CH1, G_CH2, G_CH3, G_DRCH};
-    static int16_t was[4] = {-1, -1, -1, -1};
+    static int16_t was[NTRK];
+    static uint8_t initialized;
+    if(!initialized) { for(uint32_t i=0;i<NTRK;i++) was[i]=-1; initialized=1; }
     uint32_t k, j;
-    for (k = 0; k < 4u; k++) {
-        int32_t v = song.g[ID[k]], dir, owner = -1;
+    for (k = 0; k < NTRK; k++) {
+        int32_t v = song.g[trk_ch_param(k)], dir, owner = -1;
         if (was[k] < 0 || v == was[k] || !v) {
             was[k] = (int16_t)v;
             continue;
@@ -158,8 +159,8 @@ UI_SMALL static void midi_chan_fix(void)
         dir = v > was[k] ? 1 : -1;
         for (;;) {
             int32_t o = -1;
-            for (j = 0; j < 4u; j++)
-                if (j != k && song.g[ID[j]] == v)
+            for (j = 0; j < NTRK; j++)
+                if (j != k && song.g[trk_ch_param(j)] == v)
                     o = (int32_t)j;
             if (o < 0)
                 break;
@@ -178,9 +179,10 @@ UI_SMALL static void midi_chan_fix(void)
         if (owner >= 0) {
             char b[8];
             str_cpy(b, "CH ", sizeof b);
-            fmt_int(b + 3, song.g[ID[k]]);
-            ui_say(b, owner == 3 ? " = DRUMS" : owner == 0 ? " = TRACK 1" : owner == 1 ? " = TRACK 2" : " = TRACK 3");
-            song.g[ID[k]] = (int16_t)v;
+            fmt_int(b + 3, song.g[trk_ch_param(k)]);
+            char label[16]; str_cpy(label," = TRACK ",sizeof label); fmt_int(label+9,owner+1);
+            ui_say(b, owner == TRK_DRUM ? " = DRUMS" : label);
+            song.g[trk_ch_param(k)] = (int16_t)v;
         }
         was[k] = (int16_t)v;
     }
@@ -578,7 +580,11 @@ UI_SMALL static void go_home(void)
  * writes the sequencer: every pattern is the one the player records or enters. */
 
 /* the parts' sounds at power-on (engine, preset): bass, pad, lead */
-static const uint8_t TRK_DEF[NPART][2] = {{0, 0}, {1, 0}, {4, 5}};   /* ANALOG 808 BOOM, DIGITAL RHODES, SAMPLE LOFI FLUTE */
+static const uint8_t TRK_DEF[NPART][2] = {{0, 0}, {1, 0}, {4, 5}
+#if NPART > 3
+    , {2, 0}, {6, 0}, {9, 0}, {0, 0}
+#endif
+};   /* ANALOG 808 BOOM, DIGITAL RHODES, SAMPLE LOFI FLUTE */
 UI_SMALL static uint32_t trk_def_engine(uint32_t i) { return i < NPART ? TRK_DEF[i][0] : 0u; }
 
 UI_SMALL static int seq_is_empty(const track_t *t) { return track_empty(t); }
@@ -1057,7 +1063,9 @@ UI_SMALL static uint32_t ml_code(uint32_t id) { return id >= P_E0 ? ML_E0 + id -
 UI_SMALL static void ml_put(uint32_t i, uint32_t e)       /* (the ISR reads the entry: never half of one) */
 {
     fm1_irq_off();
-    ml_tab[i % ML_N] = (uint16_t)e;
+    i%=ML_N;
+    ml_tab[i] = (uint16_t)e;
+    ml_track_hi=(uint16_t)((ml_track_hi&~(1u<<i))|((e>>16)&1u)<<i);
     fm1_irq_on();
 }
 UI_SMALL static uint32_t ml_count(void)
@@ -1074,11 +1082,11 @@ UI_SMALL static uint32_t ml_learn(uint32_t cc, uint32_t k, uint32_t id)
     if (!ml_free_cc(cc) || k >= NTRK || id >= P_COUNT)
         return 2;
     for (i = 0; i < ML_N; i++)
-        if ((e = ml_tab[i]) >> 9 && ((e & 127u) == cc || ((e >> 9) == ml_code(id) && ((e >> 7) & 3u) == k)))
+        if ((e = ml_tab[i]) >> 9 && ((e & 127u) == cc || ((e >> 9) == ml_code(id) && ml_track(i) == k)))
             ml_put(i, 0);
     for (i = 0; i < ML_N; i++)
         if (!(ml_tab[i] >> 9)) {
-            ml_put(i, cc | k << 7 | ml_code(id) << 9);
+            ml_put(i, cc | (k&3u) << 7 | ml_code(id) << 9 | (k>>2) << 16);
             return 1;
         }
     return 0;

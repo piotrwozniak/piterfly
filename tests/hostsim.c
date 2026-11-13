@@ -32,6 +32,9 @@ static struct { volatile uint32_t notes, buttons; } fm1_in;
 static volatile uint32_t fm1_remote_btn;           /* (2.7, fm1_input.h: the buttons held over MIDI) */
 static void fm1_irq_off(void) {}                 /* (the host: one thread) */
 static void fm1_irq_on(void) {}
+#ifndef FELUCCA_SYNTH_PARTS
+#define FELUCCA_SYNTH_PARTS 3 /* old audio goldens; eight-track tests explicitly request seven synth parts */
+#endif
 #include "../firmware/src/core.h"
 #include "../firmware/src/cpu1.h"
 #include "cpu1_host.c"                  /* the second core on the host: CORES=1 inline, CORES=2 a thread */
@@ -154,7 +157,7 @@ static uint32_t busy_now(void)                   /* sounding voices of the parts
     uint32_t p, i, n = 0;
     for (p = 0; p < NPART; p++)
         for (i = 0; i < NVOICE; i++)
-            n += trk[p].v[i].active && trk[p].v[i].stage != 4u;
+            n += voice_at(&trk[p],i)->active && voice_at(&trk[p],i)->stage != 4u;
     return n;
 }
 
@@ -488,7 +491,7 @@ static int xfade_test(const char *dir)
         if (f == sw[3] + FS / 50u / CTL * CTL) {
             uint32_t v;
             for (v = 0; v < NVOICE; v++)
-                late_ok |= t->v[v].active && t->v[v].note == 60u && t->v[v].gate;
+                late_ok |= voice_at(t,v)->active && voice_at(t,v)->note == 60u && voice_at(t,v)->gate;
             late_ok = late_ok && t->engine == to[3];
             trk_note_off(t, 60);
         }
@@ -635,7 +638,7 @@ static int trs_held(const track_t *t, uint32_t note)
 {
     uint32_t v;
     for (v = 0; v < NVOICE; v++)
-        if (t->v[v].active && t->v[v].gate && t->v[v].note == note)
+        if (voice_at(t,v)->active && voice_at(t,v)->gate && voice_at(t,v)->note == note)
             return 1;
     return 0;
 }
@@ -895,7 +898,7 @@ int main(int argc, char **argv)
             static uint32_t vmax, hi;
             uint32_t k, a = 0;
             for (k = 0; k < NVOICE; k++)
-                if (inst.v[k].active) {
+                if (voice_at(&inst,k)->active) {
                     a++;
                     hi |= 1u << k;
                 }

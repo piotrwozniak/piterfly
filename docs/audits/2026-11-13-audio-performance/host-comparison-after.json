@@ -1,0 +1,122 @@
+[
+  {
+    "case": "dry3",
+    "before": {
+      "instructions_per_block_median": 61059.4,
+      "runs": [
+        61060.8,
+        61059.4,
+        61057.3
+      ]
+    },
+    "current": {
+      "instructions_per_block_median": 61066.8,
+      "runs": [
+        61067.4,
+        61066.3,
+        61066.8
+      ]
+    },
+    "change_percent": 0.012119346079386695
+  },
+  {
+    "case": "grain1",
+    "before": {
+      "instructions_per_block_median": 78074.0,
+      "runs": [
+        78074.0,
+        78074.0,
+        78075.4
+      ]
+    },
+    "current": {
+      "instructions_per_block_median": 77067.2,
+      "runs": [
+        77067.2,
+        77069.2,
+        77065.6
+      ]
+    },
+    "change_percent": -1.289545815508364
+  },
+  {
+    "case": "grain3",
+    "before": {
+      "instructions_per_block_median": 112059.4,
+      "runs": [
+        112059.1,
+        112059.4,
+        112069.5
+      ]
+    },
+    "current": {
+      "instructions_per_block_median": 109061.7,
+      "runs": [
+        109061.7,
+        109086.3,
+        109054.6
+      ]
+    },
+    "change_percent": -2.675099099227729
+  },
+  {
+    "case": "dry7",
+    "before": {
+      "instructions_per_block_median": 68249.8,
+      "runs": [
+        68249.8,
+        68250.3,
+        68247.8
+      ]
+    },
+    "current": {
+      "instructions_per_block_median": 68260.7,
+      "runs": [
+        68264.5,
+        68260.7,
+        68257.7
+      ]
+    },
+    "change_percent": 0.015970742771398427
+  },
+  {
+    "case": "grain7",
+    "before": {
+      "instructions_per_block_median": 187181.9,
+      "runs": [
+        187177.6,
+        187181.9,
+        187181.9
+      ]
+    },
+    "current": {
+      "instructions_per_block_median": 180234.4,
+      "runs": [
+        180234.4,
+        180234.1,
+        180236.5
+      ]
+    },
+    "change_percent": -3.7116302377526833
+  },
+  {
+    "case": "grain7-mix0",
+    "before": {
+      "instructions_per_block_median": 114396.2,
+      "runs": [
+        114395.2,
+        114458.3,
+        114396.2
+      ]
+    },
+    "current": {
+      "instructions_per_block_median": 68939.6,
+      "runs": [
+        68939.6,
+        68939.9,
+        68939.4
+      ]
+    },
+    "change_percent": -39.736110115545785
+  }
+]

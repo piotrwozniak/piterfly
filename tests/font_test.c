@@ -71,8 +71,8 @@ static uint32_t capital(uint32_t c) { return (c >= 'a' && c <= 'z') || (c >= 0xE
 int main(int argc, char **argv)
 {
     uint32_t hs = render_all(&FONT_S, 255u), hl = render_all(&FONT_L, 95u), wsum = 0, c;
-    for (c = 0; c < 224u; c++) wsum = wsum * 31u + FONT_S.adv[c] * 7u + FONT_S.bw[c];
-    for (c = 0; c < 64u; c++) wsum = wsum * 31u + FONT_L.adv[c] * 7u + FONT_L.bw[c];
+    for (c = 0; c < 224u; c++) wsum = wsum * 31u + font_advance(&FONT_S, c) * 7u + font_bitmap_width(&FONT_S, c);
+    for (c = 0; c < 64u; c++) wsum = wsum * 31u + font_advance(&FONT_L, c) * 7u + font_bitmap_width(&FONT_L, c);
     if (argc > 1) {
         printf("%08x %08x %08x %u\n", hs, hl, wsum, (unsigned)sizeof FONT_S_DATA);
         return 0;
@@ -109,11 +109,17 @@ int main(int argc, char **argv)
         felucca_font_t s4 = FONT_S, l4 = FONT_L;
         uint32_t g, n = 0, y, xx;
         for (g = 0; g < 224u; g++) {
-            uint32_t w = FONT_S.bw[g], bpr = (w + 1u) / 2u;
+            uint32_t w = font_bitmap_width(&FONT_S, g), bpr = (w + 1u) / 2u;
             off4[g] = (uint16_t)n;
             for (y = 0; y < FONT_S.h; y++)
                 for (xx = 0; xx < w; xx++) {
-                    uint32_t i = y * w + xx, on = (FONT_S_DATA[FONT_S_OFF[g] + i / 8u] >> (7u - i % 8u)) & 1u;
+                    uint32_t i = y * w + xx, on;
+                    const uint8_t *d = FONT_S_DATA + FONT_S_OFF[g];
+                    if (FONT_S.bits == 2u) {
+                        uint32_t top = d[0] >> 4, rows = (d[0] & 15u) + 1u;
+                        on = d[0] != 255u && y >= top && y < top + rows && xx >= FONT_PAD && xx < FONT_PAD + 8u &&
+                            ((d[1u + y - top] >> (7u - (xx - FONT_PAD))) & 1u);
+                    } else on = (d[i / 8u] >> (7u - i % 8u)) & 1u;
                     if (on)
                         d4[n + y * bpr + xx / 2u] |= (uint8_t)(xx & 1u ? 15u : 15u << 4);
                 }
@@ -123,7 +129,7 @@ int main(int argc, char **argv)
         check(n == 21504u && render_all(&s4, 255u) == FONT_S_HASH && render_all(&l4, 95u) == FONT_L_HASH,
               "the 4-bit format (anti-aliased fonts) still draws the same pixels");
     }
-    check(sizeof FONT_S_DATA == 5376u && FONT_S.bits == 1u, "the Terminus bitmaps at 1 bit a pixel: 5376 bytes (21504 at 4 bits)");
+    check(sizeof FONT_S_DATA <= 1400u && FONT_S.bits == 2u, "lossless cropped/deduplicated font: at most 1400 bytes, every visible pixel unchanged");
     printf("%s\n", bad ? "FONT TEST FAILED" : "font test passed");
     return bad;
 }

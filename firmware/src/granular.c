@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Live granular INSERT. Mono 22.05 kHz, independently addressable 8-bit mu-law.
- * The 72 KiB pool is paged so repartitioning preserves recent audio without
- * copying it or borrowing LCD DMA memory. Only core 0 changes page ownership,
+ * Up to 72 KiB of history is paged; the eight-track build borrows unused
+ * engine/effect pages and relocates history before those pages are reclaimed. Only core 0 changes page ownership,
  * before handing tracks to core 1. No flash writes, allocation or RNG sharing. */
 #ifdef GF_CHECK_HISTORY
 #include <assert.h>
@@ -10,12 +10,14 @@
 #define GF_PAGES 72u
 #define GF_GRAINS 4u
 #define GF_Q 4096u
+#if NPART <= 3
 static uint8_t gf_ram[32768];
 static uint8_t gf_pool[40960] __attribute__((section(".pool")));
+#endif
 typedef struct { uint32_t pos, step, phase, inc; } gf_grain_t;
 typedef struct {
     gf_grain_t grain[GF_GRAINS];
-    uint8_t page[GF_PAGES], np, half, firw, transition, frozen, leaving;
+    uint8_t page[GF_PAGES], np, half, firw, transition, frozen, leaving, sleeping;
     int16_t fir[23];
     uint32_t wp, valid, countdown, rng;
     int32_t mix, last, old, out[4];
@@ -29,11 +31,11 @@ static const int16_t GF_FIR[23] = {76, 26, -151, -230, 225, 813, 161, -1739, -18
 
 static uint8_t gf_encode(int32_t x)
 {
-    uint32_t a, seg = 0, sign = x < 0 ? 0x7fu : 0xffu;
+    uint32_t a, sign = x < 0 ? 0x7fu : 0xffu;
     a = (uint32_t)(x < 0 ? -x : x);
     if (a > 32635u) a = 32635u;
     a += 132u;
-    for (uint32_t t = a >> 8; t; t >>= 1) seg++;
+    uint32_t seg = 24u - (uint32_t)__builtin_clz(a | 255u);
     return (uint8_t)(((seg << 4) | ((a >> (seg + 3u)) & 15u)) ^ sign);
 }
 static int32_t gf_decode(uint32_t u)
@@ -42,10 +44,26 @@ static int32_t gf_decode(uint32_t u)
     int32_t t = (int32_t)(((u & 15u) << 3) + 132u) << ((u >> 4) & 7u);
     return u & 128u ? 132 - t : t - 132;
 }
+/* Symmetric taps: twelve products give exactly the original 23-tap result. */
+static int32_t gf_capture(const gf_state_t *s)
+{
+    uint32_t a = s->firw, b = a ? a - 1u : 22u;
+    int32_t sum = 0;
+    for (uint32_t k = 0; k < 11u; k++) {
+        sum += ((int32_t)s->fir[a] + s->fir[b]) * GF_FIR[k];
+        if (++a == 23u) a = 0;
+        b = b ? b - 1u : 22u;
+    }
+    return sum + s->fir[a] * GF_FIR[11];
+}
 static uint8_t *gf_byte(const gf_state_t *s, uint32_t idx)
 {
+#if NPART > 3
+    return audio_page(s->page[idx>>10])+(idx&1023u);
+#else
     uint32_t p = s->page[idx >> 10], off = ((p & 31u) << 10) | (idx & 1023u);
     return p < 32u ? &gf_ram[off] : &gf_pool[((p - 32u) << 10) | (idx & 1023u)];
+#endif
 }
 static uint32_t gf_capacity(uint32_t track) { return (uint32_t)gf[track % NTRK].np * GF_PAGE; }
 static uint32_t gf_buffer_ms(uint32_t track) { return gf_capacity(track) * 1000u / (FS / 2u); }
@@ -54,10 +72,57 @@ static void gf_reset(void)
     for (uint32_t t = 0; t < NTRK; t++) {
         gf[t].valid = gf[t].countdown = 0;
         memset(gf[t].fir, 0, sizeof gf[t].fir); gf[t].firw = gf[t].half = 0;
+        gf[t].sleeping = 0;
         memset(gf[t].grain, 0, sizeof gf[t].grain);
         gf[t].old = gf[t].last; gf[t].transition = 128;
     }
 }
+#if NPART > 3
+static __attribute__((noinline)) void gf_layout(void)
+{
+    static uint8_t was[AUDIO_PAGES] __attribute__((section(".noinit.audio")));
+    uint32_t mask=0,count=0,available=0;
+    uint8_t map[NTRK][GF_PAGES],used[AUDIO_PAGES];
+    for(uint32_t t=0;t<NTRK;t++) if(trk[t].p[P_ITYPE]==IT_GRAIN) mask|=1u<<t,count++;
+    if(mask==gf_mask && !memcmp(was,audio_blocked,sizeof was)) return;
+    memcpy(used,audio_blocked,sizeof used); memcpy(was,audio_blocked,sizeof was);
+    for(uint32_t p=0;p<AUDIO_PAGES;p++) available+=!used[p];
+    if(available>GF_PAGES) available=GF_PAGES;
+    uint32_t np=count?available/count:0;
+    memset(map,255,sizeof map);
+    for(uint32_t t=0;t<NTRK;t++) {
+        gf_state_t *s=&gf[t];
+        if(!(mask&(1u<<t))) continue;
+        uint32_t keep=s->np<np?s->np:np;
+        for(uint32_t age=0;age<keep;age++) {
+            uint32_t page=s->page[((s->wp>>10)+s->np-age)%s->np];
+            map[t][(np-age)%np]=(uint8_t)page;
+            if(!audio_blocked[page]) used[page]=1;
+        }
+        uint32_t valid=keep?(keep-1u)*GF_PAGE+(s->wp&1023u):0;
+        if(s->valid>valid) s->valid=valid;
+        s->wp&=1023u;
+    }
+    uint32_t free=0;
+    for(uint32_t t=0;t<NTRK;t++) {
+        gf_state_t *s=&gf[t]; s->old=s->last; s->transition=128;
+        memset(s->grain,0,sizeof s->grain); s->countdown=0;
+        s->leaving=!(mask&(1u<<t)) && s->np && s->mix;
+        if(!(mask&(1u<<t))) { s->np=0; s->valid=0; continue; }
+        for(uint32_t p=0;p<np;p++) {
+            uint32_t old=map[t][p];
+            if(old==255u || audio_blocked[old]) {
+                while(free<AUDIO_PAGES && used[free]) free++;
+                if(old!=255u) memcpy(audio_page(free),audio_page(old),GF_PAGE);
+                map[t][p]=(uint8_t)free; used[free]=1;
+            }
+        }
+        memcpy(s->page,map[t],np); s->np=(uint8_t)np;
+        if(!s->rng) s->rng=0x193e2a71u+t*12345u;
+    }
+    gf_mask=mask;
+}
+#else
 static __attribute__((noinline)) void gf_layout(void)
 {
     uint32_t mask = 0, count = 0;
@@ -98,6 +163,7 @@ static __attribute__((noinline)) void gf_layout(void)
     }
     gf_mask = mask;
 }
+#endif
 static uint32_t gf_rand(gf_state_t *s) { s->rng = s->rng * 1664525u + 1013904223u; return s->rng; }
 static uint32_t gf_birth(gf_state_t *s, const int16_t *p)
 {
@@ -163,14 +229,27 @@ static int32_t gf_wet(gf_state_t *s)
 static void gf_insert(track_t *t, int32_t *l, int32_t *r, int32_t *rev, int32_t *dly, uint32_t n)
 {
     gf_state_t *s = &gf[(uint32_t)(t - trk)];
-    if (!s->np) return;
+    if (!s->np || !n) return;
     uint32_t t0 = cpu1_ticks(), cap = (uint32_t)s->np * GF_PAGE;
     if (s->frozen != !!t->p[P_GFREEZE]) {
         s->frozen = !!t->p[P_GFREEZE]; s->old = s->last; s->transition = 128;
         memset(s->grain, 0, sizeof s->grain); s->countdown = 0;
     }
     int32_t target = ins_mixq(t->p[P_IMIX]);
-    if (!target && !s->mix) memset(s->grain, 0, sizeof s->grain);
+    if (!target && !s->mix) {
+        /* MIX 0 parks capture after the fade; keep history, including FREEZE. */
+        memset(s->grain, 0, sizeof s->grain);
+        s->countdown = 0; s->last = 0; s->transition = 0; s->sleeping = 1;
+        t->ins_run = 0;
+        s->out[0] = l[n - 1u];
+        if (r) { s->out[1] = r[n - 1u]; s->out[2] = rev[n - 1u]; s->out[3] = dly[n - 1u]; }
+        return;
+    }
+    if (s->sleeping) {
+        /* The source may have changed during bypass: do not filter across the gap. */
+        memset(s->fir, 0, sizeof s->fir); s->firw = s->half = 0;
+        s->sleeping = 0;
+    }
     if (!s->countdown && target) {
         uint32_t frames = gf_birth(s, t->p);
         s->countdown = FS / (uint32_t)clamp(t->p[P_IB], 1, 60);
@@ -182,11 +261,7 @@ static void gf_insert(track_t *t, int32_t *l, int32_t *r, int32_t *rev, int32_t 
         s->fir[s->firw] = (int16_t)clamp(input / 8, -32768, 32767);
         if (++s->firw == 23) s->firw = 0;
         if ((s->half ^= 1u) == 0u && !t->p[P_GFREEZE]) {
-            int32_t filtered = 0;
-            for (uint32_t k = 0, j = s->firw; k < 23u; k++) {
-                filtered += s->fir[j] * GF_FIR[k];
-                if (++j == 23u) j = 0;
-            }
+            int32_t filtered = gf_capture(s);
             *gf_byte(s, s->wp) = gf_encode(clamp(filtered >> 15, -32768, 32767));
             if (++s->wp == cap) s->wp = 0;
             if (s->valid < cap) s->valid++;

@@ -45,7 +45,7 @@ UI_SMALL static void song_screen_draw(void)
     }
     for (i = 0; i < 5u; i++) {
         uint32_t pos = start + i;
-        cv_begin(240, 26, C_BLACK);
+        CV_BANDS(240,26,C_BLACK) {
         if (pos < arrangement.count) {
             const arr_entry_t *e = &arrangement.entry[pos];
             int selected = pos == song_cursor, used = project_used(e->scene);
@@ -68,6 +68,7 @@ UI_SMALL static void song_screen_draw(void)
             if (selected) cv_rect(0, 1, 240, 1, TE_G2), cv_rect(0, 24, 240, 1, TE_G2);
         }
         cv_blit(0, 42 + 26u * i);
+        }
     }
     CV_BANDS(240, 68, C_BLACK) {
     if (ui.msg_t) {

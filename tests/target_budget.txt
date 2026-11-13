@@ -20,6 +20,8 @@ drums_mix 3717
 fm6_op_run 72
 fm6_op_fb 26
 fm6_render 362
-fm1_alnk0_irq 268
+# Seven-part control dispatch and shared-page reclamation add block-rate work.
+# Engine render-loop budgets above remain unchanged.
+fm1_alnk0_irq 305
 gf_insert 1120
-gf_layout 375
+gf_layout 568

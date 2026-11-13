@@ -87,6 +87,7 @@ static uint8_t lights_min;                     /* GLO > SYSTEM > IN (G_ROUTE): 0
 #define MIDI_SET_DEF {1, 2, 3, 10, 0, 2, 0, 0, 0, 0}   /* CH1 CH2 CH3, drums, OTHER, (2.6) BEND, (2.7) FX CH, DR MAP, REMOTE,
                                                      * CLK OUT */
 static uint8_t midi_set[10] = MIDI_SET_DEF;
+static uint8_t midi_extra[4] = {4,5,6,7};
 static uint8_t midi_thru; /* bits 0..3: note forwarding; saved with MIDI settings */
 static uint8_t fxfade;                          /* (2.7.2) FX layer SELECT (FX held): the punch-in FX fade, 0..15 (punch.c);
                                                  * a setting of the FM-1, mirrored in song.g[G_FXFADE], kept in BEND's byte */

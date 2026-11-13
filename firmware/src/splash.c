@@ -1,17 +1,16 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* piterfly boot splash: the logo (tools/gen_logo.py -> sloop_logo.h: 16 colours, RLE runs of
- * (run - 1) << 4 | colour), drawn into the canvas in bands of at most 120 rows. */
+/* piterfly boot splash: losslessly packed RLE artwork, drawn in canvas bands. */
 #ifndef UI_SMALL                 /* (2.7) compiled for size: not the audio path (gfx.c UI_SMALL); the host tests: nothing */
 #define UI_SMALL
 #endif
-#ifndef FELUCCA_LOGO_TEXT       /* 1: text-only piterfly in the track colours; build.py uses it if flash is full. */
+#ifndef FELUCCA_LOGO_TEXT       /* 1: explicitly requested text-only development build; never an automatic fallback. */
 #define FELUCCA_LOGO_TEXT 0
 #endif
 #if FELUCCA_LOGO_TEXT
 UI_SMALL static void sloop_logo_draw(uint32_t y0)
 {
     static const char L[] = "piterfly";
-    uint32_t i, w = text_w(&FONT_L, L), k = w * 3u <= 232u ? 3u : 2u, h = 32u, off, y, x;
+    uint32_t i, w = text_w(&FONT_L, L), off;
     int32_t px = 0;
     char c[2] = {0, 0};
     /* Text fallback uses the native font directly, with no oversized in-place scaling. */
@@ -27,15 +26,47 @@ UI_SMALL static void sloop_logo_draw(uint32_t y0)
 }
 #else
 #include "sloop_logo.h"
+#include "scratch.h"
+_Static_assert(SLOOP_SPLASH_RLE_SIZE<=sizeof main_scratch.st,"logo expands into boot-only scratch");
+UI_SMALL static const uint8_t *sloop_logo_unpack(void)
+{
+    const uint8_t *s=SLOOP_SPLASH_LZ4,*end=s+sizeof SLOOP_SPLASH_LZ4;
+    uint8_t *out=main_scratch.st;
+    uint32_t n=0;
+    while(s<end) {
+        uint32_t token=*s++,len=token>>4;
+        if(len==15u) {
+            uint32_t extra;
+            do { if(s==end) return 0; extra=*s++; len+=extra; } while(extra==255u);
+        }
+        if(len>(uint32_t)(end-s) || len>SLOOP_SPLASH_RLE_SIZE-n) return 0;
+        memcpy(out+n,s,len); n+=len; s+=len;
+        if(s==end) return n==SLOOP_SPLASH_RLE_SIZE?out:0;
+        if(end-s<2) return 0;
+        uint32_t off=s[0]|(uint32_t)s[1]<<8; s+=2;
+        if(!off || off>n) return 0;
+        len=(token&15u)+4u;
+        if((token&15u)==15u) {
+            uint32_t extra;
+            do { if(s==end) return 0; extra=*s++; len+=extra; } while(extra==255u);
+        }
+        if(len>SLOOP_SPLASH_RLE_SIZE-n) return 0;
+        while(len--) { out[n]=out[n-off]; n++; }
+    }
+    return 0;
+}
 UI_SMALL static void sloop_logo_draw(uint32_t y0)
 {
+    /* Boot precedes audio_init; storage/visualizer scratch is idle here. */
+    const uint8_t *rle=sloop_logo_unpack();
+    if(!rle) return;
     uint32_t r0;
     for (r0 = 0; r0 < SLOOP_SPLASH_H; r0 += CV_ROWS) {
         uint32_t rows = SLOOP_SPLASH_H - r0 > CV_ROWS ? CV_ROWS : SLOOP_SPLASH_H - r0;
         uint32_t lo = r0 * SLOOP_SPLASH_W, hi = (r0 + rows) * SLOOP_SPLASH_W, pos = 0, i;
         cv_begin(SLOOP_SPLASH_W, rows, C_BLACK);
-        for (i = 0; i < sizeof SLOOP_SPLASH_RLE && pos < hi; i++) {
-            uint32_t run = (SLOOP_SPLASH_RLE[i] >> 4) + 1u, c = SLOOP_SPLASH_RLE[i] & 15u, p;
+        for (i = 0; i < SLOOP_SPLASH_RLE_SIZE && pos < hi; i++) {
+            uint32_t run = (rle[i] >> 3) + 1u, c = rle[i] & 7u, p;
             if (c && pos + run > lo)
                 for (p = pos < lo ? lo : pos; p < pos + run && p < hi; p++)
                     cv_px[p - lo] = swap16(SLOOP_SPLASH_PAL[c]);

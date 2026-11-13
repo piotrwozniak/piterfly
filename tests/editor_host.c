@@ -292,3 +292,24 @@ static int params_check(char *why, size_t nw)
     if (song.sel >= NTRK) { snprintf(why, nw, "sel %u", song.sel); return 0; }
     return 1;
 }
+
+/* Frozen four-track input for migration tests, independent of the current writer. */
+static void legacy_capture(project_v7_t *p)
+{
+    project_t current; proj_capture(&current);
+    memset(p,0,sizeof *p); p->magic=PROJ_MAGIC_V7; p->size=sizeof *p;
+    memcpy(p->g,current.g,sizeof p->g); memcpy(p->rsv,current.rsv,sizeof p->rsv);
+    p->sel=song.sel==TRK_DRUM?3u:song.sel; p->drdly=current.drdly;
+    for(uint32_t k=0;k<4u;k++) {
+        uint32_t ti=k==3u?TRK_DRUM:k; proj_trk_v7_t *d=&p->t[k]; track_t *s=&trk[ti];
+        for(uint32_t i=0;i<P_COUNT;i++) p7_set(d,i,s->p[i]);
+        d->engine=s->eng_req; d->preset=s->preset; memcpy(d->step,s->step,sizeof s->step);
+        memcpy(d->mf,current.t[ti].mf,sizeof d->mf);
+        for(uint32_t i=0;i<NLOCK;i++) { d->lock[i].step=s->lock[i].step; d->lock[i].param=s->lock[i].param; d->lock[i].val=s->lock[i].val; }
+    }
+    memcpy(p->t[3].e+1,current.drum_tw,sizeof current.drum_tw); p->sum=proj_v7_sum(p);
+}
+static uint32_t stored_note(const project_t *p,uint32_t track,uint32_t step)
+{
+    step_t s; pc_step_get(&s,p->t[track].step[step]); return s.note[0];
+}

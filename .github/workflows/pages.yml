@@ -6,7 +6,7 @@ on:
       release_tag:
         description: Published release to serve byte-for-byte
         required: true
-        default: '1.0.1'
+        default: '1.1.0'
         type: string
 
 permissions:

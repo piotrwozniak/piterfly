@@ -1,8 +1,8 @@
 {
   "origin_repository": "https://github.com/piotrwozniak/fm1-piterfly",
-  "origin_commit": "8d9ac74c4a8b7cac356a850755714dffe0149a87",
+  "origin_commit": "34f12e3c78116b3ded6fb96bad5fb8e04a660613",
   "upstream_sloop_commit": "bac9c05ea7627449405aa10e48da21d75b6c8c56",
-  "export_date": "2026-11-08",
+  "export_date": "2026-11-13",
   "git_metadata_created": false,
   "inherited_git_history": false,
   "published": false,
@@ -12,7 +12,9 @@
     "assets/piterfly/proposals/",
     "docs/webapp/",
     "docs/firmware/",
-    "docs/audits/2026-11-08-release/"
+    "docs/audits/2026-11-08-release/",
+    "promo/",
+    ".remotion/"
   ],
   "excluded_paths": [
     "assets/piterfly/screenshots/sloop-home-before.png",

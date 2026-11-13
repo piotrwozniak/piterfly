@@ -13,7 +13,7 @@ static const char *const N_SECT[] = {"A1", "A2", "A3", "A4", "B1", "B2", "B3", "
 static const char *const N_MCH[] = {"OFF", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"};
 static const char *const N_MOTH[] = {"SEL", "OFF"};
 /* GLO > TEXTURE (2.6, fx.c texture_*): the bed's sources (the user slots last), its movement's length, when it plays */
-static const char *const N_TXSRC[] = {"OFF", "VINYL", "TAPE", "RAIN", "WIND", "RADIO", "ROOM", "USR1", "USR2", "USR3", "USR4"};
+static const char *const N_TXSRC[] = {"OFF", "VINYL", "TAPE", "RAIN", "WIND", "RADIO", "ROOM", "USR1", "USR2 OFF", "USR3 OFF", "USR4 OFF"};
 static const char *const N_TXRATE[] = {"1BAR", "2BAR", "4BAR", "8BAR", "16BAR"};
 static const char *const N_TXWHEN[] = {"PLAY", "ALWAYS"};
 /* ANALOG's filter TYPE (eng_analog.c): the SVF's low-pass (as always), band-pass, high-pass output */
@@ -180,7 +180,15 @@ static const param_desc_t GP[G_COUNT] = {
     [G_THRU1] = PE("TRK1", N_ONOFF, 0),
     [G_THRU2] = PE("TRK2", N_ONOFF, 0),
     [G_THRU3] = PE("TRK3", N_ONOFF, 0),
-    [G_THRU4] = PE("TRK4", N_ONOFF, 0),
+    [G_THRU4] = PE("DRUM", N_ONOFF, 0),
+    [G_CH4] = PE("CH4", N_MCH, 4), [G_CH5] = PE("CH5", N_MCH, 5),
+    [G_CH6] = PE("CH6", N_MCH, 6), [G_CH7] = PE("CH7", N_MCH, 7),
+    [G_THRU5] = PE("TRK4", N_ONOFF, 0), [G_THRU6] = PE("TRK5", N_ONOFF, 0),
+    [G_THRU7] = PE("TRK6", N_ONOFF, 0), [G_THRU8] = PE("TRK7", N_ONOFF, 0),
+    [G_DUCK1] = PE("DUCK", N_ONOFF, 1), [G_DUCK2] = PE("DUCK", N_ONOFF, 1),
+    [G_DUCK3] = PE("DUCK", N_ONOFF, 1), [G_DUCK4] = PE("DUCK", N_ONOFF, 1),
+    [G_DUCK5] = PE("DUCK", N_ONOFF, 1), [G_DUCK6] = PE("DUCK", N_ONOFF, 1),
+    [G_DUCK7] = PE("DUCK", N_ONOFF, 1),
     [G_BPM] = PD("BPM", F_BPM, 40, 240, 90),
     [G_SWING] = PD("SWING", F_SWING, 0, 100, 0),
     [G_CLOCK] = PE("CLICK", N_CLICK, 0),            /* (the old CLK slot: projects keep their format) */
@@ -205,7 +213,7 @@ static const param_desc_t GP[G_COUNT] = {
     [G_ENGGO] = PE("SET", N_GO, 0),
     [G_CLRSEQ] = PE("CLRSQ", N_GO, 0),
     [G_INITSND] = PE("INIT", N_GO, 0),
-    [G_DRCH] = PE("CH4", N_MCH, 10),                  /* GM drum part (track 4) MIDI channel, 0 = OFF (2.6: as GLO > MIDI's CH1..3) */
+    [G_DRCH] = PE("DRUM", N_MCH, 10),                  /* GM drum part (track 4) MIDI channel, 0 = OFF (2.6: as GLO > MIDI's CH1..3) */
     [G_DRLVL] = PD("LVL", F_INT, 0, 127, 100),
     [G_DRREV] = PD("REV", F_INT, 0, 127, 16),
     [G_DUST] = PD("DUST", F_PCT, 0, 127, 0),
@@ -452,6 +460,10 @@ static const page_t PAGES[] = {
                                                                            * setting in these two pages (IN and OUT on
                                                                            * SYSTEM too, the drums' channel on DRUMS) */
     {"MIDI 3", FAM_GLO, SC_GLOBAL, GR_NONE, {G_FXCH, G_DRMAP, G_RMCH, G_CLKOUT}},   /* 2.7: the punch-in FX over MIDI */
+#if NPART > 3
+    {"MIDI 4-7", FAM_GLO, SC_GLOBAL, GR_NONE, {G_CH4, G_CH5, G_CH6, G_CH7}},
+    {"THRU 4-7", FAM_GLO, SC_GLOBAL, GR_NONE, {G_THRU5, G_THRU6, G_THRU7, G_THRU8}},
+#endif
     {"MIDI THRU", FAM_GLO, SC_GLOBAL, GR_NONE, {G_THRU1, G_THRU2, G_THRU3, G_THRU4}},
     {"TEXTURE", FAM_GLO, SC_GLOBAL, GR_NONE, {G_TXSRC, G_TXLVL, G_TXTONE, G_TXMOVE}},   /* 2.6: the bed under the mix */
     {"TEXTURE 2", FAM_GLO, SC_GLOBAL, GR_NONE, {G_TXRATE, G_TXWHEN, G_TXDUCK, 0xFF}},
@@ -491,8 +503,16 @@ static int page_shown(const page_t *pg)
     return pg->id[0] != P_FTYPE || (!is_drum(TSEL) && TSEL->eng_req % NENGINES == 0u);
 }
 
+static int page_duck_slot(const page_t *pg,uint32_t slot)
+{
+    return pg->scope==SC_TRACK && pg->id[0]==P_TFLT && slot==1u && !is_drum(TSEL);
+}
 static const param_desc_t *page_desc(const page_t *pg, uint32_t slot, int16_t **valp)
 {
+    if(page_duck_slot(pg,slot)) {
+        *valp=&song.g[G_DUCK1+song.sel];
+        return &GP[G_DUCK1+song.sel];
+    }
     uint32_t id = pg->id[slot];
     if (id == 0xFFu || (is_drum(TSEL) && (!page_for_drum(pg) || (pg->scope == SC_GLOBAL && id == G_INITSND)))) {
         *valp = 0;

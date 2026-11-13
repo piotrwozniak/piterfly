@@ -226,7 +226,7 @@ static void slc_user_scan(uint32_t k, int valid)
 /* ---- voices */
 static int16_t *slc_rb(track_t *t, voice_t *v)
 {
-    uint32_t p = (uint32_t)(t - trk), i = (uint32_t)(v - t->v);
+    uint32_t p = (uint32_t)(t - trk), i = voice_index(t,v);
     return p < NPART && i < NVOICE ? slc_rbuf[p][i] : 0;
 }
 

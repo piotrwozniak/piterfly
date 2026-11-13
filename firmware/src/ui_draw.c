@@ -50,11 +50,11 @@ UI_SMALL static void draw_head(void)
     if (!ui.force && sig == ui.head_sig)
         return;
     ui.head_sig = sig;
-    cv_begin(240, H_HEAD, C_BLACK);
+    CV_BANDS(240,H_HEAD,C_BLACK) {
     if (ui.msg_t) {
         cv_text(4, 1, &FONT_S, ui.msg, C_HI);
         cv_blit(0, Y_HEAD);
-        return;
+        continue;
     }
     if (song.playing) {                               /* > play, square stop */
         for (i = 0; i < 5u; i++)
@@ -116,6 +116,7 @@ UI_SMALL static void draw_head(void)
             cv_text(bx - 28, 1, &FONT_S, "USB", C_DIM);
     }
     cv_blit(0, Y_HEAD);
+    }
 }
 /* full redraw: the strips (head, columns, graph, foot) cover the rest, so only
  * the space between them is cleared, then the rules are drawn */
@@ -583,15 +584,15 @@ UI_SMALL static void trk_short_name(uint32_t c, char *b)      /* the track's sou
 
 UI_SMALL static void draw_tracks(void)
 {
-    uint32_t c;
+    uint32_t c, base=song.sel&~3u;
     if (ui.force) {
         lcd_fill(0, Y_GRAPH, 240, H_GRAPH, C_BLACK);
         for (c = 0; c < NTRK; c++)
             ts.meter[c] = 0;
     }
-    for (c = 0; c < NTRK; c++) {
+    for (c = base; c < base+4u; c++) {
         track_t *t = &trk[c];
-        uint32_t x0 = c * 60u + 4u, sel = c == song.sel, lvl = trk_level(c), mute = !lvl || t->p[P_MUTE];
+        uint32_t x0 = (c-base) * 60u + 4u, sel = c == song.sel, lvl = trk_level(c), mute = !lvl || t->p[P_MUTE];
         uint32_t arm = (song.rec >> c) & 1u, st = arm ? (song.playing ? 1u : 2u) : mute ? 3u : 0u, sig;
         uint32_t len = t->p[P_SLEN] > 0 ? (uint32_t)t->p[P_SLEN] : 1u, row = 0xFFFFu;
         int32_t pk, m;
@@ -955,7 +956,7 @@ UI_SMALL static void draw_columns(void)
         const track_t *t = TSEL;
         uint32_t lvl = trk_level(song.sel);
         fmt_int(val, (int32_t)song.sel + 1);
-        draw_column(0, "TRACK", val, "/4", VAL(0u), (int32_t)song.sel * 1000 / (NTRK - 1), ICON_AUTO);
+        draw_column(0, "TRACK", val, NTRK==8?"/8":"/4", VAL(0u), (int32_t)song.sel * 1000 / (NTRK - 1), ICON_AUTO);
         if (!lvl || t->p[P_MUTE]) {                    /* (MUTE: a turn of KNOB 2 unmutes, tracks_edit) */
             str_cpy(val, "MUTE", 12);
             unit = "";
