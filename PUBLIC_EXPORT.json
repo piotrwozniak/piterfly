@@ -5,7 +5,7 @@
   "export_date": "2026-11-13",
   "git_metadata_created": false,
   "inherited_git_history": false,
-  "published": false,
+  "published": true,
   "excluded_prefixes": [
     "assets/logo/",
     "assets/screens/",

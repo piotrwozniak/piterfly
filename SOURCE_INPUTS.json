@@ -123,8 +123,8 @@
       "executable": false
     },
     "PUBLIC_EXPORT.json": {
-      "sha256": "d83fcd79ba56252fc86594eea5b3209ed436328262f3b429ace62fc315461770",
-      "bytes": 90705,
+      "sha256": "fc7bae988c3db4e72c22ad2d9adbe51979264646b3f42b277f07b9ea5369ce35",
+      "bytes": 90704,
       "executable": false
     },
     "RAM.md": {
@@ -790,6 +790,11 @@
     "docs/PUBLICATION-1.0.1.md": {
       "sha256": "c88d06e902a1635d6bd82937550feb0222779128e0883d5872ed16a61d876d66",
       "bytes": 1543,
+      "executable": false
+    },
+    "docs/PUBLICATION-1.1.0.md": {
+      "sha256": "53b1f21520386752eb8ad96d1f81a9cf887fcc022ce70527871a7de9eed383ec",
+      "bytes": 2156,
       "executable": false
     },
     "docs/RELEASE-1.0.0.md": {
