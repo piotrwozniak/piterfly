@@ -86,3 +86,5 @@ piterfly retains the original SLOOP and Felucca authorship, including Leo Kurosh
 [LICENSE](LICENSE) · [Licensing and provenance](LICENSING.md) · [Third-party notices](THIRD_PARTY_NOTICES.md) · [Artwork provenance](docs/ICON-RIGHTS.md)
 
 Historical SLOOP guides remain in [GUIDE.md](GUIDE.md) and [SLOOP.md](SLOOP.md); the 1.1.0 documentation above takes precedence for piterfly's track count, storage layout and controls.
+
+You can also try Piterfly in the browser, no flashing needed, in the free community [FM-1 Emulator](https://fm1-emulator.atst.tools/).
