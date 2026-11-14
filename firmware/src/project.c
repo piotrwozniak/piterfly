@@ -1,8 +1,12 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-/* FUN9: seven synth parts and drums. Old FUN1..FUN7 files are read-only inputs. */
+/* FUNA: six synth parts and two drums. Legacy host fixtures retain FUN9. */
 #include "project_legacy.c"
 #include "project_codec.c"
+#if NPART == 6
+#define PROJ_MAGIC 0x46554E42u /* FUNB: six synths and two drums; no legacy import */
+#else
 #define PROJ_MAGIC 0x46554E39u
+#endif
 #define PROJ_CACHE_SLOTS 4u
 typedef packed_track_t proj_trk_t;
 typedef struct {
@@ -13,6 +17,9 @@ typedef struct {
     uint8_t drum_tail[NSTEP * 2u];
     int16_t drum_tw[7];
     uint8_t pad[2];
+#if NPART == 6
+    uint8_t drum2_tail[NSTEP * 2u], drum2_tw[DRUM_LANES];
+#endif
     uint32_t sum;
 } project_t;
 _Static_assert(sizeof(project_t) <= 7936u, "project fits an 8 KiB journal record");
@@ -25,16 +32,24 @@ static uint32_t proj_sum(const project_t *p) { return proj_hash(p,sizeof *p-4u);
 static int proj_ok(const project_t *p) { return p && p->magic==PROJ_MAGIC && p->size==sizeof *p && p->sum==proj_sum(p); }
 static void pt_steps_put(project_t *p,uint32_t track,const void *steps)
 {
-    if(track==TRK_DRUM) {
+    if(is_drum(&trk[track])) {
         memcpy(p->t[track].step,steps,NSTEP*8u);
-        memcpy(p->drum_tail,(const uint8_t *)steps+NSTEP*8u,NSTEP*2u);
+        memcpy(
+#if NPART == 6
+            track==NPART?p->drum2_tail:
+#endif
+            p->drum_tail,(const uint8_t *)steps+NSTEP*8u,NSTEP*2u);
     } else for(uint32_t k=0;k<NSTEP;k++) pc_step_put(p->t[track].step[k],(const step_t *)steps+k);
 }
 static void pt_steps_get(void *steps,const project_t *p,uint32_t track)
 {
-    if(track==TRK_DRUM) {
+    if(is_drum(&trk[track])) {
         memcpy(steps,p->t[track].step,NSTEP*8u);
-        memcpy((uint8_t *)steps+NSTEP*8u,p->drum_tail,NSTEP*2u);
+        memcpy((uint8_t *)steps+NSTEP*8u,
+#if NPART == 6
+            track==NPART?p->drum2_tail:
+#endif
+            p->drum_tail,NSTEP*2u);
     } else for(uint32_t k=0;k<NSTEP;k++) pc_step_get((step_t *)steps+k,p->t[track].step[k]);
 }
 /* New parts in a four-track file start with the same sound as a fresh FM-1. */
@@ -59,6 +74,7 @@ UI_SMALL static void proj_default_sound(proj_trk_t *d,uint32_t engine)
 UI_SMALL static int proj_import(project_t *q,const void *b,int n)
 {
     if(n==sizeof *q && proj_ok(b)) { if(q!=b) memcpy(q,b,sizeof *q); return 1; }
+    if(NPART == 6) return 0;
     project_v7_t old;
     if(!proj_legacy_import(&old,b,n)) return 0;
     memset(q,0,sizeof *q); q->magic=PROJ_MAGIC; q->size=sizeof *q;
@@ -227,6 +243,9 @@ UI_SMALL static void proj_capture(project_t *p)        /* what is playing now, a
         for(k=0;k<NLOCK;k++) pc_lock_put(p->t[i].lock[k],&trk[i].lock[k]);
     }
     drum_tw_put(p);                                     /* (2.7) the drum sounds' TUNE and DECAY */
+#if NPART == 6
+    for(uint32_t l=0;l<DRUM_LANES;l++) p->drum2_tw[l]=(uint8_t)((drum_tune_for(&trk[NPART])[l]&15) | (drum_dec_for(&trk[NPART])[l]&7)<<4);
+#endif
     p->sum = proj_sum(p);
 }
 
@@ -246,6 +265,13 @@ static void proj_apply(const project_t *p, int all)
     song.g[G_DRDLY] = (int16_t)clamp(p->drdly, GP[G_DRDLY].min, GP[G_DRDLY].max);   /* (a load and a section, as REV) */
     proj_tx_get(p);                                     /* GLO > TEXTURE (2.6): a load and a section */
     for(i=0;i<NPART;i++) song.g[G_DUCK1+i]=!(p->pad[1]==0xD1u && ((p->pad[0]>>i)&1u));
+#if NPART == 6
+    for(uint32_t l=0;l<DRUM_LANES;l++) {
+        uint32_t v=p->drum2_tw[l];
+        drum_tune_for(&trk[NPART])[l]=(int8_t)((int32_t)((v&15u)^8u)-8);
+        drum_dec_for(&trk[NPART])[l]=(int8_t)((int32_t)(((v>>4&7u)^4u))-4);
+    }
+#endif
     drum_tw_get(p);                                     /* (2.7) the drum sounds' TUNE and DECAY: a load and a section */
     for (k = 0; k < NTRK; k++) {
         track_t *t = &trk[k];
@@ -255,7 +281,7 @@ static void proj_apply(const project_t *p, int all)
         t->user = 0;                                    /* (no user preset slot is saved) */
         t->lk_n = 0;                                    /* (the locks in force: the values come from the project) */
         for (i = 0; i < P_COUNT; i++) {                 /* every value back inside its range */
-            const param_desc_t *d = k == TRK_DRUM && i == P_E0 ? &DRUM_KIT_DESC :   /* the drum kit */
+            const param_desc_t *d = is_drum(&trk[k]) && i == P_E0 ? &DRUM_KIT_DESC :   /* the drum kit */
                                     i >= P_E0 && i <= P_E7 ? &ENGINES[e]->edit[i - P_E0]
                                     : i >= P_IA && i <= P_IC ? ins_desc(t->p[P_ITYPE],i-P_IA) : &TP[i];
             t->p[i] = (int16_t)clamp(pt_get(s, i), d->min, d->max);
@@ -277,7 +303,7 @@ static void proj_apply(const project_t *p, int all)
             const plock_t *l = &decoded;
             uint32_t id = l->param;
             if (l->step < NSTEP && id < P_COUNT && p_lockable(id)) {
-                const param_desc_t *d = k == TRK_DRUM && id == P_E0 ? &DRUM_KIT_DESC :
+                const param_desc_t *d = is_drum(&trk[k]) && id == P_E0 ? &DRUM_KIT_DESC :
                                         id >= P_E0 && id <= P_E7 ? &ENGINES[e]->edit[id - P_E0] : &TP[id];
                 t->lock[i].step = l->step;
                 t->lock[i].param = (uint8_t)id;
@@ -288,7 +314,7 @@ static void proj_apply(const project_t *p, int all)
                 t->lock[i].val = 0;
             }
         }
-        if (k != TRK_DRUM)
+        if (!is_drum(&trk[k]))
             for (i = 0; i < NSTEP; i++) {
                 step_t *st = &t->step[i];
                 uint32_t j;
@@ -350,7 +376,7 @@ UI_SMALL static void project_save(uint32_t slot)
 #if FELUCCA_FLASH
     if (flash_ok) {
         if (pb_save(slot, p, sizeof *p))
-            ui_message("SAVE ERROR");
+            ui_message(pb_error());
         else {
             sec_dirty &= (uint8_t)~(1u << (p - proj_slot));
             ui_say("SAVED PATTERN ", SEC_NAME[slot]);
@@ -415,7 +441,7 @@ UI_SMALL static void project_apply(const project_t *p)
     uint32_t k;
     transport_req = 2;
     panic_req = (1u << NTRK) - 1u;
-    drum_mute = 0;                                      /* (the live mutes: a performance's, not the project's) */
+    memset((void *)drum_mutes,0,sizeof drum_mutes);                                      /* (the live mutes: a performance's, not the project's) */
     for (k = 0; k < NTRK; k++)
         ex_off[k] = 0;                                  /* (2.7.1) MIDI EXPRESSION: full again, as after CC 121 */
     fm1_irq_off();                                      /* the audio ISR must not see half a project */
@@ -460,8 +486,8 @@ UI_SMALL static int audio_quiet(void)
         for (i = 0; i < NVOICE; i++)
             if (voice_at(&trk[p],i)->active)
                 return 0;
-    for (i = 0; i < NDRUM; i++)
-        if (drums.v[i].active)
+    for(uint32_t d=0;d<NDRUM_TRACKS;d++) for (i = 0; i < NDRUM; i++)
+        if (drum_states[d].v[i].active)
             return 0;
     return 1;
 }
@@ -628,6 +654,13 @@ UI_SMALL static void persist_boot(void)                    /* before settings_in
     }
     project_cache_init();
     pb_scan();
+#if NPART == 6
+    const song_root_t *active=pb_root(SONG_ACTIVE);
+    if(active) { arrangement_enabled=(uint8_t)(active->mode!=0); st_hdr_t h; uint32_t seq=st_current(OBJ_SETTINGS,&h)<0?0u:h.seq;
+        if(seq<active->settings_seq) arrangement=active->order;
+    }
+#endif
+#if NPART != 6
     /* Journal migration is append-before-erase, and can restart after power loss. */
     for (uint32_t i = 0; i < ARR_SCENES; i++)
         if (pb_length[i] && pb_length[i] != sizeof(project_t)) {
@@ -655,6 +688,7 @@ UI_SMALL static void persist_boot(void)                    /* before settings_in
                     sec_dirty |= (uint8_t)(1u << i);
             }
     }
+#endif
     dsu_boot();                                    /* SLOOP 2.5: the SYN kits (after the settings) */
     up_boot();                                     /* user presets */
     fm6_bank_boot();                               /* the FM6 patch bank (fm6_bank.c) */
@@ -1065,9 +1099,17 @@ UI_SMALL static void sections_flush(void)                        /* main loop */
     uint8_t patterns_pending = sec_dirty;
     sections_write();
     if (sec_dirty || song_dirty || fav_dirty)
+#if NPART == 6
+        ui_message(pb_full?pb_error():"SAVE ERROR: RETRYING");
+#else
         ui_message("SAVE ERROR: RETRYING");
+#endif
     else if (patterns_pending && flash_ok)
         ui_message("PATTERNS SAVED");
 }
 #endif
 #endif /* PROJ_HOST */
+
+#if NPART == 6 && FELUCCA_FLASH && !defined(PROJ_HOST)
+#include "song_library.c"
+#endif

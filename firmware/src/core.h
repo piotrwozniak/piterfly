@@ -1,20 +1,21 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* Felucca core types: tracks, voices, engines, parameters.
- * Eight tracks: tracks 1..7 are synth parts (each its own engine, preset, parameters,
- * voices and 64-step pattern), track 8 is the GM drum part (drums.c; its own voices,
+ * Eight tracks: tracks 1..6 are synth parts (each its own engine, preset, parameters,
+ * voices and 64-step pattern), tracks 7..8 are GM drum parts (drums.c; its own voices,
  * pattern and the pattern parameters of its track_t). The parts share one budget of
  * NVOICE sounding voices (voice.c). */
 #include <stdint.h>
 #define NVOICE 8                 /* voices per part, and the budget shared by all parts */
 #define NPOLY 8
 #ifndef FELUCCA_SYNTH_PARTS
-#define FELUCCA_SYNTH_PARTS 7
+#define FELUCCA_SYNTH_PARTS 6
 #endif
 #define NPART FELUCCA_SYNTH_PARTS
-#define NTRK (NPART + 1)
-#define TRK_DRUM NPART
-_Static_assert(NPART == 3 || NPART == 7, "supported track layouts");
+#define NDRUM_TRACKS (NPART == 6 ? 2 : 1)
+#define NTRK (NPART + NDRUM_TRACKS)
+#define TRK_DRUM (NTRK - 1)
+_Static_assert(NPART == 3 || NPART == 6 || NPART == 7, "supported track layouts");
 #define IT_GRAIN 9u
 enum { V_POLY, V_MONO, V_LEGATO, V_UNISON };   /* P_VOICE */
 #define NSTEP 64
@@ -447,7 +448,7 @@ static int32_t thr_rev, thr_dly;
 static inline int32_t send_thr(int32_t s, int32_t g) { return g ? s + (((127 * 258 - s) * g) >> 15) : s; }   /* s 0..32766 */
 #define TSEL (&trk[song.sel])    /* the selected track */
 #define TDRUM (&trk[TRK_DRUM])
-static int is_drum(const track_t *t) { return t == TDRUM; }
+static int is_drum(const track_t *t) { return t == TDRUM || (NDRUM_TRACKS == 2 && t == &trk[NPART]); }
 /* silent: MUTE, or another track is soloed */
 static int trk_silent(const track_t *t)
 {
@@ -459,3 +460,16 @@ static volatile uint32_t fm1_ms;  /* milliseconds since boot (TIMER4-based, TIME
 /* Two early failed boots -> USB recovery; recovery reset -> mask-ROM UBOOT. */
 #include "bootguard.h"
 bootguard_t bootguard __attribute__((section(".noinit")));
+
+#define TDRUM_UI (is_drum(TSEL) ? TSEL : TDRUM)
+
+static int16_t *drum_global(track_t *t, uint32_t id)
+{
+    if(t != TDRUM && is_drum(t)) {
+        if(id == G_DRLVL) return &t->p[P_LEVEL];
+        if(id == G_DRREV) return &t->p[P_REV];
+        if(id == G_DRDLY) return &t->p[P_DLY];
+    }
+    return &song.g[id];
+}
+#define DRUM_G(t,id) (*drum_global((t),(id)))

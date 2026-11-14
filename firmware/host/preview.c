@@ -86,7 +86,7 @@ void preview_select(uint32_t k, uint32_t solo)
 void preview_step(uint32_t k, uint32_t i)
 {
     if (k >= NTRK || i >= NSTEP) return;
-    if (k == TRK_DRUM) memcpy(&trk[k].dstep[i], transfer, sizeof(dstep_t));
+    if (is_drum(&trk[k])) memcpy(&trk[k].dstep[i], transfer, sizeof(dstep_t));
     else {
         step_t *s = &trk[k].step[i];
         memcpy(s, transfer, sizeof *s);
@@ -97,6 +97,14 @@ void preview_step(uint32_t k, uint32_t i)
     trk[k].micro[i] = (int8_t)clamp((int8_t)transfer[10], MICRO_MIN, MICRO_MAX);
     uint32_t shift = (i & 3u) * 2u;
     trk[k].fill[i / 4] = (uint8_t)((trk[k].fill[i / 4] & ~(3u << shift)) | ((transfer[11] & 3u) << shift));
+}
+void preview_tuning(uint32_t k)
+{
+    if(k>=NTRK || !is_drum(&trk[k])) return;
+    for(uint32_t l=0;l<DRUM_LANES;l++) {
+        drum_tune_for(&trk[k])[l]=(int8_t)((transfer[l]&15u)-8);
+        drum_dec_for(&trk[k])[l]=(int8_t)(((transfer[l]>>4)&7u)-4);
+    }
 }
 void preview_locks(uint32_t k, uint32_t count)
 {

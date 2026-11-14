@@ -475,7 +475,7 @@ static void trk_note_on(track_t *t, uint32_t note, uint32_t vel)
     if (is_drum(t)) {                                   /* the drum track: GM drums (drums.c) */
         if (note == 35u || note == 36u)
             vis_kick_hit = 1;
-        drum_on(note, vel);
+        drum_on_for(t, note, vel);
         return;
     }
     if ((uint32_t)(t - trk) < NPART && note < 128u)

@@ -76,15 +76,10 @@ for (const {engine, granular, duck, bypass} of [...Array.from({length: 12}, (_, 
   dsp.sync(E.previewSnapshot(m.state)); assert(render(dsp, 44160).energy > muted.energy * 2);
   dsp.w.preview_panic(); render(dsp, 44160 * 4);
   assert(render(dsp, 44160).energy < 0.001, 'Stop must release all notes and tails');
-  // Custom ADPCM samples use RAM flash, never the hardware XIP address.
-  const sample = Int16Array.from({length: 4096}, (_, i) => Math.round(10000 * Math.sin(i / 16)));
-  const {hdr, data} = E.buildSlot('LOCAL', [{s: sample, root: 60}]);
-  const flash = m.state.smp[0].flash; flash.set(hdr); flash.set(data, 512);
-  m.state.tracks[0].engine = 4; m.state.tracks[0].p[m.state.tracks[0].p.length - 8] = 8; m.state.tracks[0].p[17] = 0;
-  dsp.sync(E.previewSnapshot(m.state, true)); render(dsp, 8192);
-  dsp.w.preview_note(0, 60, 1); assert(render(dsp).energy > 0.01, 'uploaded sample must be audible');
-  m.stop();
-  console.log('sequence, live mute/unmute, stop, and uploaded samples: passed');
+  const current = device({twoDrums:true});
+  assert.equal(current.state.smp.length, 0, 'current 6+2 layout has no user-sample banks');
+  current.stop(); m.stop();
+  console.log('sequence, live mute/unmute, stop, and zero user-sample slots: passed');
 }
 {
   let changes = 0;
@@ -180,3 +175,21 @@ for (const {engine, granular, duck, bypass} of [...Array.from({length: 12}, (_, 
   m.stop(); console.log('inline edits: add/remove audible notes, independent tracks, and preserved drum lanes passed');
 }
 console.log('preview audio tests passed');
+
+// The development layout sends both drum tracks through the actual WASM DSP.
+{
+  const m = device({twoDrums:true});
+  const state = E.previewSnapshot(m.state);
+  for(const t of state.tracks) t.p[40]=1;
+  for(const k of [6,7]) {
+    const own=structuredClone(state); own.tracks[k].p[40]=0;
+    const dsp=new FirmwareAudio(module); dsp.sync(own);
+    dsp.w.preview_note(k,36,1);
+    assert(render(dsp).energy>0,`drum track ${k+1} produces audio`);
+    const silent=new FirmwareAudio(module); silent.sync(state);
+    silent.w.preview_note(k,36,1);
+    assert.equal(render(silent).energy,0,`drum track ${k+1} honors its own mute`);
+  }
+  m.stop();
+  console.log('6+2 WASM: both independent drum tracks produce audio and honor their own mute');
+}

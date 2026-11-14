@@ -655,13 +655,13 @@ static void t_glide(void)
           "PAN: a jump glides too (the left fades over a few blocks), then lands exactly");
     song.g[G_DRLVL] = 100;
     drums.gon = 0;
-    drums_mix(ml, mr, rv, dl, 0, CTL);
+    drums_mix(TDRUM, ml, mr, rv, dl, 0, CTL);
     g0 = drums.glv;
     song.g[G_DRLVL] = 20;
-    drums_mix(ml, mr, rv, dl, 0, CTL);
+    drums_mix(TDRUM, ml, mr, rv, dl, 0, CTL);
     g1 = drums.glv;
     for (b = 0; b < 40u; b++)
-        drums_mix(ml, mr, rv, dl, 0, CTL);
+        drums_mix(TDRUM, ml, mr, rv, dl, 0, CTL);
     check(g0 == 100 * 200 && g1 > 20 * 200 + (g0 - 20 * 200) / 2 && drums.glv == 20 * 200,
           "drums: LEVEL glides the same way (a quarter a block), then lands exactly");
     check(mix_glide(1000, 1008) == 1008 && mix_glide(1000, 2000) == 1250 && mix_glide(2000, 1000) == 1750,

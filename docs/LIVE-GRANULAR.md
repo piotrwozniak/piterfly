@@ -1,8 +1,8 @@
-# Live granular INSERT — piterfly 1.1.0
+# Live granular INSERT — piterfly 1.2.0
 
-Included in release 1.1.0, tested and accepted by the project owner on a physical FM-1.
+Available on all eight tracks in the 6+2 development build. Physical acceptance of release 1.1.0 covered its earlier 7+1 layout; hardware testing of 1.2.0 is pending.
 
-GRANUL is a live effect available independently on the seven synth tracks and the drum track. It processes the part's playing audio; it is separate from the inherited GRAIN instrument engine.
+GRANUL is a live effect available independently on the six synth tracks and both drum tracks. It processes the part's playing audio; it is separate from the inherited GRAIN instrument engine.
 
 ## Controls
 
@@ -35,10 +35,10 @@ Both processor cores share whole track-rendering jobs according to measured dura
 
 Notes and effect settings are persistent. Captured effect audio is a live buffer and is not saved into projects; it is cleared on power-off or project load. A restored FREEZE therefore starts with an empty source until LIVE captures audio.
 
-Projects are **FUN9, 6,016 bytes**; legacy FUN1–FUN7 import is supported. Settings use **PER4** and INFO reports protocol **17**, 74 sound parameters and engine parameters starting at 66. USR1 remains for samples; USR2/3/4 hold persistent patterns.
+Projects are **FUNB, 6,160 bytes**; earlier FUN1–FUNA projects are not imported. Settings use **PER4** and INFO reports protocol **19**, 74 sound parameters and engine parameters starting at 66. All former user-sample banks hold persistent patterns and named songs; factory samples remain. See [SONGS.md](SONGS.md).
 
 ## Verification
 
-The owner confirmed operation on the physical FM-1. Automated coverage includes exact filter/codec comparisons, dynamic history relocation, LIVE/FREEZE and bypass/resume, eight simultaneous insert instances, serial/parallel audio equality, ASan/UBSan history bounds, ThreadSanitizer and browser/native audio parity. The figures in the performance notes are host instruction counts, not device CPU percentages.
+The owner confirmed the earlier 1.1.0 implementation on the physical FM-1; that confirmation does not cover 6+2. Automated coverage includes exact filter/codec comparisons, dynamic history relocation, LIVE/FREEZE and bypass/resume, eight simultaneous insert instances, serial/parallel audio equality, ASan/UBSan history bounds, ThreadSanitizer and browser/native audio parity. The figures in the performance notes are host instruction counts, not device CPU percentages.
 
 GRANUL and DUCK process internal FM-1 audio. An external instrument’s separate audio output is mixed downstream; MIDI THRU does not bring it into the FM-1 audio path.

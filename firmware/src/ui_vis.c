@@ -227,10 +227,10 @@ static void vis_update(void)
     uint32_t base=song.sel&~3u;
     for (i = 0; i < 4u; i++) {
         uint32_t k=base+i;
-        pk[i] = k==TRK_DRUM?drums.peak:trk[k].peak;
+        pk[i] = is_drum(&trk[k])?drum_state(&trk[k])->peak:trk[k].peak;
         trk[k].peak = 0;
     }
-    drums.peak = 0;
+    for(uint32_t d=0;d<NDRUM_TRACKS;d++) drum_states[d].peak=0;
     hit = vis_hit >> base;
     vis_hit = 0;
     if (vis_kick_hit) {

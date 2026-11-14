@@ -13,7 +13,11 @@ static const char *const N_SECT[] = {"A1", "A2", "A3", "A4", "B1", "B2", "B3", "
 static const char *const N_MCH[] = {"OFF", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"};
 static const char *const N_MOTH[] = {"SEL", "OFF"};
 /* GLO > TEXTURE (2.6, fx.c texture_*): the bed's sources (the user slots last), its movement's length, when it plays */
-static const char *const N_TXSRC[] = {"OFF", "VINYL", "TAPE", "RAIN", "WIND", "RADIO", "ROOM", "USR1", "USR2 OFF", "USR3 OFF", "USR4 OFF"};
+static const char *const N_TXSRC[] = {"OFF", "VINYL", "TAPE", "RAIN", "WIND", "RADIO", "ROOM"
+#if NPART != 6
+, "USR1", "USR2 OFF", "USR3 OFF", "USR4 OFF"
+#endif
+};
 static const char *const N_TXRATE[] = {"1BAR", "2BAR", "4BAR", "8BAR", "16BAR"};
 static const char *const N_TXWHEN[] = {"PLAY", "ALWAYS"};
 /* ANALOG's filter TYPE (eng_analog.c): the SVF's low-pass (as always), band-pass, high-pass output */
@@ -523,7 +527,7 @@ static const param_desc_t *page_desc(const page_t *pg, uint32_t slot, int16_t **
         return 0;
     }
     if (pg->scope == SC_GLOBAL) {
-        *valp = &song.g[id];
+        *valp = drum_global(TSEL,id);
         return &GP[id];
     }
     *valp = &TSEL->p[id];

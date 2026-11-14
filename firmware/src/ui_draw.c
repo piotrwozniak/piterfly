@@ -572,7 +572,7 @@ UI_SMALL static void trk_short_name(uint32_t c, char *b)      /* the track's sou
 {
     const track_t *t = &trk[c];
     const engine_t *e = ENGINES[t->eng_req % NENGINES];
-    if (c == TRK_DRUM)
+    if (is_drum(t))
         str_cpy(b, "DRUM", 13);
     else if (user_of(t) < UP_SLOTS)
         up_name(user_of(t), b);
@@ -597,9 +597,9 @@ UI_SMALL static void draw_tracks(void)
         uint32_t len = t->p[P_SLEN] > 0 ? (uint32_t)t->p[P_SLEN] : 1u, row = 0xFFFFu;
         int32_t pk, m;
         char b[16];
-        if (c == TRK_DRUM) {
-            pk = drums.peak;
-            drums.peak = 0;
+        if (is_drum(&trk[c])) {
+            pk = drum_state(&trk[c])->peak;
+            drum_state(&trk[c])->peak = 0;
         } else {
             pk = t->peak;
             t->peak = 0;
@@ -860,7 +860,7 @@ UI_SMALL static void draw_foot(void)
     int32_t x;
     pn[0] = 0;
     if (is_drum(t))
-        str_cpy(pn, DRUM_KIT_NAMES[drum_kit()], sizeof pn);
+        str_cpy(pn, DRUM_KIT_NAMES[drum_kit_for(TDRUM_UI)], sizeof pn);
     else if (user_of(t) < UP_SLOTS)
         up_name(user_of(t), pn);                       /* a user preset */
     else if (e->npresets)

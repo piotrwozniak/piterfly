@@ -1,4 +1,6 @@
-# SLOOP editor protocol (SysEx over USB-MIDI)
+# Piterfly editor protocol (SysEx over USB-MIDI)
+
+Current development firmware is **1.2.0, protocol 19, six synths + two drums**. Use [the current track-addressing and FUNB notes](../docs/SIX-SYNTH-TWO-DRUMS.md). The versioned sections below retain earlier protocol layouts for reference; the default build does not import their project formats.
 
 The firmware side is `firmware/src/editor.c` (SLOOP is based on Felucca: the frames keep its "FL"
 header). Commands 16-26 (user presets and live sync) form protocol v2; commands 27-30 (tracks) form
@@ -541,3 +543,29 @@ Devices with `gcount=62` do not expose these switches. FUN9's two spare bytes ho
 the excluded-target mask followed by `0xD1`; absence of the marker means all targets
 ON. Project size remains 6016 bytes. Old readers ignore those bytes and clear them
 on their next save.
+
+## v18: six synths and two drums (development)
+
+See [6+2 protocol and storage notes](../docs/SIX-SYNTH-TWO-DRUMS.md). FUNA is 6,160 bytes and requires new projects. DRUM_STEP and LIVE drum tuning accept an explicit drum-track argument. INFO protocol 18 identifies this layout.
+
+
+## piterfly protocol 19: named songs and no user sample banks
+
+FUNB projects are 6,160 bytes. FUN1–FUNA are rejected. All four user-sample regions join the pattern/song pool (44 × 8 KiB); SMP_INFO reports zero slots and sample write commands cannot write these regions. SAMPLE/GRAIN expose factory sets only; TEXTURE exposes generated sources only. Drum kits 0–36 retain their IDs; SYN1–SYN4 are now 37–40. Track addressing remains as in protocol 18.
+
+Command **78 SONG_LIBRARY** starts every reply with `op, rc`. Indices are zero based. All integer fields described as u35 use five little-endian 7-bit bytes, like BK_GET. Saves, loads and deletes require stopped transport and no pending editor restore. The client must explicitly confirm destructive actions and must not retry mutations automatically.
+
+| Operation | Arguments after op | Reply after op, rc (rc=0) |
+| --- | --- | --- |
+| 0 LIST | none | count=8; freeKiB u35; totalKiB=352 u35; repeated slot, used, rootSeq u35, NUL-terminated ASCII name |
+| 1 SAVE | slot, 1–15 printable ASCII name bytes, no terminator | none |
+| 2 LOAD | slot | none |
+| 3 DELETE | slot | none |
+| 4 STAT | slot, item | rootSeq u35, length u35, CRC32 u35, nameOffset, orderOffset |
+| 5 READ | slot, item, rootSeq u35, offset u35, count u14 (1–256) | count u14, pack7 payload |
+
+rc: **0** success, **1** invalid argument, **2** stop first, **3** empty song, **4** flash unavailable, **5** no space (previous named snapshot retained), **6** flash write failure, **7** editor busy or export generation changed, **8** missing/damaged song. LIST free space excludes the 8 KiB deletion reserve. Deletion is durable before unshared records become reusable.
+
+Export items: **0** manifest, **1** working-loop project, **2–25** pattern slots 0–23. Absent stored patterns have length zero. The manifest is currently 312 bytes: settings sequence u32, mode u32, name[16], physical references[26], and the 260-byte order at offset 50. Name is at offset 8. Clients must use the offsets from STAT, validate lengths/CRC, and compare rootSeq across all parts. READ rejects a changed rootSeq. Manifest references are internal; never write them back through the editor. Construct an ordinary `sloop-song` file using object 0 for the working loop, 2–5 for patterns 0–3, and 64–83 for patterns 4–23. Export does not load or delete the song.
+
+The named directory is not part of BK_LIST. Existing current-project song export/import and backup retain their scope; export each named snapshot separately. SYN definitions and FM6 patches remain shared libraries, not per-song data. See [song controls, capacity and limits](../docs/SONGS.md).

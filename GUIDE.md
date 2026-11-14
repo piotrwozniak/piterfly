@@ -1,6 +1,6 @@
-<p align="center"><img src="assets/logo/sloop-logo.png" alt="SLOOP" width="420"></p>
+<p align="center"><img src="assets/piterfly/arcade-web.png" alt="SLOOP" width="420"></p>
 
-**piterfly 1.1.0:** read [the current Polish guide](docs/PITERFLY.md) and [release notes](docs/RELEASE-1.1.0.md): **seven synth tracks plus drums, 24 patterns, 128 SONG positions, USR1 samples**, full step overviews, live GRANUL and per-track DUCK. PRESETS selects the track; ALGORITHM browses sounds on ordinary pages. The owner has tested and accepted this version on a physical FM-1. The upstream guide below preserves its historical four-track descriptions; current piterfly documentation takes precedence.
+**Current piterfly 1.2.0:** [Polish guide](docs/PITERFLY.md), [release notes](docs/RELEASE-1.2.0.md) and [named songs](docs/SONGS.md): six synths plus two drums, 24 patterns, 128 SONG positions, eight named song slots subject to free memory, and no user-sample banks. Full hardware validation of this version remains pending. The upstream guide below preserves its historical four-track descriptions; current piterfly documentation takes precedence.
 
 # SLOOP 2.8.5 — The Complete Guide
 

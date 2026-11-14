@@ -67,11 +67,13 @@ int main(int argc,char **argv)
     enc[EN_K4]=255;song_screen_input(0,0);assert(arrangement.count==ARR_STEPS);
     enc[EN_K1]=255;song_screen_input(0,0);assert(song_cursor==ARR_STEPS-1u);
     enc[EN_K4]=-255;song_screen_input(0,0);assert(arrangement.count==1 && song_cursor==0);
-    arr_defaults(&arrangement);ready=15;ui.msg_t=0;ui.force=1;
+    enc[EN_K3]=255;song_screen_input(0,0);assert(arrangement.entry[0].bars==64);
+    enc[EN_K3]=-255;song_screen_input(0,0);assert(arrangement.entry[0].bars==1);
+    arr_defaults(&arrangement);ready=5;ui.msg_t=0;ui.force=1;
     arrangement.entry[0]=(arr_entry_t){0,4};
-    arrangement.entry[1]=(arr_entry_t){1,8};
+    arrangement.entry[1]=(arr_entry_t){1,64};
     arrangement.entry[2]=(arr_entry_t){2,8};
-    arrangement.entry[3]=(arr_entry_t){3,4};
+    arrangement.entry[3]=(arr_entry_t){3,1};
     palette_set(2);song_screen_draw();
     if(argc>1) {
         FILE *f=fopen(argv[1],"wb");assert(f);

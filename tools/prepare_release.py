@@ -114,7 +114,7 @@ def main(out=None):
             z.write(source / name, name)
     artifacts = {p.name: {"bytes": p.stat().st_size, "sha256": sha(p)} for p in sorted(out.iterdir()) if p.suffix in (".fwsc", ".bin", ".gz", ".zip", ".wasm", ".json")}
     info = {"version": version, "product": product, "prepared_utc": datetime.now(timezone.utc).isoformat(),
-            "local_only": True, "git_repository_created": False, "distribution_status": "Piterfly 1.1.0 release; reviewed public source export",
+            "local_only": True, "git_repository_created": False, "distribution_status": f"Piterfly {version} release; reviewed public source export",
             "origin_commit": provenance["origin_commit"],
             "base_commit": base, "source_tree_sha256": source_id, "artifacts": artifacts,
             "protocol": int(re.search(r"#define ED_PROTO (\d+)u", (source / "firmware/src/editor.c").read_text())[1]),

@@ -1,6 +1,8 @@
-<p align="center"><img src="assets/logo/sloop-logo.png" alt="SLOOP" width="360"></p>
+<p align="center"><img src="assets/piterfly/arcade-web.png" alt="SLOOP" width="360"></p>
 
 # SLOOP 2.7 — démarrage rapide
+
+> Manuel historique SLOOP. Pour piterfly 1.2.0 (6 synthés + 2 batteries, chansons nommées, sans banques de samples utilisateur), consultez [le guide actuel](docs/PITERFLY.md) et [la mémoire des chansons](docs/SONGS.md).
 
 **SLOOP** transforme le M-VAVE FM-1 en groovebox à jouer en live, pour tous les styles : trois synthés et une batterie de 16 sons sur les touches blanches, 12 moteurs de synthèse (dont la FM à six opérateurs avec les patchs DX7, les modèles physiques et le bruit), 153 sons rangés par famille (basses, claviers, orgues, nappes, leads, plucks, stabs), 37 kits de batterie (808, 909, trap, phonk, house, techno, UK garage, jungle, amapiano, synthwave, chiptune, ambient…) et tes propres kits, tes propres samples, ghost notes et ratchets, verrous de paramètre, décalage des pas et fills, note repeat, accords sur une touche, 27 effets punch-in, et un écran à la teenage engineering qui montre toujours ce que tes mains peuvent faire. Aucun motif d'usine : tout ce que tu entends, tu le joues.
 

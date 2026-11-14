@@ -25,6 +25,12 @@
 UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
 {
     uint32_t i, m = 0, s = 0, play, result = 0;
+    track_t *tw=TDRUM_UI;
+    if(NPART==6 && ((a[0]==0u && na>=2u) || (a[0]==12u && na>=5u))) {
+        uint32_t ti=a[a[0]==0u?1u:4u];
+        if(ti>=NTRK || !is_drum(&trk[ti])) return;
+        tw=&trk[ti];
+    }
     if (na >= 2u) {
         switch (a[0]) {
         case 1:
@@ -154,8 +160,8 @@ UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
             break;
         case 12:
             if (na >= 4u) {
-                drum_tune[a[1] & 15u] = (int8_t)clamp((int32_t)a[2] - 8, DRUM_TUNE_MIN, DRUM_TUNE_MAX);
-                drum_dec[a[1] & 15u] = (int8_t)clamp((int32_t)a[3] - 4, DRUM_DEC_MIN, DRUM_DEC_MAX);   /* (the DRUMS
+                drum_tune_for(tw)[a[1] & 15u] = (int8_t)clamp((int32_t)a[2] - 8, DRUM_TUNE_MIN, DRUM_TUNE_MAX);
+                drum_dec_for(tw)[a[1] & 15u] = (int8_t)clamp((int32_t)a[3] - 4, DRUM_DEC_MIN, DRUM_DEC_MAX);   /* (the DRUMS
                                                          * screen sees them: its signature has them; nothing else redraws) */
             }
             break;
@@ -188,7 +194,7 @@ UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
     ed_b(arrangement.entry[arrangement_clock.index % ARR_STEPS].bars);
     ed_b(arrangement_ready() & 15u);
     for (i = 0; i < NTRK; i++) {
-        int32_t pk = i == TRK_DRUM ? drums.peak : trk[i].peak, lg = 0;
+        int32_t pk = is_drum(&trk[i]) ? drum_state(&trk[i])->peak : trk[i].peak, lg = 0;
         ed_b(trk[i].seq_idx);
         ed_b(trk_len(&trk[i]));
         if (pk >= 64) {
@@ -203,7 +209,7 @@ UI_SMALL static void ed_live(const uint8_t *a, uint32_t na)
     ed_b(ed_master);
     ed_b(thr_ed | thr_req);
     for (i = 0; i < DRUM_LANES; i++)
-        ed_b((uint32_t)(drum_tune[i] + 8) | (uint32_t)(drum_dec[i] + 4) << 4);
+        ed_b((uint32_t)(drum_tune_for(tw)[i] + 8) | (uint32_t)(drum_dec_for(tw)[i] + 4) << 4);
     m = arrangement_ready();
     ed_b(m & 127u); ed_b((m >> 7) & 127u); ed_b((m >> 14) & 127u); ed_b((m >> 21) & 127u);
 #if NPART > 3

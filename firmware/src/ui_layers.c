@@ -842,7 +842,7 @@ UI_SMALL static void layer_screen_draw(void)
             tl[i].fg = down ? C_BLACK : present ? C_WHITE : TE_G3;
             tl[i].top = present && !down ? (layer == LY_ERASE ? TE_RED : col) : 0;
             if (mute) {                                 /* MUTE: a muted sound white on red, "off" */
-                uint32_t off = (drum_mute >> i) & 1u;
+                uint32_t off = (drum_mute_for(TDRUM_UI) >> i) & 1u;
                 tl[i].bg = off ? TE_RED : TE_G1;
                 tl[i].fg = off ? C_WHITE : present ? C_WHITE : TE_G3;
                 tl[i].top = 0;

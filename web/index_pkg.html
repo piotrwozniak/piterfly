@@ -75,7 +75,7 @@
   <!--STUDIO_GUIDE-->
   <!--BANNER-->
   <h1 data-t="heading">Firmware for the M-VAVE FM-1</h1>
-  <p class="lead" data-t="lead">Piterfly 1.1.0: an alternative OS for the M-VAVE FM-1, built on SLOOP. Seven synth parts plus drums, 24 patterns, 128 SONG positions, clearer 64-step views, live granular INSERT, selective kick ducking and MIDI THRU for external instruments.</p>
+  <p class="lead" data-t="lead">Piterfly 1.2.0: six synth parts and two independent drum tracks, 24 patterns, 128 SONG positions and up to eight named songs in a shared 352 KiB pool. Load from a list, delete and export songs to your computer. New projects required; user-sample banks are reclaimed.</p>
   <a class="docs-entry" href="../changes/">
     <span class="docs-eyebrow" data-t="docsLabel">Piterfly documentation</span>
     <strong data-t="changes">piterfly vs SLOOP — what changes?</strong>
@@ -83,7 +83,7 @@
     <span class="docs-arrow" aria-hidden="true">→</span>
   </a>
   <div class="tiles">
-    <div class="tile" style="--c: var(--blue)"><b>153</b><span data-t="sounds">sounds, 12 engines, your samples</span></div>
+    <div class="tile" style="--c: var(--blue)"><b>153</b><span data-t="sounds">sounds, 12 engines, factory samples</span></div>
     <div class="tile" style="--c: var(--green)"><b>37</b><span data-t="kits">drum kits, 909 to afro, + your own</span></div>
     <div class="tile" style="--c: var(--yellow)"><b>27</b><span data-t="effects">punch-in fx: hold fx + key</span></div>
     <div class="tile" style="--c: var(--orange)"><b>rec</b><span data-t="record">no click: the loop follows you</span></div>
@@ -122,7 +122,7 @@ const $ = (id) => document.getElementById(id);
 const TEXT = {
   "en": {
     "intro": "Connect the FM-1 by USB. (Works in Chrome or Edge.)",
-    "warn": "Do not unplug the USB cable while writing.",
+    "warn": "1.2.0 cannot load FUN1–FUNA projects and overwrites all user-sample banks. Back up/export using your old firmware before installing. Do not unplug USB while writing.",
     "install": "Install",
     "editor": "Editor (after installing: edit sounds and sequences from the computer)",
     "edOffline": "Download the editor to use it without internet on a computer (open the file in Chrome or Edge)",
@@ -166,8 +166,8 @@ const TEXT = {
     "pageTitle": "piterfly installer",
     "language": "Language",
     "heading": "Firmware for the M-VAVE FM-1",
-    "lead": "Piterfly 1.1.0: an alternative OS for the M-VAVE FM-1, built on SLOOP. Seven synth parts plus drums, 24 patterns, 128 SONG positions, clearer 64-step views, live granular INSERT, selective kick ducking and MIDI THRU for external instruments.",
-    "sounds": "sounds, 12 engines, your samples",
+    "lead": "Piterfly 1.2.0: six synth parts and two independent drum tracks, 24 patterns, 128 SONG positions and up to eight named songs in a shared 352 KiB pool. Load from a list, delete and export songs to your computer. New projects required; user-sample banks are reclaimed.",
+    "sounds": "sounds, 12 engines, factory samples",
     "kits": "drum kits, 909 to afro, + your own",
     "effects": "punch-in fx: hold fx + key",
     "record": "no click: the loop follows you",
@@ -186,7 +186,7 @@ const TEXT = {
   },
   "pl": {
     "intro": "Podłącz FM-1 przez USB. Strona działa w Chrome lub Edge.",
-    "warn": "Nie odłączaj kabla USB podczas zapisu.",
+    "warn": "1.2.0 nie wczyta projektów FUN1–FUNA i nadpisuje wszystkie banki sampli użytkownika. Przed instalacją wykonaj backup/eksport na starym firmware. Nie odłączaj USB podczas zapisu.",
     "install": "Zainstaluj",
     "editor": "Edytor (po instalacji: edytuj brzmienia i sekwencje z komputera)",
     "edOffline": "Pobierz edytor do pracy bez internetu na komputerze (otwórz plik w Chrome lub Edge)",
@@ -230,8 +230,8 @@ const TEXT = {
     "pageTitle": "Instalator piterfly",
     "language": "Język",
     "heading": "Firmware dla M-VAVE FM-1",
-    "lead": "Piterfly 1.1.0: alternatywny system dla M-VAVE FM-1, zbudowany na bazie SLOOP. Siedem ścieżek syntezatora i perkusja, 24 patterny, 128 pozycji SONG, czytelne widoki 64 kroków, granularny INSERT, wybór ścieżek duckingu i MIDI THRU do instrumentów zewnętrznych.",
-    "sounds": "brzmienia, 12 silników, własne sample",
+    "lead": "Piterfly 1.2.0: sześć syntezatorów i dwie niezależne perkusje, 24 patterny, 128 pozycji SONG i do ośmiu nazwanych songów we wspólnej puli 352 KiB. Lista, zapis, wczytywanie, usuwanie i eksport na komputer. Wymaga nowych projektów; banki sampli użytkownika przeznaczono na songi.",
+    "sounds": "brzmienia, 12 silników, sample fabryczne",
     "kits": "zestawy perkusyjne, od 909 po afro, + własne",
     "effects": "efekty chwilowe: przytrzymaj FX + klawisz",
     "record": "bez kliku: pętla podąża za Tobą",
@@ -250,7 +250,7 @@ const TEXT = {
   },
   "es": {
     "intro": "Conecta el FM-1 por USB. Funciona en Chrome o Edge.",
-    "warn": "No desconectes el cable USB durante la escritura.",
+    "warn": "1.2.0 no carga proyectos FUN1–FUNA y sobrescribe los bancos de muestras del usuario. Guarda o exporta con el firmware anterior antes de instalar. No desconectes USB durante la escritura.",
     "install": "Instalar",
     "editor": "Editor (tras la instalación: edita sonidos y secuencias desde el ordenador)",
     "edOffline": "Descarga el editor para usarlo sin internet en un ordenador (abre el archivo en Chrome o Edge)",
@@ -294,7 +294,7 @@ const TEXT = {
     "pageTitle": "Instalador de piterfly",
     "language": "Idioma",
     "heading": "Firmware para el M-VAVE FM-1",
-    "lead": "Piterfly 1.1.0: un sistema alternativo para el M-VAVE FM-1, basado en SLOOP. Siete partes de sintetizador y batería, 24 patrones, 128 posiciones SONG, vistas claras de 64 pasos, INSERT granular, ducking selectivo y MIDI THRU para instrumentos externos.",
+    "lead": "Piterfly 1.2.0: seis sintetizadores y dos baterías independientes, 24 patrones, 128 posiciones SONG y hasta ocho canciones con nombre en 352 KiB compartidos. Carga de la lista, borra y exporta al ordenador. Requiere proyectos nuevos; se reutilizan los bancos de muestras del usuario.",
     "sounds": "sonidos, 12 motores, tus muestras",
     "kits": "kits de batería, de 909 a afro, + los tuyos",
     "effects": "efectos momentáneos: mantén FX + una tecla",

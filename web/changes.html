@@ -1,11 +1,16 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="changes.css"><link rel="icon" href="../icon-192.png">
-<title>Piterfly 1.1.0 — an expanded FM-1</title>
+<title>Piterfly 1.2.0 — six synths and two drums</title>
 </head><body><main><div class="page-toolbar"><nav>
 <a href="../installer/">Installer</a>
 <a href="../editor/">Web editor</a>
 <a href="midipipe.html">D MINI setup</a>
 </nav><select class="language-picker" id="language" aria-label="Language"><option value="en">English</option><option value="pl">Polski</option><option value="es">Español</option></select></div><img class="brand" src="logo.png" width="446" height="304" alt="piterfly"><div class="strip"></div>
-<h1>Piterfly 1.1.0</h1>
+<h1>Piterfly 1.2.0 — 6+2</h1>
+<p>Tracks 1–6 are synths sharing eight voices. Tracks 7 and 8 are independent 16-lane drum parts with six voices each, separate patterns, kit selection, lane tuning, mixer settings and effects. Kicks from either part trigger DUCK on the six synths.</p>
+<p>Default MIDI channels: synths 1–6, drum track 7 on channel 7 (CH7), drum track 8 on channel 10 (DRUM CH). Use the matching protocol-19 editor.</p>
+<p><strong>New projects required:</strong> FUNB, 6,160 bytes; no import of FUN1–FUNA. PER4 settings, 24 patterns and 128 SONG positions remain. Eight named songs share 352 KiB with the current project; save, load from a list, delete and export to the Mac. All user-sample banks are reclaimed; factory samples remain. Free space is shown and full saves retain the previous song. Release 1.2.0 requires new projects; export older work before installation. Full physical FM-1 validation remains pending.</p>
+<details><summary>Historical 1.1.0 release, 7+1 — earlier screenshots and hardware acceptance</summary>
+<h2>Piterfly 1.1.0</h2>
 <p>An alternative OS for the M-VAVE FM-1, built on SLOOP and its Felucca foundation. Tested on the physical FM-1 and accepted by the project owner.</p>
 <p class="note">Illustrations reproduce the actual 240 × 240 FM-1 firmware screens with example music data; they are not photographs of the physical display.</p>
 <h2>Seven synth parts + dedicated drums</h2>
@@ -50,9 +55,17 @@
 <figure><a class="screen" href="screenshots/midi-thru-tracks-4-7.png"><img src="screenshots/midi-thru-tracks-4-7.png" width="360" alt="Independent THRU switches for synth parts 4–7." loading="lazy"></a><figcaption>Independent THRU switches for synth parts 4–7.</figcaption></figure>
 </div><h2>Storage and migration</h2>
 <p>Back up before upgrading. USR1 retains 80 KiB for samples; USR2/3/4 hold patterns. Factory samples and SYN1–SYN4 remain available. FUN9 projects import FUN1–FUN7, move the old drum part to track 8 and start the added synth parts empty. Live granular audio history is temporary.</p>
-</section></main><script>
+</section></details></main><script>
 const TRANSLATIONS = {
   "pl": {
+    "Piterfly 1.2.0 — six synths and two drums": "Piterfly 1.2.0 — sześć syntezatorów i dwie perkusje",
+    "Piterfly 1.2.0 — 6+2": "Piterfly 1.2.0 — 6+2",
+    "Tracks 1–6 are synths sharing eight voices. Tracks 7 and 8 are independent 16-lane drum parts with six voices each, separate patterns, kit selection, lane tuning, mixer settings and effects. Kicks from either part trigger DUCK on the six synths.": "Ścieżki 1–6 to syntezatory dzielące osiem głosów. Ścieżki 7 i 8 to niezależne perkusje po 16 linii i sześć głosów, z osobnymi patternami, wyborem zestawu, strojeniem, miksem i efektami. Stopy z obu perkusji wyzwalają DUCK na sześciu syntezatorach.",
+    "Default MIDI channels: synths 1–6, drum track 7 on channel 7 (CH7), drum track 8 on channel 10 (DRUM CH). Use the matching protocol-19 editor.": "Domyślne kanały MIDI: syntezatory 1–6, perkusja 7 na kanale 7 (CH7), perkusja 8 na kanale 10 (DRUM CH). Używaj zgodnego edytora z protokołem 19.",
+    "New projects required:": "Wymagane nowe projekty:",
+    "FUNB, 6,160 bytes; no import of FUN1–FUNA. PER4 settings, 24 patterns and 128 SONG positions remain. Eight named songs share 352 KiB with the current project; save, load from a list, delete and export to the Mac. All user-sample banks are reclaimed; factory samples remain. Free space is shown and full saves retain the previous song. Release 1.2.0 requires new projects; export older work before installation. Full physical FM-1 validation remains pending.": "FUNB, 6160 bajtów; bez importu FUN1–FUNA. Pozostają PER4, 24 patterny i 128 pozycji SONG. Do 8 nazwanych songów dzieli 352 KiB z bieżącym projektem: zapis, wczytywanie z listy, usuwanie i eksport na Maca. Nie ma banków sampli użytkownika; pozostają sample fabryczne. Lista pokazuje wolne miejsce, a brak miejsca nie zastępuje poprzedniego songa. Wydanie 1.2.0 wymaga nowych projektów; przed instalacją wyeksportuj starszą pracę. Pełne testy sprzętowe pozostają do wykonania.",
+    "Historical 1.1.0 release, 7+1 — earlier screenshots and hardware acceptance": "Historyczne wydanie 1.1.0, 7+1 — wcześniejsze ilustracje i akceptacja sprzętowa",
+
     "Piterfly 1.1.0 — an expanded FM-1": "Piterfly 1.1.0 — rozbudowany FM-1",
     "Installer": "Instalator",
     "Web editor": "Edytor internetowy",
@@ -104,6 +117,14 @@ const TRANSLATIONS = {
     "FM-1 + Behringer D MINI setup guide →": "Poradnik połączenia FM-1 + Behringer D MINI →"
   },
   "es": {
+    "Piterfly 1.2.0 — six synths and two drums": "Piterfly 1.2.0 — seis sintetizadores y dos baterías",
+    "Piterfly 1.2.0 — 6+2": "Piterfly 1.2.0 — 6+2",
+    "Tracks 1–6 are synths sharing eight voices. Tracks 7 and 8 are independent 16-lane drum parts with six voices each, separate patterns, kit selection, lane tuning, mixer settings and effects. Kicks from either part trigger DUCK on the six synths.": "Las pistas 1–6 son sintetizadores que comparten ocho voces. Las pistas 7 y 8 son baterías independientes de 16 líneas y seis voces cada una, con patrones, selección de kit, afinación, mezcla y efectos propios. Los bombos de ambas activan DUCK en los seis sintetizadores.",
+    "Default MIDI channels: synths 1–6, drum track 7 on channel 7 (CH7), drum track 8 on channel 10 (DRUM CH). Use the matching protocol-19 editor.": "Canales MIDI predeterminados: sintetizadores 1–6, batería 7 en el canal 7 (CH7), batería 8 en el canal 10 (DRUM CH). Usa el editor correspondiente de protocolo 19.",
+    "New projects required:": "Se requieren proyectos nuevos:",
+    "FUNB, 6,160 bytes; no import of FUN1–FUNA. PER4 settings, 24 patterns and 128 SONG positions remain. Eight named songs share 352 KiB with the current project; save, load from a list, delete and export to the Mac. All user-sample banks are reclaimed; factory samples remain. Free space is shown and full saves retain the previous song. Release 1.2.0 requires new projects; export older work before installation. Full physical FM-1 validation remains pending.": "FUNB, 6160 bytes; sin importar FUN1–FUNA. Se mantienen PER4, 24 patrones y 128 posiciones SONG. Hasta 8 canciones con nombre comparten 352 KiB con el proyecto actual: guardar, cargar de la lista, borrar y exportar al Mac. Se eliminan los bancos de muestras del usuario; quedan las muestras de fábrica. Se muestra el espacio libre y una memoria llena conserva la canción anterior. La versión 1.2.0 requiere proyectos nuevos: exporta el trabajo anterior antes de instalar. Falta la validación física completa.",
+    "Historical 1.1.0 release, 7+1 — earlier screenshots and hardware acceptance": "Versión histórica 1.1.0, 7+1 — capturas y validación de hardware anteriores",
+
     "Piterfly 1.1.0 — an expanded FM-1": "Piterfly 1.1.0 — un FM-1 ampliado",
     "Installer": "Instalador",
     "Web editor": "Editor web",

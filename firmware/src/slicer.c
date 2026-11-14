@@ -66,7 +66,7 @@ typedef struct {
     uint8_t rec_on;              /* recording this step */
 } sl_t;
 static sl_t sl[NTRK];
-static int32_t sl_dbuf[CTL];     /* the drum track's dry mono signal (slicer_drums) */
+static int32_t sl_dbuffers[NDRUM_TRACKS][CTL];     /* the drum track's dry mono signal (slicer_drums) */
 
 static void slicer_start(uint32_t pos)   /* seq_start: step 0 of every track, pos units in */
 {
@@ -181,22 +181,22 @@ static int slicer_busy(const track_t *t)
 }
 
 /* the drum track: as drums_render, through the SLICER when it is on (or still fading) */
-static void slicer_drums(int32_t *ml, int32_t *mr, int32_t *rev, int32_t *dly, uint32_t n)
+static void slicer_drums(track_t *t, int32_t *ml, int32_t *mr, int32_t *rev, int32_t *dly, uint32_t n)
 {
-    const track_t *t = TDRUM;
-    const sl_t *s = &sl[TRK_DRUM];
+    int32_t *sl_dbuf = sl_dbuffers[t-trk-NPART];
+    const sl_t *s = &sl[t-trk];
     uint32_t i;
     if (t->p[P_SLCR] == SL_OFF && !s->gc && !s->w) {
         slicer_track(t, 0, n);
-        drums_render(ml, mr, rev, dly, n);
+        drums_render_for(t, ml, mr, rev, dly, n);
         return;
     }
     for (i = 0; i < n; i++)
         sl_dbuf[i] = 0;
-    drums_render_mono(sl_dbuf, n);
+    drums_render_mono_for(t, sl_dbuf, n);
     slicer_track(t, sl_dbuf, n);
     {
-        int32_t send = send_thr(song.g[G_DRREV] * 258, thr_rev), dsend = send_thr(song.g[G_DRDLY] * 258, thr_dly), pan = t->p[P_PAN];
+        int32_t send = send_thr((t == TDRUM ? song.g[G_DRREV] : t->p[P_REV]) * 258, thr_rev), dsend = send_thr((t == TDRUM ? song.g[G_DRDLY] : t->p[P_DLY]) * 258, thr_dly), pan = t->p[P_PAN];
         int32_t gl = 4096 - (pan > 0 ? pan * 64 : 0), gr = 4096 + (pan < 0 ? pan * 64 : 0);
         for (i = 0; i < n; i++) {
             int32_t x = sl_dbuf[i];

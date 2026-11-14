@@ -316,7 +316,7 @@ typedef struct { int32_t l[CTL], r[CTL], sc[CTL], sd[CTL], sr[CTL]; } mixacc_t; 
 static mixacc_t acc[2] __attribute__((section(".lowram")));          /* core 0's, core 1's (.lowram: app.ld, main.c) */
 static int32_t wet_l[CTL], wet_r[CTL];
 static int32_t part_buf[2][CTL] __attribute__((section(".lowram")));   /* a part's scratch, one per core */
-static int32_t drum_buf[4][CTL] __attribute__((section(".lowram")));   /* the drums through the drum track's FILTER: L, R,
+static int32_t drum_buffers[NDRUM_TRACKS][4][CTL] __attribute__((section(".lowram")));   /* the drums through the drum track's FILTER: L, R,
                                                                         * reverb, delay */
 
 /* ---- mute / solo: a track that goes silent fades out over ~6 ms (and back in) */
@@ -343,8 +343,9 @@ static void duck_block(uint32_t adv)
     duck.prev=duck.now; duck.now=0;
     for(uint32_t t=0;t<NPART;t++) duck.now|=(uint8_t)((song.g[G_DUCK1+t]!=0)<<t);
     duck.g0 = duck.g1;
-    if (drums.kick) {
-        drums.kick = 0;
+    uint32_t kick = 0;
+    for(uint32_t d=0;d<NDRUM_TRACKS;d++) { kick |= drum_states[d].kick; drum_states[d].kick=0; }
+    if (kick) {
         duck.t = 0;
     }
     if (!depth || duck.t >= len) {
@@ -474,7 +475,7 @@ typedef struct {
 #endif               /* FLANG / CHOR, at a quarter (headroom) */
 } ins_t;
 /* Headers in .bss; the seven-part build borrows delay lines from engine-arena padding. */
-static ins_t ins[NPART + 4u];                    /* the parts; the drum track's L, R, REV, DLY */
+static ins_t ins[NPART + 4u * NDRUM_TRACKS];                    /* the parts; the drum track's L, R, REV, DLY */
 
 #if NPART > 3
 static int16_t *insert_line(ins_t *s)
@@ -497,9 +498,11 @@ static void audio_prepare(void)
     }
     for(uint32_t t=0;t<NTRK;t++)
         if(t<3u || t==TRK_DRUM || trk[t].p[P_SLCR]==SL_STUT || sl[t].rec_on || sl[t].loop || sl[t].w) audio_mark(audio_sl_page(t),8u);
-    uint32_t drum=insert_needs_line(TDRUM->p[P_ITYPE]);
-    for(uint32_t k=0;k<4u;k++) drum|=ins[NPART+k].w && insert_needs_line(ins[NPART+k].type);
-    if(drum) audio_mark(127u,2u);
+    for(uint32_t d=0;d<NDRUM_TRACKS;d++) {
+        uint32_t on=insert_needs_line(trk[NPART+d].p[P_ITYPE]);
+        for(uint32_t k=0;k<4u;k++) on |= ins[NPART+4u*d+k].w && insert_needs_line(ins[NPART+4u*d+k].type);
+        if(on) audio_mark(127u+2u*d,2u);
+    }
 }
 #endif
 
@@ -865,45 +868,47 @@ static void djf_process(int32_t *l, int32_t *r, uint32_t n)
  * SLOOP 2.6 added two things a part keeps for its block, now per part or per core: the ENV SYNC steps (voice.c
  * esync_k) and the preset fade's sound set aside (mix_part pnew); its INSERT state is per part (ins[]), the drum
  * track's its own; TEXTURE, the THROWs' glide, FREEZE and the look-ahead limiter run on core 0 outside the units. */
-#define U_DRUMS (1u << NPART)
-#define U_ALL ((2u << NPART) - 1u)
+#define U_DRUMS (((1u << NDRUM_TRACKS)-1u) << NPART)
+#define U_ALL ((1u << NTRK) - 1u)
 
 /* the drum track's INSERT (2.6): its left, right and the two sends, each through its own state, the same settings */
-static void drum_insert(int32_t *l, int32_t *r, int32_t *v, int32_t *d, uint32_t n)
+static void drum_insert(track_t *t, int32_t *l, int32_t *r, int32_t *v, int32_t *d, uint32_t n)
 {
-    track_t *t = TDRUM;
+    uint32_t base=NPART+4u*(uint32_t)(t-trk-NPART);
     int run;
     if (!(t->p[P_ITYPE] | t->ins_run))
         return;
     if (t->p[P_ITYPE] == IT_GRAIN) {
         int32_t *b[4] = {l,r,v,d};
-        for (uint32_t k=0;k<4;k++) if (ins[NPART+k].w) ins_run(&ins[NPART+k],t->p,b[k],n);
+        for (uint32_t k=0;k<4;k++) if (ins[base+k].w) ins_run(&ins[base+k],t->p,b[k],n);
         gf_insert(t, l, r, v, d, n); return;
     }
-    run = ins_run(&ins[NPART], t->p, l, n);
-    run |= ins_run(&ins[NPART + 1u], t->p, r, n);
-    run |= ins_run(&ins[NPART + 2u], t->p, v, n);
-    run |= ins_run(&ins[NPART + 3u], t->p, d, n);
+    run = ins_run(&ins[base], t->p, l, n);
+    run |= ins_run(&ins[base + 1u], t->p, r, n);
+    run |= ins_run(&ins[base + 2u], t->p, v, n);
+    run |= ins_run(&ins[base + 3u], t->p, d, n);
     t->ins_run = (uint8_t)run;
     gf_leave(t,l,r,v,d,n);
 }
 /* the drum track with the metronome: drums_render, through the SLICER when it is on (slicer.c), then through its
  * INSERT (2.6) and the track's FILTER when they are on (into drum_buf, left, right and the two sends apart, then added) */
-static void mix_drums(uint32_t n, mixacc_t *mx)
+static void mix_drums(track_t *t, uint32_t n, mixacc_t *mx)
 {
     uint32_t i;
     tsvf_t fc;
-    djf_t *f = &tflt[TRK_DRUM];
+    djf_t *f = &tflt[t-trk];
+    drum_state_t *d=drum_state(t);
+    int32_t (*drum_buf)[CTL]=drum_buffers[t-trk-NPART];
     int flt;
-    drums.a0 = TDRUM->att;                              /* the drum track's mute / solo fade */
-    drums.a1 = 32767 - gain_next(TDRUM);
-    flt = n <= CTL && djf_block(f, TDRUM->p[P_TFLT], &fc, tflt_reso());   /* the drum track's FILTER */
-    if (flt || (n <= CTL && (TDRUM->p[P_ITYPE] | TDRUM->ins_run))) {   /* .. or its INSERT: left, right, the sends */
+    d->a0 = t->att;                              /* the drum track's mute / solo fade */
+    d->a1 = 32767 - gain_next(t);
+    flt = n <= CTL && djf_block(f, t->p[P_TFLT], &fc, tflt_reso());   /* the drum track's FILTER */
+    if (flt || (n <= CTL && (t->p[P_ITYPE] | t->ins_run))) {   /* .. or its INSERT: left, right, the sends */
         int32_t *dl = drum_buf[0], *dr = drum_buf[1], *dv = drum_buf[2], *dd = drum_buf[3];
         for (i = 0; i < n; i++)
             dl[i] = dr[i] = dv[i] = dd[i] = 0;
-        slicer_drums(dl, dr, dv, dd, n);
-        drum_insert(dl, dr, dv, dd, n);                 /* (2.6: off, nothing) */
+        slicer_drums(t, dl, dr, dv, dd, n);
+        drum_insert(t, dl, dr, dv, dd, n);                 /* (2.6: off, nothing) */
         if (flt) {
             tflt_run(f, &fc, dl, n, 0);
             tflt_run(f, &fc, dr, n, 1);
@@ -917,9 +922,9 @@ static void mix_drums(uint32_t n, mixacc_t *mx)
             mx->sd[i] += dd[i];
         }
     } else {
-        slicer_drums(mx->l, mx->r, mx->sr, mx->sd, n);   /* drums_render, through the SLICER when on */
+        slicer_drums(t, mx->l, mx->r, mx->sr, mx->sd, n);   /* drums_render, through the SLICER when on */
     }
-    click_render(mx->l, mx->r, n);                        /* the metronome: its own voice (drums.c), any kit, any mute */
+    if(t == TDRUM) click_render(mx->l, mx->r, n);                        /* the metronome: its own voice (drums.c), any kit, any mute */
 }
 
 /* Each unit owns its timing slot; CPU0 reads it only after the previous join. */
@@ -935,11 +940,11 @@ static void mix_units(uint32_t mask, uint32_t n, mixacc_t *mx, int32_t *scratch)
             uint32_t dt = cpu1_ticks() - t0;
             unit_ticks[k] = dt ? dt : 1u;
         }
-    if (mask & U_DRUMS) {
+    for(k=NPART;k<NTRK;k++) if (mask & (1u<<k)) {
         uint32_t t0 = cpu1_ticks();
-        mix_drums(n, mx);
+        mix_drums(&trk[k], n, mx);
         uint32_t dt = cpu1_ticks() - t0;
-        unit_ticks[TRK_DRUM] = dt ? dt : 1u;
+        unit_ticks[k] = dt ? dt : 1u;
     }
 }
 

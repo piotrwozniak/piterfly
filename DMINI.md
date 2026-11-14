@@ -1,6 +1,6 @@
-# Piterfly 1.1.0 — D MINI przez MIDI THRU
+# Piterfly 1.2.0 — D MINI przez MIDI THRU
 
-MIDI THRU pozwala włączyć fizyczny syntezator do zestawu FM-1: nuty z klawiatury trafiają przez FM-1 do D MINI, a pozostałe ścieżki mogą grać wewnętrznie. Wydanie zostało sprawdzone na fizycznym FM-1 i zaakceptowane przez właściciela projektu.
+MIDI THRU pozwala włączyć fizyczny syntezator do zestawu FM-1: nuty z klawiatury trafiają przez FM-1 do D MINI, a pozostałe ścieżki mogą grać wewnętrznie. Pełne testy sprzętowe układu 6+2 pozostają do wykonania.
 
 ## Połączenie
 
@@ -29,7 +29,7 @@ W MidiPipe kolejność w jednym MyPipe to **MIDI In: klawiatura → MIDI Out: FM
 
 ## Wszystkie osiem ścieżek
 
-Domyślnie ścieżki syntezatora 1–7 używają kanałów MIDI 1–7, a perkusja (ścieżka 8) kanału 10. GLO → MIDI ustawia pierwotne ścieżki i perkusję; **MIDI 4-7** — dodane ścieżki. Pierwsza strona MIDI THRU zawiera TRK1–3 i DRUM, a **THRU 4-7** — TRK4–7. Ustawienia są zapisywane z konfiguracją urządzenia.
+Domyślnie ścieżki syntezatora 1–6 używają kanałów MIDI 1–6, perkusja 7 kanału 7, a perkusja 8 kanału 10. GLO → MIDI ustawia pierwotne ścieżki i perkusję; **MIDI 4-7** — dodane ścieżki. Pierwsza strona MIDI THRU zawiera TRK1–3 i DRUM, a **THRU 4-7** — TRK4–7. Ustawienia są zapisywane z konfiguracją urządzenia.
 
 Każda ścieżka syntezatora może grać własnym silnikiem bez zewnętrznego sprzętu. Wyzerowanie LEVEL dotyczy jej wewnętrznego audio, nie wyłącza nut MIDI. MUTE i solo nadal sterują występem ścieżki.
 
@@ -37,4 +37,4 @@ THRU przekazuje **Note On/Off i velocity**, bez CC, sustainu i pitch bendu. Note
 
 Granular i DUCK przetwarzają wewnętrzne audio FM-1. Nie przetwarzają osobnego wyjścia audio D MINI ani nie wysyłają automatyki jego głośności. Wspólne efekty lub ducking całego zestawu wymagają toru za mikserem.
 
-[Wydanie 1.1.0](docs/RELEASE-1.1.0.md) · [Instrukcja](docs/PITERFLY.md) · [Budowanie](BUILDING.md)
+[Wydanie 1.2.0](docs/RELEASE-1.2.0.md) · [Instrukcja](docs/PITERFLY.md) · [Budowanie](BUILDING.md)

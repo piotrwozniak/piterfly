@@ -181,7 +181,7 @@ UI_SMALL static void midi_chan_fix(void)
             str_cpy(b, "CH ", sizeof b);
             fmt_int(b + 3, song.g[trk_ch_param(k)]);
             char label[16]; str_cpy(label," = TRACK ",sizeof label); fmt_int(label+9,owner+1);
-            ui_say(b, owner == TRK_DRUM ? " = DRUMS" : label);
+            ui_say(b, is_drum(&trk[owner]) ? " = DRUMS" : label);
             song.g[trk_ch_param(k)] = (int16_t)v;
         }
         was[k] = (int16_t)v;
@@ -582,7 +582,10 @@ UI_SMALL static void go_home(void)
 /* the parts' sounds at power-on (engine, preset): bass, pad, lead */
 static const uint8_t TRK_DEF[NPART][2] = {{0, 0}, {1, 0}, {4, 5}
 #if NPART > 3
-    , {2, 0}, {6, 0}, {9, 0}, {0, 0}
+    , {2, 0}, {6, 0}, {9, 0}
+#if NPART == 7
+    , {0, 0}
+#endif
 #endif
 };   /* ANALOG 808 BOOM, DIGITAL RHODES, SAMPLE LOFI FLUTE */
 UI_SMALL static uint32_t trk_def_engine(uint32_t i) { return i < NPART ? TRK_DEF[i][0] : 0u; }

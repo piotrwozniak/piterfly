@@ -24,7 +24,7 @@ export class FirmwareAudio {
     state.g.forEach((v, i) => { if (!old || v !== old.g[i]) this.w.preview_global(i, v); });
     this.w.preview_select(state.tracks.length===4 && state.sel===3?7:state.sel, state.tracks.length===4?(state.solo&7)|((state.solo&8)<<4):state.solo);
     state.tracks.forEach((t, k) => {
-      const drum=k===state.tracks.length-1, target=state.tracks.length===4 && drum?7:k;
+      const drum=t.drum ?? k===state.tracks.length-1, target=state.tracks.length===4 && drum?7:k;
       const before = old?.tracks[k];
       const changedSound = !before || t.engine !== before.engine || t.preset !== before.preset;
       if (changedSound) this.w.preview_track(target, t.engine, t.preset);
@@ -43,6 +43,9 @@ export class FirmwareAudio {
         } else data.set([...s.notes.slice(0, 4), s.n, s.time, s.flags, s.vel, s.lvl || 0, s.rat || 0]);
         data[10] = micro; data[11] = fill;
         this.write(data); this.w.preview_step(target, i);
+      }
+      if(drum && t.dtw && (!before || JSON.stringify(t.dtw)!==JSON.stringify(before.dtw))) {
+        this.write(Uint8Array.from(t.dtw)); this.w.preview_tuning(target);
       }
       if (!before || JSON.stringify(t.locks) !== JSON.stringify(before.locks)) {
         const data = new Uint8Array(24 * 4);

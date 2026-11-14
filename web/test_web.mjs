@@ -777,7 +777,7 @@ async function editorV5() {
   const dk = (/DRUM_KIT_NAMES\[\] = \{([^}]*)\}/.exec(dc) || [])[1] || "";
   const gen = join(HERE, "../build/gen/felucca_drumkits.h");
   const dsList = existsSync(gen) ? ((/#define DS_KIT_NAME_LIST (.*)/.exec(readFileSync(gen, "utf8")) || [])[1] || "") : null;
-  const fwKits = dsList == null ? null : dk.replace("DS_KIT_NAME_LIST", dsList).split(",").map((x) => x.trim().replace(/"/g, ""));
+  const fwKits = dsList == null ? null : dk.replace(/^#.*$/gm, "").replace("DS_KIT_NAME_LIST", dsList).split(",").map((x) => x.trim().replace(/"/g, ""));
   ok(kit.label === "KIT" && kit.names[5] === "808" && kit.names.length === kit.max + 1 && (!fwKits || fwKits.map((n, i) => n === "REMOVED" ? kit.names[i] : n).join() === kit.names.join()),
     `v5: the drum track's KIT (${kit.names.length} kits${fwKits ? ", == drums.c" : ""})`);
   /* TRACK ends with the solo mask */

@@ -34,7 +34,11 @@ enum { ED_INFO = 1, ED_GET, ED_SET, ED_DUMP, ED_DESC, ED_STEP_GET, ED_STEP_SET, 
 /* v10 (SLOOP 2.5): DSYN_LIST .. DSYN_PLAY = 72..76, editor_dsyn.c; backup object 9 = the SYN kits */
 /* v11 (SLOOP 2.7): backup object 11 = your theme (gfx.c theme_t), the editor's Theme page */
 /* v12 (SLOOP 2.7): LIVE = 77, editor_live.c: the LIVE page (transport, sections, mix keys, punch-in FX, REC, undo) */
-#define ED_PROTO 17u                                   /* the protocol version INFO ends with */
+#if NPART == 6
+#define ED_PROTO 19u
+#else
+#define ED_PROTO 17u
+#endif                                   /* the protocol version INFO ends with */
 
 static uint8_t ed_out[600];
 static uint32_t ed_n;
@@ -672,6 +676,46 @@ UI_SMALL static int ed_backup(uint32_t cmd, const uint8_t *a, uint32_t na)   /* 
 #include "editor_fm6.c"                               /* v9: the FM6 patches (68..71) */
 #include "editor_dsyn.c"                              /* v10: the SYN drum kits (72..76) */
 
+#if NPART == 6
+#define ED_SONG_LIBRARY 78u
+UI_SMALL static __attribute__((noinline)) void ed_song_library(const uint8_t *a,uint32_t na)
+{
+    uint32_t op=na?a[0]:127u, slot=na>1u?a[1]:127u, rc=1u;
+    ed_b(op);
+    if(!flash_ok) { ed_b(4); return; }
+    if(op>=1u && op<=3u && !ed_bk_put) { ed_bk_valid=0; project_stage_busy=0; }
+    if(op==0u) {
+        ed_b(0); ed_b(SONG_SLOTS); ed_bk_u32(song_library_free()); ed_bk_u32(PB_PAIRS*8u);
+        for(uint32_t i=0;i<SONG_SLOTS;i++) { char name[16]; song_library_name(i,name);
+            ed_b(i); ed_b(song_library_used(i)); ed_bk_u32(pb_seq[26u+i]); ed_str(name,15);
+        }
+        return;
+    }
+    if(op==1u && na>=3u && na<=17u) {
+        char name[16]={0}; uint32_t visible=0;
+        for(uint32_t i=2u;i<na;i++) { if(a[i]<32u || a[i]>126u) { ed_b(1); return; } name[i-2u]=(char)a[i]; visible|=a[i]!=' '; }
+        if(visible) rc=song_library_save(slot,name);
+    } else if(op==2u && na==2u) rc=song_library_load(slot);
+    else if(op==3u && na==2u) rc=song_library_delete(slot);
+    else if((op==4u && na==3u) || (op==5u && na==15u)) {
+        uint32_t len,seq; const uint8_t *p=song_library_part(slot,a[2],&len,&seq);
+        rc=p?0u:8u;
+        if(op==4u) {
+            ed_b(rc); if(rc) return;
+            ed_bk_u32(seq); ed_bk_u32(len); ed_bk_u32(st_crc32(p,len));
+            ed_b(__builtin_offsetof(song_root_t,name)); ed_b(__builtin_offsetof(song_root_t,order)); return;
+        }
+        uint32_t off=ed_bk_r32(a+8),n=(uint32_t)a[13]|(uint32_t)a[14]<<7;
+        if(!rc && seq!=ed_bk_r32(a+3)) rc=7;
+        if(!rc && (!n || n>256u || off>len || n>len-off)) rc=1;
+        ed_b(rc); if(rc) return;
+        ed_b(n&127u); ed_b(n>>7); ed_pack7(p+off,n); return;
+    }
+    ed_b(rc);
+    if(op>=1u && op<=3u) { song_library_message(rc); if(!rc && op==2u) ui_message("SONG LOADED"); if(!rc && op==3u) ui_message("SONG DELETED"); }
+}
+#endif
+
 #include "editor_live.c"                              /* v12: the LIVE page (77) */
 
 UI_SMALL static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes between F0 and F7 */
@@ -682,6 +726,9 @@ UI_SMALL static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes b
     int16_t *vp;
     const param_desc_t *d;
     ed_begin(cmd);
+#if NPART == 6
+    if(cmd==ED_SONG_LIBRARY) { ed_song_library(a,na); ed_send(); return; }
+#endif
     if (ed_backup(cmd, a, na)) {                           /* v6: backup / restore */
         ed_send();
         return;
@@ -1042,7 +1089,10 @@ UI_SMALL static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes b
         uint32_t on, lv, rt;
         if (na < 1u || a[0] >= NSTEP)
             return;
-        d = &TDRUM->dstep[a[0]];
+        uint32_t ti=(uint32_t)(TDRUM_UI-trk);
+        if(NPART==6 && (na==2u || na>=15u)) ti=a[na>=15u?14u:1u];
+        if(ti>=NTRK || !is_drum(&trk[ti])) return;
+        d = &trk[ti].dstep[a[0]];
         if (na >= 14u) {
             on = (uint32_t)a[1] | (uint32_t)a[2] << 7 | (uint32_t)(a[3] & 3u) << 14;
             lv = (uint32_t)a[4] | (uint32_t)a[5] << 7 | (uint32_t)a[6] << 14 | (uint32_t)a[7] << 21 | (uint32_t)(a[8] & 15u) << 28;
@@ -1054,8 +1104,8 @@ UI_SMALL static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes b
                     dstep_set(d, i, (lv >> (2u * i)) & 3u, (rt >> (2u * i)) & 3u);
             fm1_irq_on();
             ui.force = 1;
-            if (song.sel == TRK_DRUM)
-                ed_w.st[a[0]] = ed_step_sig(TDRUM, a[0]);
+            if (song.sel == ti)
+                ed_w.st[a[0]] = ed_step_sig(&trk[ti], a[0]);
         }
         on = dstep_mask(d);
         lv = (uint32_t)d->lvl[0] | (uint32_t)d->lvl[1] << 8 | (uint32_t)d->lvl[2] << 16 | (uint32_t)d->lvl[3] << 24;

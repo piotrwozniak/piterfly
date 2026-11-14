@@ -14,8 +14,8 @@
 <img class="brand" src="logo.png" width="446" height="304" alt="piterfly">
 <div class="strip" aria-hidden="true"></div>
 <h1>FM-1 + D MINI with MidiPipe</h1>
-<p class="lead">One USB keyboard, seven synth parts plus drums and an external Behringer D MINI. The Mac routes MIDI; D MINI plays track 1, while tracks 2–7 and drums use the FM-1’s internal sounds.</p>
-<p>Piterfly 1.1.0. This setup uses a Mac as the USB host and MIDI router. The release has been tested on the physical FM-1 and accepted by the project owner.</p>
+<p class="lead">One USB keyboard, six synth parts plus two drum parts and an external Behringer D MINI. The Mac routes MIDI; D MINI plays track 1, while tracks 2–6 and both drum parts use the FM-1’s internal sounds.</p>
+<p>Piterfly 1.2.0 (6+2). This setup uses a Mac as the USB host and MIDI router. Hardware testing of 6+2 is pending; the screenshots below are from 1.1.0.</p>
 <nav class="setup-nav" aria-label="Tutorial sections"><a href="#usb">USB</a><a href="#audio">Audio</a><a href="#mypipe">MyPipe</a><a href="#settings">Device settings</a><a href="#live">Live keyboard</a></nav>
 <section id="usb" class="setup-section">
 <h2>1. Connect all three devices to the Mac</h2>
@@ -25,12 +25,12 @@
 <div class="setup-wires" aria-hidden="true"><div><small>USB</small>↔</div><div><small>USB</small>↔</div><div><small>USB</small>↔</div></div>
 <div class="setup-host" data-device="host"><h3>Mac</h3><p class="midi-pixel">MidiPipe</p><p>Three devices<br>One USB host</p></div>
 </div>
-<p class="note">Piterfly 1.1.0 appears as <strong>piterfly</strong> in the MIDI input and output lists. Select that port for the FM-1 in MidiPipe.</p>
+<p class="note">Piterfly appears as <strong>piterfly</strong> in the MIDI input and output lists. Select that port for the FM-1 in MidiPipe.</p>
 </section>
 <section id="audio" class="setup-section">
 <h2>2. Connect the audio outputs separately</h2>
 <div class="setup-wiring setup-audio" style="--devices:2" role="group" aria-label="FM-1 audio output and D MINI audio output each go to the mixer or audio interface">
-<div class="setup-devices"><div class="setup-device" data-device="fm1"><h3>FM-1 audio</h3><p>Internal synth parts 2–7 and drums</p></div><div class="setup-device" data-device="dmini"><h3>D MINI audio</h3><p>External sound for track 1</p></div></div>
+<div class="setup-devices"><div class="setup-device" data-device="fm1"><h3>FM-1 audio</h3><p>Internal synth parts 2–6 and drum parts 7–8</p></div><div class="setup-device" data-device="dmini"><h3>D MINI audio</h3><p>External sound for track 1</p></div></div>
 <div class="setup-wires" aria-hidden="true"><div><small>Audio</small>→</div><div><small>Audio</small>→</div></div>
 <div class="setup-host" data-device="host"><h3>Mixer / interface</h3><p>Speakers or headphones</p></div>
 </div>
@@ -68,8 +68,8 @@
 <tr><th scope="row" class="track" style="--track:#ff621a">Track 4</th><td><code>4 → 4</code></td><td>FM-1 internal synth</td></tr>
 <tr><th scope="row" class="track" style="--track:#61a1ff">Track 5</th><td><code>5 → 5</code></td><td>FM-1 internal synth</td></tr>
 <tr><th scope="row" class="track" style="--track:#1ecc70">Track 6</th><td><code>6 → 6</code></td><td>FM-1 internal synth</td></tr>
-<tr><th scope="row" class="track" style="--track:#ffc618">Track 7</th><td><code>7 → 7</code></td><td>FM-1 internal synth</td></tr>
-<tr><th scope="row" class="track" style="--track:#ff621a">Track 8</th><td><code>10 → 10</code></td><td>FM-1 drums</td></tr></tbody></table>
+<tr><th scope="row" class="track" style="--track:#ffc618">Track 7</th><td><code>7 → 7</code></td><td>FM-1 drum part 1</td></tr>
+<tr><th scope="row" class="track" style="--track:#ff621a">Track 8</th><td><code>10 → 10</code></td><td>FM-1 drum part 2</td></tr></tbody></table>
 <p><strong>Choose the instrument by changing the keyboard’s transmit channel.</strong> Selecting a different track on the FM-1 screen does not change the external keyboard’s channel. This recipe uses <strong>IN = NOTES</strong>, with fixed track assignments.</p>
 <div class="midi-settings setup-common-settings">
 <figure><h3>Assign the MIDI channels</h3><p class="screen-name">GLO → MIDI</p><a class="screen" href="screenshots/piterfly-midi-channels.png" aria-label="Open channel assignments"><img src="screenshots/piterfly-midi-channels.png" width="720" height="720" loading="lazy" alt="FM-1 MIDI page: CH1 1, CH2 2, CH3 3, DRUM 10"></a><figcaption><strong>CH1 = 1, CH2 = 2, CH3 = 3, DRUM = 10.</strong> Keep CH1 assigned to 1; setting it to OFF also disables that track’s MIDI output.</figcaption></figure>
@@ -87,7 +87,7 @@
 <div class="setup-callout"><p><strong>Keyboard ch 1 → FM-1 track 1 → MidiPipe → D MINI ch 1.</strong></p><p>Keep <strong>CH1 = 1</strong> and <strong>IN = NOTES</strong>. The current per-track THRU works with this fixed map; the added synth parts use their own channel assignments on MIDI 4-7.</p><p>THRU forwards Note On/Off and velocity. CC, sustain and pitch bend are not forwarded. MIDI 4-7 assigns channels for added synth parts; THRU 4-7 controls their forwarding.</p></div>
 </div>
 </section>
-<footer><nav aria-label="Next steps"><a href="./#midi-thru">Back to MIDI THRU overview</a><a href="../installer/">Installer</a></nav><p>Piterfly 1.1.0 · seven synth parts and dedicated drums.</p></footer>
+<footer><nav aria-label="Next steps"><a href="./#midi-thru">Back to MIDI THRU overview</a><a href="../installer/">Installer</a></nav><p>Piterfly 1.2.0 · six synth parts and two independent drum parts.</p></footer>
 </main>
 </body>
 </html>

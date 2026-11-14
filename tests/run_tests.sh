@@ -31,7 +31,6 @@ fail=0
 run() { echo "== $1"; shift; "$@" || fail=1; }
 
 [ -f build/felucca.fwsc ] || { echo "run ./build.sh first"; exit 1; }
-run "public export: sealed sources without Git and historical asset guards" "${PYTHON:-python3}" tests/public_export_test.py
 run "GPL device icons: source, atlas, IDs and packed firmware bytes" "${PYTHON:-python3}" tests/pixel_icons_test.py
 # the generated headers the FM6 engine needs (tools/build.py generate() makes them too; no Pillow needed)
 mkdir -p build/gen
@@ -41,6 +40,12 @@ mkdir -p build/gen
 $CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/splash_restore_test" tests/splash_restore_test.c -lm
 run "approved arcade splash: lossless packing, exact pixels and scratch bounds" "$OUT/splash_restore_test"
 
+$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/two_drums_test" tests/two_drums_test.c -lm
+run "six synths and two independent drums" "$OUT/two_drums_test"
+run "six synths and two independent drums on two cores" env CORES=2 "$OUT/two_drums_test"
+$CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/song_library_test" tests/song_library_test.c -lm
+run "named songs: sparse storage, reboot, full memory, deletion and interrupted replacement" "$OUT/song_library_test"
+$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/song_library_bridge" tests/song_library_bridge.c -lm
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/seven_tracks_test" tests/seven_tracks_test.c -lm
 run "seven synth parts + drums: engines, shared buffers, voices, persistence and USB" "$OUT/seven_tracks_test"
 run "eight tracks with the second render core on a real host thread" env CORES=2 "$OUT/seven_tracks_test"
@@ -242,6 +247,8 @@ run "the offline editor (one file, nothing next to it); the offline site (sw.js,
 if command -v node >/dev/null 2>&1; then
     run "web pages: editor protocol, samples, packages, update protocol" node web/test_web.mjs
     run "eight-track editor protocol and backup compatibility" node web/test_seven_tracks.mjs
+    run "six synths and two drum tracks in the editor" node web/test_two_drums.mjs
+    run "real firmware song library: USB, list, sparse export, import, stale and deleted records" node web/test_device_songs.mjs
     rm -rf "$OUT/pwa-site" && python3 web/make_site.py build/felucca.fwsc 2.7 "$OUT/pwa-site" >/dev/null &&
         run "the site without internet in Chromium (skipped without Playwright)" node tests/pwa_test.mjs "$OUT/pwa-site"
 else

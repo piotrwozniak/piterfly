@@ -1,9 +1,9 @@
 # piterfly — distribution-tree provenance
 
-Piterfly 1.1.0 public source export prepared on 2026-11-13. Piterfly 1.0.0 and 1.0.1 remain published unchanged. The maintainer has tested and accepted the 1.1.0 feature set on a physical M-VAVE FM-1.
+Piterfly 1.2.0 public source export prepared on 2026-11-14. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
 
 This tree derives from `piotrwozniak/fm1-piterfly`, private source commit
-`34f12e3c78116b3ded6fb96bad5fb8e04a660613`. That project modifies SLOOP 2.8.5,
+`c51551312ea3bf7a99ec7872a8e65c121dadcb5c`. That project modifies SLOOP 2.8.5,
 upstream commit `bac9c05ea7627449405aa10e48da21d75b6c8c56` from
 <https://github.com/isod89/sloop-fm1>, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. The initial export was a plain source directory, without a Git repository or copied .git.

@@ -1,6 +1,6 @@
-<p align="center"><img src="assets/logo/sloop-logo.png" alt="SLOOP" width="480"></p>
+<p align="center"><img src="assets/piterfly/arcade-web.png" alt="SLOOP" width="480"></p>
 
-**piterfly users:** this is the preserved base SLOOP manual. The [piterfly change guide (Polski)](docs/PITERFLY.md) and [technical notes (English)](docs/PATTERNS-24.md) describe this checkout's 24 patterns, 128-position SONG, three user sample banks and updated controls. They take precedence where the manual below differs.
+**piterfly users:** this is the preserved base SLOOP manual. The [piterfly change guide (Polski)](docs/PITERFLY.md) and [technical notes (English)](docs/PATTERNS-24.md) describe this checkout’s 6+2 tracks, 24 patterns, 128-position SONG and updated controls. [Named songs](docs/SONGS.md) use a shared 352 KiB pool; all user-sample banks are reclaimed. They take precedence where the manual below differs.
 
 # SLOOP 2.8.5
 

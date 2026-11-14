@@ -1007,6 +1007,20 @@
       <div class="card">
         <h2 data-t="songTitle" data-ic="control_arrow_loop"></h2>
         <p class="dim" data-t="songHelp"></p>
+        <p id="device-songs-preview" class="dim" hidden>Lista zapisanych songów wymaga podłączenia FM-1. / Connect an FM-1 to manage saved songs; local audio preview does not emulate flash storage.</p>
+        <section id="device-songs" hidden>
+          <h3>Songi w pamięci FM-1 / Device songs</h3>
+          <p id="device-song-space" class="dim"></p>
+          <p class="bar"><select id="device-song-slot" aria-label="Zapisany song / Saved song"></select>
+          <input id="device-song-name" maxlength="15" aria-label="Nazwa songa / Song name" placeholder="SONG 01"></p>
+          <p class="bar"><button type="button" id="device-song-read">Odśwież / Refresh</button>
+          <button type="button" id="device-song-save">Zapisz / Save</button>
+          <button type="button" id="device-song-load">Wczytaj / Load</button>
+          <button type="button" id="device-song-export">Eksport na komputer / Export</button>
+          <button type="button" id="device-song-delete">Usuń / Delete</button></p>
+          <p id="device-song-status" role="status"></p>
+          <p class="dim">8 miejsc na nazwane songi; liczba zapisów zależy od wolnej pamięci. Eksport i backup bieżącego projektu nie obejmują całej tej listy — eksportuj każdy song osobno. Usunięcie zwalnia tylko dane nieużywane przez inne songi lub bieżący projekt. / 8 named slots, subject to free space; export each saved song separately. Shared and current data stay allocated.</p>
+        </section>
         <p class="bad" id="songerr" hidden></p>
         <div id="songbody" hidden>
           <table class="song"><thead><tr><th>#</th><th data-t="songSection"></th><th data-t="songBars"></th><th data-t="songTimes"></th><th></th></tr></thead>
@@ -1173,11 +1187,11 @@
       </div>
     </section>
 
-    <footer>piterfly 1.0.1, based on SLOOP and Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>. GPL-3.0-only.<br>
+    <footer>piterfly 1.2.0, based on SLOOP and Felucca by Leo Kuroshita (@kurogedelic), <a href="https://hugelton.com" target="_blank" rel="noopener">Hügelton Instruments</a>. GPL-3.0-only.<br>
       <a href="../licences/">Licences, exact source and distribution status</a><br>
       <span data-t="foot"></span> M-VAVE and FM-1 are trademarks of their respective owners.<br>
       <a href="FUKIAI-LICENSE.txt" data-t="iconsCredit"></a> · <span data-t="fontCredit"></span></footer>
-    <details id="font-licences" style="margin:16px 0"><summary>Full software and font licences</summary><p>This standalone editor contains its editable JavaScript source. Matching firmware sources and build metadata accompany the local piterfly release bundle. Current device icons are GPL-3.0-only; historical artwork with unresolved terms is excluded from this distribution tree.</p><details><summary>LICENSE</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">                    GNU GENERAL PUBLIC LICENSE
+    <details id="font-licences" style="margin:16px 0"><summary>Full software and font licences</summary><p>This standalone editor contains its editable JavaScript source. Matching firmware sources and build metadata accompany the local piterfly release bundle. Current device icons are GPL-3.0-only; historical artwork still needs clearance.</p><details><summary>LICENSE</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. &lt;https://fsf.org/&gt;
@@ -2025,7 +2039,7 @@ const CMD = { INFO: 1, GET: 2, SET: 3, DUMP: 4, DESC: 5, STEP_GET: 6, STEP_SET: 
   FILL_GET: 41, FILL_SET: 42,                         /* v8 (SLOOP 2.4): the steps' fill conditions */
   FM6_GET: 68, FM6_PUT: 69, FM6_LIST: 70, FM6_ERASE: 71,    /* v9 (SLOOP 2.4): the FM6 engine's patches (Felucca 1.0's numbers) */
   DSYN_LIST: 72, DSYN_GET: 73, DSYN_PUT: 74, DSYN_STORE: 75, DSYN_PLAY: 76,   /* v10 (SLOOP 2.5): the SYN drum kits */
-  LIVE: 77 };                                         /* v12 (SLOOP 2.7): the LIVE page (firmware editor_live.c) */
+  LIVE: 77, SONG_LIBRARY: 78 };                                         /* v12 (SLOOP 2.7): the LIVE page (firmware editor_live.c) */
 /* v12: LIVE ops (firmware editor_live.c) and the layers its keys reach (seq.c LY_*: 5 SEL, 6 GLO, 7 SAVE) */
 const LIVE = { STATE: 0, PLAY: 1, KEY: 2, FX: 3, REC: 4, UNDO: 5, LY_KEY: 5, LY_MIX: 6, LY_SONG: 7, NFX: 27,
   /* (2.7) the page's own (editor_live.c 6..12): ROLL and ERASE while held, the pattern's tools, a chain of sections, THROW,
@@ -2180,6 +2194,17 @@ function stepExt(r, a, o) {
 }
 
 const parse = {
+  [CMD.SONG_LIBRARY](a) {
+    const r=new Reader(a), o={op:r.b(),rc:r.b()};
+    if(o.rc) return o;
+    if(o.op===0) {
+      const n=r.b(); o.freeKiB=u35dec(r); o.totalKiB=u35dec(r); o.songs=[];
+      if(n>8) throw new Error("Invalid song directory");
+      for(let i=0;i<n;i++) o.songs.push({slot:r.b(),used:!!r.b(),seq:u35dec(r),name:r.s()});
+    } else if(o.op===4) { o.seq=u35dec(r); o.len=u35dec(r); o.crc=u35dec(r); o.nameOffset=r.b(); o.orderOffset=r.b(); }
+    else if(o.op===5) { const n=r.b()|(r.b()<<7); o.data=unpack7(a.slice(r.i)); if(o.data.length!==n) throw new Error("Short song export"); }
+    return o;
+  },
   [CMD.INFO](a) {
     const r = new Reader(a);
     const o = { version: r.s(), nengines: r.b(), pcount: r.b(), gcount: r.b(), nstep: r.b(), pe0: r.b(), engines: [] };
@@ -2371,6 +2396,7 @@ const parse = {
 function upName(s) { return String(s ?? "").replace(/[^\x20-\x7E]/g, "").trim().slice(0, UP.NAME_MAX) || "PATCH"; }
 
 const req = {
+  songLibrary: (op,...args)=>[CMD.SONG_LIBRARY,[op,...args]],
   info: () => [CMD.INFO, []],
   get: (scope, id) => [CMD.GET, [scope, id]],
   set: (scope, id, v) => [CMD.SET, [scope, id, ...v14enc(v)]],
@@ -2385,12 +2411,12 @@ const req = {
     return [CMD.STEP_SET, [i, n, ...notes, Math.max(0, Math.min(2, st.time | 0)), st.flags & 3, (st.vel | 0) & 0x7F, ...ext]];
   },
   /* v5: get (d == null) or set the drum track's step i: {on: 16 bits, lvl[16], rat[16]} */
-  drumStep: (i, d) => {
-    if (!d) return [CMD.DRUM_STEP, [i & 0x7F]];
+  drumStep: (i, d, track) => {
+    if (!d) return [CMD.DRUM_STEP, [i & 0x7F, ...(track == null ? [] : [track])]];
     let lv = 0, rt = 0;
     for (let l = 0; l < 16; l++) if ((d.on >> l) & 1) { lv += ((d.lvl[l] | 0) & 3) * 4 ** l; rt += ((d.rat[l] | 0) & 3) * 4 ** l; }
     const g7 = (x, n) => Array.from({ length: n }, (_, k) => Math.floor(x / 2 ** (7 * k)) & 0x7F);
-    return [CMD.DRUM_STEP, [i & 0x7F, ...g7(d.on & 0xFFFF, 3), ...g7(lv, 5), ...g7(rt, 5)]];
+    return [CMD.DRUM_STEP, [i & 0x7F, ...g7(d.on & 0xFFFF, 3), ...g7(lv, 5), ...g7(rt, 5), ...(track == null ? [] : [track])]];
   },
   preset: (e, p) => [CMD.PRESET, [e & 0x7F, p & 0x7F]],
   project: (op, slot) => { if (![0, 1, 2].includes(op)) throw new Error("bad PROJECT op"); return [CMD.PROJECT, [op, slot & 127]]; },   /* 0 load, 1 save, 2 query */
@@ -3272,7 +3298,7 @@ function backupObjects(file) {
 /* the project format of a backup object ("FUN6" .. as stored, low byte first: 6 ..), 0 not a project */
 const bkProjFormat = (d) => (d && d.length >= 4 && d[1] === 0x4E && d[2] === 0x55 && d[3] === 0x46 ? d[0] - 0x30 : 0);
 /* the newest project format a device reads, from its INFO: 2.6 (71 parameters) 6, 2.4 .. 2.5 (61) 5, older 4 */
-const bkDevFormat = (info) => (info.proto>=17 ? 9 : info.pcount >= 74 ? 7 : info.pcount >= 71 ? 6 : info.pcount >= 61 ? 5 : 4);
+const bkDevFormat = (info) => (info.proto>=19 ? 18 : info.proto>=18 ? 17 : info.proto>=17 ? 9 : info.pcount >= 74 ? 7 : info.pcount >= 71 ? 6 : info.pcount >= 61 ? 5 : 4);
 /* "SLOOP 2.6" -> true when at least maj.min.patch */
 const bkFwAtLeast = (v, want) => {
   const m = /(\d+)\.(\d+)(?:\.(\d+))?/.exec(String(v || ""));
@@ -3303,6 +3329,7 @@ async function backupRestore(rq, file, progress = () => {}) {
   if (info.proto < 13 && [...m.keys()].some((id) => id >= 64 && id < 84)) throw new BackupError("bkNewer", "24-pattern file requires piterfly protocol 13");
   if (info.proto >= 13 && m.get(35)?.length) throw new BackupError("bkNewer", "This backup contains USR4, which is reserved for patterns on this firmware.");
   const newest = Math.max(0, ...[0, ...SONGF.SECS].filter((id) => m.has(id)).map((id) => bkProjFormat(m.get(id))));
+  if (info.proto>=18 && [...m.values()].some(d=>bkProjFormat(d) && bkProjFormat(d)!==bkDevFormat(info))) throw new BackupError("bkNewer", "This firmware requires its matching project format");
   if (newest > bkDevFormat(info)) throw new BackupError("bkNewer", `${file.firmware || "?"} > ${info.version}`);
   /* (2.6) a backup of a 2.6 FM-1 without object 10 had the MIDI settings at their defaults (nothing learned, channels
      1 2 3, drums 10, OTHER SEL, BEND 2): restored as such, not left as the device has them now */
@@ -3525,7 +3552,7 @@ async function songCapture(rq, info, name, progress = () => {}) {
 }
 /* The same project envelope and FNV checksum that project.c proj_import accepts. */
 function songProjectOk(d) {
-  const sizes = [0, 688, 2552, 2584, 3112, 3840, 3816, 3832, 0, 6016], format = bkProjFormat(d);
+  const sizes = [0, 688, 2552, 2584, 3112, 3840, 3816, 3832, 0, 6016, 0, 0, 0, 0, 0, 0, 0, 6160, 6160], format = bkProjFormat(d);
   if (!sizes[format] || d.length !== sizes[format]) return false;
   const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
   if (v.getUint32(4, true) !== d.length) return false;
@@ -3560,6 +3587,7 @@ async function songLoad(rq, file, progress = () => {}) {
   const info = parse[CMD.INFO](await rq(req.info(), { timeout: 1000, retries: 2 }));
   if (order && order[0] > (info.proto >= 14 ? 128 : 16)) throw new BackupError("bkNewer", "128-entry song requires piterfly protocol 14");
   const newest = Math.max(0, ...[...m.values()].map(bkProjFormat));
+  if (info.proto>=18 && [...m.values()].some(d=>bkProjFormat(d) && bkProjFormat(d)!==bkDevFormat(info))) throw new BackupError("bkNewer", "This firmware requires its matching project format");
   if (newest > bkDevFormat(info)) throw new BackupError("bkNewer", `${file.firmware || "?"} > ${info.version}`);
   for (const [id, data] of m) {
     if (!data.length && id !== 0) continue;
@@ -3590,6 +3618,37 @@ async function songLoad(rq, file, progress = () => {}) {
   await bkWriteObj(rq, 0, m.get(0), step);
   if (settings) await bkWriteObj(rq, 1, settings);
   return true;
+}
+
+/* Protocol 19: export a saved device song without loading or deleting it. */
+const DEVICE_SONG_ERRORS=["", "Invalid song", "Stop playback first", "Song is empty", "Flash unavailable", "Brak miejsca: wyeksportuj i usuń stary song / No space: export a saved song, then delete it", "Flash write failed; previous saved song is retained", "Song changed or editor is busy; retry", "Saved song is damaged"];
+function deviceSongCheck(reply) { if(reply.rc) throw new Error(DEVICE_SONG_ERRORS[reply.rc] || "Song operation failed"); return reply; }
+async function deviceSongCapture(request,info,slot,progress=()=>{}) {
+  const objects=[]; let manifest,sequence;
+  for(let item=0;item<26;item++) {
+    const stat=deviceSongCheck(parse[CMD.SONG_LIBRARY](await request(req.songLibrary(4,slot,item),{timeout:5000})));
+    if(stat.len>8192 || (sequence!=null && sequence!==stat.seq)) throw new Error("Song changed during export; retry");
+    sequence=stat.seq;
+    const data=new Uint8Array(stat.len);
+    for(let off=0;off<data.length;off+=256) {
+      const n=Math.min(256,data.length-off);
+      const part=deviceSongCheck(parse[CMD.SONG_LIBRARY](await request(req.songLibrary(5,slot,item,...u35enc(sequence),...u35enc(off),n&127,n>>7),{timeout:5000})));
+      if(part.data.length!==n) throw new Error("Short song export"); data.set(part.data,off);
+    }
+    if(crc32(data)!==(stat.crc>>>0)) throw new Error("Song export checksum mismatch");
+    if(!item) {
+      if(stat.nameOffset+16>data.length || stat.orderOffset+260>data.length) throw new Error("Invalid song manifest");
+      manifest={name:new TextDecoder().decode(data.slice(stat.nameOffset,stat.nameOffset+16)).split("\0")[0],order:data.slice(stat.orderOffset,stat.orderOffset+260)};
+    } else {
+      const id=item===1?0:item<6?item:64+item-6;
+      if(data.length || !id) objects.push({id,len:data.length,crc:stat.crc,data:b64enc(data)});
+    }
+    progress(item+1,26);
+  }
+  const file={format:SONGF.FORMAT,version:SONGF.VERSION,name:manifest.name,firmware:info.version,date:new Date().toISOString(),order:b64enc(manifest.order),objects};
+  songObjects(file);
+  for(const object of objects) if(!songProjectOk(b64dec(object.data))) throw new Error("Invalid project in saved song");
+  return file;
 }
 
 /* ------------------------------------------------------------ mock device --- */
@@ -3781,8 +3840,9 @@ function mockSettings(extended = false) {
 /* backup object 10 at its default: nothing learned, CH1-3 = 1 2 3, drums 10, OTHER SEL, BEND 2 (a 32 / 36-byte one: the
    map, the map and the channels) */
 const mlDefault = (b) => b.every((x, i) => i < 32 ? !x : i === 32 ? x === 1 : i === 33 ? x === 2 : i === 34 ? x === 3 : i === 35 ? x === 10 : i === 36 ? x === 2 : b.length===47 && i>=40 && i<44 ? x===i-36 : !x);
-function duckGlobal(info, track) { return info?.ntrk===8 && info.gcount>=69 && track>=0 && track<7 ? 62+track : null; }
+function duckGlobal(info, track) { return info?.ntrk===8 && info.gcount>=69 && track>=0 && track<(info.proto>=18?6:7) ? 62+track : null; }
 function makeMockDevice(opt = {}) {
+  if(opt.twoDrums) opt={...opt,seven:true,duck:true};
   if(opt.duck) opt={...opt,seven:true};
   if(opt.seven) opt={...opt,piterfly:true};
   const NONOFF = ["OFF", "ON"], NDIV = ["1/4", "1/8", "1/16", "1/32", "8T", "16T"], NGO = ["--", "GO"], NDASH = ["--"];
@@ -3829,7 +3889,7 @@ function makeMockDevice(opt = {}) {
     /* SLOOP 2.6: GLO > MIDI, each synth track's channel (OFF, 1..16) and the other channels (SEL / OFF) */
     ...[1, 2, 3].map((k) => E("CH" + k, ["OFF", ...Array.from({ length: 16 }, (_, i) => String(i + 1))], k)), E("OTHER", ["SEL", "OFF"], 0),
     /* GLO > TEXTURE (2.6): the bed under the mix */
-    E("SRC", ["OFF", "VINYL", "TAPE", "RAIN", "WIND", "RADIO", "ROOM", "USR1", "USR2", "USR3", "USR4"], 0), D("LEVEL", F.PCT, 0, 127, 64),
+    E("SRC", ["OFF", "VINYL", "TAPE", "RAIN", "WIND", "RADIO", "ROOM", ...(opt.twoDrums?[]:["USR1", "USR2", "USR3", "USR4"])], 0), D("LEVEL", F.PCT, 0, 127, 64),
     D("TONE", F.FILT, -64, 63, 0), D("MOVE", F.PCT, 0, 127, 40),
     E("RATE", ["1BAR", "2BAR", "4BAR", "8BAR", "16BAR"], 2), E("WHEN", ["PLAY", "ALWAYS"], 0), E("DUCK", NONOFF, 0),
     D("BEND", F.SEMI, 1, 12, 2),                    /* GLO > MIDI 2 (2.6): the pitch bend's range */
@@ -3849,12 +3909,13 @@ function makeMockDevice(opt = {}) {
   }
   /* the drum track's P_E0: its kit (drums.c DRUM_KIT_NAMES; 5 = 808, the power-on kit) */
   const KIT = E("KIT", ["ACOUSTIC", "DEEP", "TIGHT", "BRIGHT", "DUST", "808", "909", "606", "80S", "VINTAGE", "TRAP", "DRILL", "BOOMBAP", "LO-FI", "PHONK", "HOUSE", "D.HOUSE", "TECHNO", "MINIMAL", "ELECTRO", "DISCO", "GARAGE", "JUNGLE", "DUBSTEP", "DEMBOW", "AMAPIANO", "AFRO", "LATIN", "TRIBAL", "SYNTHWV", "CHIP", "ARCADE", "GLITCH", "INDUSTR", "HYPER", "AMBIENT", "JAZZ", "USR1", "USR2", "USR3", "USR4", "USR3+4", "SYN1", "SYN2", "SYN3", "SYN4"], 0);
+  if(opt.twoDrums) { KIT.names.splice(37,5); KIT.max=KIT.names.length-1; }
   /* a GM note -> its drum lane (drums.c LANE_OF_GM: 35..81) */
   const LANE_OF_GM = [1, 0, 7, 2, 3, 8, 9, 4, 9, 6, 9, 5, 10, 10, 11, 10, 12, 11, 12, 13, 11, 15, 11, 13, 12, 14, 14, 14, 14, 14,
     14, 14, 15, 15, 13, 13, 15, 15, 13, 13, 7, 7, 7, 14, 14, 15, 15];
   const laneOf = (n) => (n < 35 ? 0 : n > 81 ? 13 : LANE_OF_GM[n - 35]);
   const v5 = !opt.legacy && !opt.v3;              /* SLOOP 2.0: steps with level / ratchet, DRUM_STEP, TRACK solo */
-  const mockProto = opt.seven ? 17 : opt.noBackup ? 5 : opt.v7 ? 7 : opt.v8 ? 8 : opt.v9 ? 9 : opt.v10 ? 10 : opt.v11 ? 11 : 12;   /* INFO's protocol */
+  const mockProto = opt.twoDrums ? 19 : opt.seven ? 17 : opt.noBackup ? 5 : opt.v7 ? 7 : opt.v8 ? 8 : opt.v9 ? 9 : opt.v10 ? 10 : opt.v11 ? 11 : 12;   /* INFO's protocol */
   /* the drum step as an old (v1..v4) step: its first 4 lanes as GM notes, ACC when one is hard (editor.c ed_dstep_old) */
   const dOld = (d) => {
     const notes = [];
@@ -3910,7 +3971,7 @@ function makeMockDevice(opt = {}) {
         D("CRSH", F.PCT, 0, 127, 0), D("SWP", F.PCT, 0, 127, 0), D("VIB", F.PCT, 0, 127, 0), E("ARP", ["OFF", "OCT", "MAJ", "MIN"], 0), D("TONE", F.PCT, 0, 127, 127)],
       presets: [P("GAME LEAD", [0, 0, 32, 0, 0, 20, 0, 127], [0, 60, 90, 30], 1), P("GB BASS", [1, 1, 0, 0, 0, 0, 0, 90], [0, 50, 70, 20], 1),
         P("8BIT ARP", [2, 0, 96, 0, 0, 0, 2, 110], [0, 60, 80, 40], 0)] },
-    { name: "SAMPLE", titles: ["SET", "TONE"], edit: [E("SET", ["PIANO", "BASS", "VIBES", "HORNS", "STRGS", "FLUTE", "SCRCH", "PERC", "USR1", "USR2", "USR3", "USR4"], 0), D("TUNE", F.SEMI, -24, 24, 0), D("BITS", F.INT, 0, 127, 0),
+    { name: "SAMPLE", titles: ["SET", "TONE"], edit: [E("SET", ["PIANO", "BASS", "VIBES", "HORNS", "STRGS", "FLUTE", "SCRCH", "PERC", ...(opt.twoDrums?[]:["USR1", "USR2", "USR3", "USR4"])], 0), D("TUNE", F.SEMI, -24, 24, 0), D("BITS", F.INT, 0, 127, 0),
         E("LOOP", NONOFF, 1), D("CUT", F.INT, 0, 127, 127), NONE, D("DRV", F.PCT, 0, 127, 0), NONE],
       presets: [P("DUSTY PNO", [0, 0, 20, 1, 104, 0, 14, 0], [0, 127, 127, 52], 0), P("UP BASS", [1, 0, 0, 1, 118, 0, 12, 0], [0, 127, 127, 26], 1),
         P("VIBES", [2, 0, 0, 1, 127, 0, 0, 0], [0, 127, 127, 72], 0), P("HORN STAB", [3, 0, 0, 1, 120, 0, 20, 0], [0, 127, 127, 22], 0),
@@ -3934,7 +3995,7 @@ function makeMockDevice(opt = {}) {
         E("PERC", ["OFF", "2ND", "3RD", "2SOFT", "3SOFT", "2SLOW", "3SLOW"], 0), D("CLICK", F.PCT, 0, 127, 40), D("DRV", F.PCT, 0, 127, 0), E("ROTR", ["OFF", "SLOW", "FAST"], 1)],
       presets: [P("SOUL ORGAN", [3, 0, 0, 0, 0, 25, 10, 1], [0, 64, 127, 40], 0), P("GOSPEL", [6, 0, 0, 0, 1, 60, 40, 2], [0, 64, 127, 45], 0),
         P("JAZZ ORGAN", [4, 0, 0, 0, 2, 50, 8, 1], [0, 64, 127, 40], 0), P("DIRTY B3", [5, 0, 0, 0, 0, 60, 90, 2], [0, 64, 127, 40], 0)] },
-    { name: "GRAIN", titles: ["GRAN", "SPRY"], edit: [E("SRC", ["PIANO", "BASS", "VIBES", "HORNS", "STRGS", "FLUTE", "SCRCH", "PERC", "USR1", "USR2", "USR3", "USR4"], 0),
+    { name: "GRAIN", titles: ["GRAN", "SPRY"], edit: [E("SRC", ["PIANO", "BASS", "VIBES", "HORNS", "STRGS", "FLUTE", "SCRCH", "PERC", ...(opt.twoDrums?[]:["USR1", "USR2", "USR3", "USR4"])], 0),
         D("POS", F.PCT, 0, 127, 32), D("SIZE", F.PCT, 0, 127, 80), D("DENS", F.PCT, 0, 127, 80),
         D("PTCH", F.SEMI, -24, 24, 0), D("SPRD", F.PCT, 0, 127, 30), D("RAND", F.PCT, 0, 127, 10), D("TONE", F.PCT, 0, 127, 127)],
       presets: [P("LOFI CLOUD", [0, 45, 95, 85, 0, 35, 12, 80], [70, 90, 120, 90], 0), P("VIBE HAZE", [2, 30, 100, 90, 0, 25, 10, 90], [50, 100, 120, 95], 0),
@@ -4018,10 +4079,11 @@ function makeMockDevice(opt = {}) {
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   /* four tracks (firmware v3); engine / preset / p / step below are the selected track's */
   const NTRK = opt.seven ? 8 : 4, TRK_DRUM = NTRK-1;
-  const newTrack = (i) => ({ engine: 0, preset: 0, drum: i === TRK_DRUM, fm6: FM6.INIT_PK.slice(),   /* fm6: the FM6 patch (eng_fm6.c fm6_patch) */
-    p: TP.map((d) => d.def).concat(i === TRK_DRUM ? [5, 0, 0, 0, 0, 0, 0, 0] : new Array(8).fill(0)),
+  const newTrack = (i) => ({ engine: 0, preset: 0, drum: i === TRK_DRUM || (opt.twoDrums && i===6), fm6: FM6.INIT_PK.slice(),   /* fm6: the FM6 patch (eng_fm6.c fm6_patch) */
+    dtw: new Array(16).fill(8 | 4 << 4),
+    p: TP.map((d) => d.def).concat((i === TRK_DRUM || (opt.twoDrums && i===6)) ? [5, 0, 0, 0, 0, 0, 0, 0] : new Array(8).fill(0)),
     step: Array.from({ length: NSTEP }, () => ({ n: 0, notes: [0, 0, 0, 0], time: 2, flags: 0, vel: 0, lvl: 0, rat: 0 })),
-    dstep: i === TRK_DRUM ? Array.from({ length: NSTEP }, emptyDrum) : null,
+    dstep: (i === TRK_DRUM || (opt.twoDrums && i===6)) ? Array.from({ length: NSTEP }, emptyDrum) : null,
     micro: new Array(NSTEP).fill(0), locks: [],      /* v7: nudges, parameter locks (at most NLOCK) */
     fill: new Array(NSTEP / 4).fill(0) });           /* v8: fill conditions, 2 bits a step */
   const NLOCK = 24;
@@ -4029,7 +4091,7 @@ function makeMockDevice(opt = {}) {
     tracks: Array.from({length:NTRK},(_,i)=>newTrack(i)), sel: 0, rec: 0, solo: 0,
     g: GP.map((d) => d.def),
     slots: new Array(opt.seven?24:4).fill(null),
-    smp: Array.from({length:opt.seven?1:4},() => ({ flash: new Uint8Array(SMP.SLOT_SIZE).fill(0xFF), zones: 0, name: "", len: 0, next: SMP.DATA_OFF })),   /* USR1..4 (2.4: USR4) */
+    smp: Array.from({length:opt.twoDrums?0:opt.seven?1:4},() => ({ flash: new Uint8Array(SMP.SLOT_SIZE).fill(0xFF), zones: 0, name: "", len: 0, next: SMP.DATA_OFF })),   /* USR1..4 (2.4: USR4) */
     bank: new Array(opt.slots || 32).fill(null),     /* user presets: {engine, name, p, pattern} */
     fm6bank: new Array(FM6_BANK).fill(null),         /* the FM6 patch bank (fm6_bank.c): packed records */
     settings: mockSettings(!!opt.seven),             /* raw PER3/PER4 settings and SONG order */
@@ -4095,7 +4157,7 @@ function makeMockDevice(opt = {}) {
     clearSteps();
   });
   [[1, 1, 5], [2, 3, 0]].forEach(([i, e, p]) => { st.sel = i; setEngine(e); applyPreset(p); clearSteps(); });   /* MUSIC BOX, GAME LEAD */
-  if(opt.seven) [[3,2,0],[4,6,0],[5,9,0],[6,0,0]].forEach(([i,e,p])=>{st.sel=i;setEngine(e);applyPreset(p);clearSteps();});
+  if(opt.seven) [[3,2,0],[4,6,0],[5,9,0],...(!opt.twoDrums?[[6,0,0]]:[])].forEach(([i,e,p])=>{st.sel=i;setEngine(e);applyPreset(p);clearSteps();});
   st.fm6bank[0] = FM6.pack(FM6.setName(FM6.factory(0), "MY TINES"));   /* B1: a stored patch to look at */
   /* a mix to look at: pads left, lead right, and a GM drum pattern on track 4 */
   st.tracks[1].p[39] = -24; st.tracks[2].p[39] = 20; st.tracks[2].p[0] = 92; st.tracks[TRK_DRUM].p[39] = 0;
@@ -4207,7 +4269,7 @@ function makeMockDevice(opt = {}) {
         b(0);
         break;
       case CMD.INFO:
-        s(opt.seven ? "piterfly 1.1.0 (MOCK)" : opt.legacy ? "FELUCCA 0.4 BETA (MOCK)" : opt.v3 ? "FELUCCA 0.8 (MOCK)" : "FELUCCA SLOOP 2.6 (MOCK)"); b(ENG.length); b(P_COUNT); b(G_COUNT); b(NSTEP); b(P_E0);
+        s(opt.twoDrums ? "piterfly 1.2.0 (MOCK)" : opt.seven ? "piterfly 1.1.0 (MOCK)" : opt.legacy ? "FELUCCA 0.4 BETA (MOCK)" : opt.v3 ? "FELUCCA 0.8 (MOCK)" : "FELUCCA SLOOP 2.6 (MOCK)"); b(ENG.length); b(P_COUNT); b(G_COUNT); b(NSTEP); b(P_E0);
         ENG.forEach((e) => s(e.name));
         if (!opt.legacy) b(NTRK);
         if (v5) b(mockProto);
@@ -4325,7 +4387,9 @@ function makeMockDevice(opt = {}) {
       }
       case CMD.DRUM_STEP: {                       /* v5: index [, on 3 x 7 bits, lvl 5 x 7, rat 5 x 7] */
         if (a.length < 1 || a[0] >= NSTEP) return null;
-        const d = st.tracks[TRK_DRUM].dstep[a[0]];
+        const ti=opt.twoDrums ? (a.length===2?a[1]:a.length>=15?a[14]:st.tracks[st.sel].drum?st.sel:TRK_DRUM) : TRK_DRUM;
+        if(!st.tracks[ti]?.drum) return null;
+        const d = st.tracks[ti].dstep[a[0]];
         if (a.length >= 14) {
           const g = (k, n) => a.slice(k, k + n).reduce((x, y, j) => x + y * 2 ** (7 * j), 0);
           const on = g(1, 3) & 0xFFFF, lv = g(4, 5) % 2 ** 32, rt = g(9, 5) % 2 ** 32;
@@ -4568,7 +4632,7 @@ function makeMockDevice(opt = {}) {
       case CMD.LIVE: {                              /* v12: firmware editor_live.c */
         if (a.length < 1 || !v5 || mockProto < 12) return null;
         liveOp(a);
-        liveState(b, v, a[0]);
+        liveState(b, v, a[0], a);
         break;
       }
       default:
@@ -4648,9 +4712,9 @@ function makeMockDevice(opt = {}) {
       if (L.chain.length) { L.next = L.chain[0]; L.nextAt = nextBar(); }
     } else if (op === LIVE.THROW) L.thr = x & 3;
     else if (op === LIVE.MASTER) L.master = x >= 127 ? 0 : x + 1;
-    else if (op === LIVE.DRUM_TW && a.length >= 4) L.dtw[x & 15] = (Math.min(15, y) & 15) | ((Math.min(7, z) & 7) << 4);
+    else if (op === LIVE.DRUM_TW && a.length >= 4) (opt.twoDrums?st.tracks[a.length>=5?a[4]:st.tracks[st.sel].drum?st.sel:TRK_DRUM].dtw:L.dtw)[x & 15] = (Math.min(15, y) & 15) | ((Math.min(7, z) & 7) << 4);
   }
-  function liveState(b, v, op) {
+  function liveState(b, v, op, a = []) {
     const L = st.live, now = Date.now(), el = now - L.t0, mutes = st.tracks.reduce((m, t, i) => m | (t.p[40] ? 1 << i : 0), 0);
     liveTick();
     b(op);
@@ -4665,7 +4729,7 @@ function makeMockDevice(opt = {}) {
       const steps = st.playing ? Math.floor(el * st.g[0] / 15000) : 0, heard = st.playing && !t.p[40] && !(st.solo && !((st.solo >> i) & 1));
       b(steps % lenOf(t)); b(lenOf(t)); b(heard ? 70 + Math.round(Math.random() * 40) : 0);
     });
-    if (mockProto >= 12) { b(L.master); b(L.thr); L.dtw.forEach((x) => b(x)); }
+    if (mockProto >= 12) { b(L.master); b(L.thr); (opt.twoDrums?st.tracks[op===0 && a.length>=2?a[1]:op===12 && a.length>=5?a[4]:st.tracks[st.sel].drum?st.sel:TRK_DRUM].dtw:L.dtw).forEach((x) => b(x)); }
     if(mockProto>=17) { const ready=st.slots.reduce((m,x,k)=>m|(x?1<<k:0),0); for(let k=0;k<4;k++) b((ready>>(k*7))&127); b((mutes>>7)|((st.solo>>7)<<1)|((st.rec>>7)<<2)); }   /* (2.7: 50 bytes) */
   }
 
@@ -6188,7 +6252,7 @@ function showTab(name) {
   if (name === "tracks" && prev !== "tracks" && hasTracks() && dev.dump) op(readMixer);
 }
 function renderPanels() {
-  helpCapacity = { patterns: dev?.info?.patterns || 4, slots: dev?.smp?.nslots ?? (dev?.info?.proto>=17?1:dev?.info?.proto >= 13 ? 3 : 4), songSteps: dev?.info?.proto >= 14 ? 128 : 16 };
+  helpCapacity = { patterns: dev?.info?.patterns || 4, slots: dev?.smp?.nslots ?? (dev?.info?.proto>=19?0:dev?.info?.proto>=17?1:dev?.info?.proto >= 13 ? 3 : 4), songSteps: dev?.info?.proto >= 14 ? 128 : 16 };
   document.querySelectorAll("[data-t]").forEach(e => {
     if (/^(sfHelp|projHelp|bkHelp|smpIntro|smpHelp|songHelp)$/.test(e.dataset.t)) setLabel(e, t(e.dataset.t));
   });
@@ -6277,7 +6341,7 @@ function renderPreview() {
   $("preview-disclosure").setAttribute("aria-expanded", String(previewExpanded));
   $("preview-disclosure").title = t("previewDisclosureHint");
   const active = !!localAudio?.node;
-  const ready = !!dev?.dump, drum = mock?.state.sel === previewDrum();
+  const ready = !!dev?.dump, drum = previewIsDrum(mock?.state.sel);
   previewButton("preview-enable", active ? "previewAudioOn" : "previewAudioOff", active ? "audio" : "muted");
   previewButton("preview-play", previewPlaying ? "previewPause" : "previewPlay", previewPlaying ? "stop" : "play");
   previewButton("preview-stop", "previewStop", "stop");
@@ -6308,13 +6372,13 @@ function renderPreviewSummary() {
   }
   if (!mock || !dev?.dump) { box.textContent = t("previewConnect"); return; }
   const k = mock.state.sel, track = mock.state.tracks[k];
-  const name = k === previewDrum() ? t("drum") : (dev.names[track.engine] || [])[track.preset] || t("track");
+  const name = previewIsDrum(k) ? t("drum") : (dev.names[track.engine] || [])[track.preset] || t("track");
   const position = previewPlaying ? previewPositions[k] : -1;
   const muted = !!track.p[40] || !!(mock.state.solo && !(mock.state.solo & (1 << k)));
   let state = t(previewPlaying ? "previewRunning" : "previewStopped");
   if (position >= 0) {
-    const step = (k === previewDrum() ? track.dstep : track.step)[position];
-    const notes = k === previewDrum() ? DRUM_LANES.filter((_, lane) => step?.on & (1 << lane)).map(([, name]) => name) :
+    const step = (previewIsDrum(k) ? track.dstep : track.step)[position];
+    const notes = previewIsDrum(k) ? DRUM_LANES.filter((_, lane) => step?.on & (1 << lane)).map(([, name]) => name) :
       step?.time === 0 ? step.notes.slice(0, step.n).map(noteName) : [];
     const sound = muted ? t("previewMuted") : notes.length ? notes.join(" + ") : step?.time === 1 ? t("previewTie") : t("previewRest");
     state = `${t("previewStep")} ${position + 1}/${track.p[29]} · ${sound}`;
@@ -6332,6 +6396,7 @@ $("preview-disclosure").addEventListener("click", () => {
 let previewEditQueue = Promise.resolve();
 const previewNotes = new Array(8).fill(60), previewPages = new Array(8).fill(0);
 const previewDrum = () => (mock?.state.tracks.length || dev?.info?.ntrk || 4)-1;
+const previewIsDrum = (k) => mock?.state.tracks[k]?.drum ?? k===previewDrum();
 let previewAllDrums = false, previewDrumExpanded = false;
 function expandPreviewDrums(expanded) {
   previewDrumExpanded = expanded;
@@ -6344,12 +6409,12 @@ function previewSequenceClick(k, index, lane = -1, replacement = null) {
   previewEditQueue = previewEditQueue.then(async () => {
     if (d !== dev || m !== mock || index >= m.state.tracks[k].p[29]) return;
     const track = m.state.tracks[k];
-    const command = k === previewDrum() ? req.drumStep(index, previewToggleDrum(track.dstep[index], lane)) :
+    const command = previewIsDrum(k) ? req.drumStep(index, previewToggleDrum(track.dstep[index], lane), d.info.proto>=18?k:undefined) :
       req.trackStep(k, index, replacement || previewToggleStep(track.step[index], note));
     const response = await d.link.request(command);
     if (d !== dev) return false;
     if (d.sel === k) {
-      if (k === previewDrum()) {
+      if (previewIsDrum(k)) {
         const r = parse[CMD.DRUM_STEP](response);
         d.dsteps[index] = r; d.steps[index] = drumAsStep(r);
       } else d.steps[index] = parse[CMD.TRACK_STEP](response);
@@ -6431,7 +6496,7 @@ $("preview-note-listen").addEventListener("change", () => { if (!$("preview-note
 function previewCellClick(e, cell, k, lane) {
   const index = +cell.dataset.step;
   if (lane === -2) { expandPreviewDrums(true); return; }
-  if (k === previewDrum() || e.detail === 0) { previewSequenceClick(k, index, lane); return; }
+  if (previewIsDrum(k) || e.detail === 0) { previewSequenceClick(k, index, lane); return; }
   const pending = previewStepGestures.get(cell);
   if (e.detail > 1) { clearTimeout(pending?.timer); return; }
   clearTimeout(pending?.timer);
@@ -6500,7 +6565,7 @@ function previewSequenceCells(k, lane = -1) {
   for (let i = 0; i < 16; i++) {
     const cell = el("button", { type: "button", class: "preview-seq-cell", "data-track": k, "data-lane": lane,
       onclick: (e) => previewCellClick(e, cell, k, lane),
-      ondblclick: k < previewDrum() ? () => previewOpenNote(cell, k).catch(report) : null },
+      ondblclick: !previewIsDrum(k) ? () => previewOpenNote(cell, k).catch(report) : null },
       el("span", { class: "preview-seq-note", "aria-hidden": "true" }), el("span", { class: "seq-hit", "aria-hidden": "true" }));
     cells.append(cell);
   }
@@ -6515,25 +6580,29 @@ function renderPreviewSequence() {
     const numbers = el("div", { class: "preview-seq-row preview-seq-numbers" }, el("span"),
       el("div", { class: "preview-seq-steps" }, ...Array.from({ length: 16 }, (_, i) => el("span", { text: i + 1 }))));
     box.append(numbers);
-    for (let k = 0; k < previewDrum(); k++) {
+    for (let k = 0; k < st.tracks.length; k++) {
+      if(previewIsDrum(k)) continue;
       const picker = el("select", { class: "seq-pitch", onchange: () => { previewNotes[k] = +picker.value; renderPreviewSequence(); } },
         ...Array.from({ length: 128 }, (_, n) => el("option", { value: n, text: noteName(n) })));
       const label = el("div", { class: "preview-seq-label" }, previewTrackButton(k), previewPageTools(k));
       label.lastChild.prepend(picker);
       box.append(el("div", { class: "preview-seq-row", "data-seq-track": k, style: `--c:var(--t${k%4 + 1})` }, label, previewSequenceCells(k)));
     }
-    const all = el("button", { type: "button", class: "seq-all-drums", onclick: () => { previewAllDrums = !previewAllDrums; renderPreviewSequence(); } });
-    const toggle = el("button", { type: "button", class: "seq-drum-toggle", "aria-controls": "preview-drum-details",
-      onclick: () => expandPreviewDrums(!previewDrumExpanded) });
-    const details = el("div", { id: "preview-drum-details" },
-      el("div", { class: "preview-seq-drumhead" }, el("p", { class: "preview-seq-legend seq-drum-help" }), all));
-    const summary = previewSequenceCells(previewDrum(), -2);
-    for (const cell of summary.children) cell.classList.add("seq-drum-brief");
-    const drums = el("div", { class: "preview-seq-drums", "data-seq-track": previewDrum(), style: "--c:var(--t4)" },
-      el("div", { class: "preview-seq-row" }, el("div", { class: "preview-seq-label" }, previewTrackButton(previewDrum()), previewPageTools(previewDrum()), toggle), summary), details);
-    for (let lane = 0; lane < 16; lane++) details.append(el("div", { class: "preview-seq-row", "data-drum-lane": lane },
-      el("span", { class: "preview-seq-lane", text: DRUM_LANES[lane][1] }), previewSequenceCells(previewDrum(), lane)));
-    box.append(drums);
+    for(let drumIndex=0;drumIndex<st.tracks.length;drumIndex++) {
+      if(!previewIsDrum(drumIndex)) continue;
+      const all = el("button", { type: "button", class: "seq-all-drums", onclick: () => { previewAllDrums = !previewAllDrums; renderPreviewSequence(); } });
+      const toggle = el("button", { type: "button", class: "seq-drum-toggle", "aria-controls": `preview-drum-details-${drumIndex}`,
+        onclick: () => expandPreviewDrums(!previewDrumExpanded) });
+      const details = el("div", { id: `preview-drum-details-${drumIndex}`, class: "preview-drum-details" },
+        el("div", { class: "preview-seq-drumhead" }, el("p", { class: "preview-seq-legend seq-drum-help" }), all));
+      const summary = previewSequenceCells(drumIndex, -2);
+      for (const cell of summary.children) cell.classList.add("seq-drum-brief");
+      const drums = el("div", { class: "preview-seq-drums", "data-seq-track": drumIndex, style: `--c:var(--t${drumIndex%4+1})` },
+        el("div", { class: "preview-seq-row" }, el("div", { class: "preview-seq-label" }, previewTrackButton(drumIndex), previewPageTools(drumIndex), toggle), summary), details);
+      for (let lane = 0; lane < 16; lane++) details.append(el("div", { class: "preview-seq-row", "data-drum-lane": lane },
+        el("span", { class: "preview-seq-lane", text: DRUM_LANES[lane][1] }), previewSequenceCells(drumIndex, lane)));
+      box.append(drums);
+    }
   }
   st.tracks.forEach((track, k) => {
     const group = box.querySelector(`[data-seq-track="${k}"]`), button = group.querySelector(".preview-seq-track");
@@ -6542,7 +6611,7 @@ function renderPreviewSequence() {
     // Keep the page still under the pointer or keyboard focus while editing.
     if ($("preview-follow").checked && position >= 0 && !group.matches(":hover, :focus-within")) previewPages[k] = Math.floor(position / 16) * 16;
     const page = previewPages[k] = Math.min(previewPages[k], Math.floor((len - 1) / 16) * 16);
-    const name = k === previewDrum() ? t("drum") : (dev.names[track.engine] || [])[track.preset] || t("track");
+    const name = previewIsDrum(k) ? t("drum") : (dev.names[track.engine] || [])[track.preset] || t("track");
     const muted = !!track.p[40] || !!(st.solo && !(st.solo & (1 << k)));
     button.querySelector(".seq-name").textContent = name;
     button.querySelector(".seq-position").textContent = `${position < 0 ? "–" : position + 1}/${len}`;
@@ -6558,7 +6627,7 @@ function renderPreviewSequence() {
       b.hidden = len <= 16; b.disabled = disabled;
       b.setAttribute("aria-label", `${t(key)} · ${t("track")} ${k + 1}`); b.title = b.getAttribute("aria-label");
     }
-    if (k < previewDrum()) {
+    if (!previewIsDrum(k)) {
       const picker = group.querySelector(".seq-pitch");
       picker.value = String(previewNotes[k]);
       picker.setAttribute("aria-label", `${t("previewNewNote")} · ${t("track")} ${k + 1}`); picker.title = picker.getAttribute("aria-label");
@@ -6566,7 +6635,7 @@ function renderPreviewSequence() {
       const toggle = group.querySelector(".seq-drum-toggle");
       toggle.textContent = (previewDrumExpanded ? "▾ " : "▸ ") + t(previewDrumExpanded ? "previewHideDrumGrid" : "previewShowDrumGrid");
       toggle.setAttribute("aria-expanded", String(previewDrumExpanded));
-      group.querySelector("#preview-drum-details").hidden = !previewDrumExpanded;
+      group.querySelector(".preview-drum-details").hidden = !previewDrumExpanded;
       for (const cell of group.querySelectorAll(".seq-drum-brief")) cell.setAttribute("aria-expanded", String(previewDrumExpanded));
       const all = group.querySelector(".seq-all-drums");
       all.textContent = t(previewAllDrums ? "previewFewerDrums" : "previewAllDrums");
@@ -6578,28 +6647,28 @@ function renderPreviewSequence() {
         row.hidden = !(previewAllDrums || [0, 2, 3, 4, 5].includes(lane) || (active & (1 << lane)));
       }
     }
-    const source = (k === previewDrum() ? track.dstep : track.step).slice(page, page + 16);
+    const source = (previewIsDrum(k) ? track.dstep : track.step).slice(page, page + 16);
     const stamp = JSON.stringify([source, len, page, lang, previewNotes[k]]);
     if (group.dataset.pattern !== stamp) {
       group.dataset.pattern = stamp;
       for (const cell of group.querySelectorAll(".preview-seq-cell")) {
         const i = Array.prototype.indexOf.call(cell.parentNode.children, cell), index = page + i, s = source[i], lane = +cell.dataset.lane;
-        const notes = k < previewDrum() && s && s.time === 0 ? s.notes.slice(0, s.n).map(noteName) : [];
-        const tie = k < previewDrum() && s?.time === 1;
-        const hits = k === previewDrum() && lane === -2 && s ? DRUM_LANES.filter((_, l) => s.on & (1 << l)).map(([, name]) => name) : [];
-        const on = k === previewDrum() ? lane === -2 ? hits.length > 0 : !!(s?.on & (1 << lane)) : notes.length > 0 || tie;
+        const notes = !previewIsDrum(k) && s && s.time === 0 ? s.notes.slice(0, s.n).map(noteName) : [];
+        const tie = !previewIsDrum(k) && s?.time === 1;
+        const hits = previewIsDrum(k) && lane === -2 && s ? DRUM_LANES.filter((_, l) => s.on & (1 << l)).map(([, name]) => name) : [];
+        const on = previewIsDrum(k) ? lane === -2 ? hits.length > 0 : !!(s?.on & (1 << lane)) : notes.length > 0 || tie;
         cell.dataset.step = index;
         cell.disabled = index >= len;
         cell.classList.toggle("on", on);
         cell.classList.toggle("unused", index >= len);
         cell.classList.toggle("bar-start", i % 4 === 0);
-        const stored = k < previewDrum() && s?.n > 0 ? s.notes.slice(0, s.n).map(noteName) : [];
-        cell.firstChild.textContent = k === previewDrum() ? lane === -2 ? hits.length > 1 ? String(hits.length) : on ? "●" : "" : on ? "●" : "" : tie ? "→" : stored.length ? stored[0] + (stored.length > 1 ? "+" + (stored.length - 1) : "") : "+";
+        const stored = !previewIsDrum(k) && s?.n > 0 ? s.notes.slice(0, s.n).map(noteName) : [];
+        cell.firstChild.textContent = previewIsDrum(k) ? lane === -2 ? hits.length > 1 ? String(hits.length) : on ? "●" : "" : on ? "●" : "" : tie ? "→" : stored.length ? stored[0] + (stored.length > 1 ? "+" + (stored.length - 1) : "") : "+";
         if (lane !== -2) cell.setAttribute("aria-pressed", String(on));
-        else cell.setAttribute("aria-controls", "preview-drum-details");
-        const content = k === previewDrum() ? lane === -2 ? hits.join(", ") || t("previewRest") : DRUM_LANES[lane][1] : tie ? t("previewTie") : on ? notes.join(", ") : s?.n > 0 ? s.notes.slice(0, s.n).map(noteName).join(", ") : noteName(previewNotes[k]);
-        const description = `${t(lane === -2 ? "previewShowDrumGrid" : k < previewDrum() && s?.n > 0 ? on ? "previewDeactivate" : "previewReactivate" : on ? "previewRemove" : "previewAdd")} · ${content} · ${t("track")} ${k + 1} · ${t("previewStep")} ${index + 1}`;
-        cell.setAttribute("aria-label", description); cell.title = description + (k < previewDrum() ? " · " + t("previewDoubleClick") : "");
+        else cell.setAttribute("aria-controls", `preview-drum-details-${k}`);
+        const content = previewIsDrum(k) ? lane === -2 ? hits.join(", ") || t("previewRest") : DRUM_LANES[lane][1] : tie ? t("previewTie") : on ? notes.join(", ") : s?.n > 0 ? s.notes.slice(0, s.n).map(noteName).join(", ") : noteName(previewNotes[k]);
+        const description = `${t(lane === -2 ? "previewShowDrumGrid" : !previewIsDrum(k) && s?.n > 0 ? on ? "previewDeactivate" : "previewReactivate" : on ? "previewRemove" : "previewAdd")} · ${content} · ${t("track")} ${k + 1} · ${t("previewStep")} ${index + 1}`;
+        cell.setAttribute("aria-label", description); cell.title = description + (!previewIsDrum(k) ? " · " + t("previewDoubleClick") : "");
       }
     }
     for (const cell of group.querySelectorAll(".preview-seq-cell")) cell.classList.toggle("is-current", +cell.dataset.step === position);
@@ -6608,7 +6677,7 @@ function renderPreviewSequence() {
 $("preview-follow").addEventListener("change", renderPreviewSequence);
 function renderPreviewKeys() {
   if (!MOCK) return;
-  const drum = mock && mock.state.sel === previewDrum();
+  const drum = mock && previewIsDrum(mock.state.sel);
   $("preview").dataset.instrument = drum ? "drums" : "keys";
   $("preview-instrument").textContent = `${t("track")} ${(mock?.state.sel || 0) + 1} · ${t(drum ? "previewDrums" : "previewKeys")}`;
   $("preview-octaves").hidden = !!drum || previewKeysHidden;
@@ -6697,8 +6766,8 @@ async function playPreview() {
 async function previewNoteOn(token, offset) {
   if (!dev?.dump || previewHeld.has(token)) return;
   const track = mock.state.sel;
-  const note = track === previewDrum() ? DRUM_LANES[offset][0] : previewOctave + offset;
-  if (track < previewDrum()) { previewNotes[track] = note; renderPreviewSequence(); }
+  const note = previewIsDrum(track) ? DRUM_LANES[offset][0] : previewOctave + offset;
+  if (!previewIsDrum(track)) { previewNotes[track] = note; renderPreviewSequence(); }
   const held = { track, note };
   previewHeld.set(token, held);
   if (await startPreview() && previewHeld.get(token) === held) {
@@ -6855,7 +6924,7 @@ async function connect() {
   sayK("connecting");
   try {
     if (!access) {
-      if (MOCK) { mock = makeMockDevice({ auto: false, piterfly: QS.get("legacy") !== "1", legacy: QS.get("legacy") === "1", onChange: previewChanged }); access = mock.access; }
+      if (MOCK) { mock = makeMockDevice({ auto: false, twoDrums: QS.get("legacy") !== "1", duck: QS.get("legacy") !== "1", seven: QS.get("legacy") !== "1", piterfly: QS.get("legacy") !== "1", legacy: QS.get("legacy") === "1", onChange: previewChanged }); access = mock.access; }
       else {
         try { access = await navigator.requestMIDIAccess({ sysex: true }); }
         catch (e) { sayK("denied"); return; }
@@ -7145,7 +7214,7 @@ function drumPanel(drum) {
   box.hidden = !drum;
   $("drumnote").hidden = true;
   if (!drum) { clearInterval(DP.timer); DP.timer = 0; return; }
-  if (DP.built !== dev) drumPanelBuild();
+  if (DP.built !== dev || DP.track !== dev.sel) drumPanelBuild();
   drumPanelRender();
   if (!DP.timer) DP.timer = setInterval(() => { if (tab === "sound" && dev && dev.dump && isDrum() && !busy) drumPanelRead(); else { clearInterval(DP.timer); DP.timer = 0; } }, 1500);
   drumPanelRead();
@@ -7153,12 +7222,17 @@ function drumPanel(drum) {
 async function drumPanelRead() {
   if (!dev || !dev.info || dev.info.proto < 12) return;
   if (DP.s && (!dev.link.idle || [...DP.local.values()].some((v) => performance.now() - v.t < DP_HOLD))) return;   /* (not while turning) */
-  try { DP.s = drumPanelMerge(parse[CMD.LIVE](await rq(req.live(LIVE.STATE), { key: "live:state", retries: 0, quiet: true }))); } catch (e) { return; }
+  const device=dev, track=dev.sel;
+  try {
+    const state=parse[CMD.LIVE](await rq(req.live(LIVE.STATE, ...(dev.info.proto>=18?[track]:[])), { key: "live:state", retries: 0, quiet: true }));
+    if(dev!==device || DP.track!==track) return;
+    DP.s=drumPanelMerge(state);
+  } catch (e) { return; }
   drumPanelRender();
 }
 function drumPanelBuild() {
   const box = $("drumpanel"), pe0 = dev.info.pe0, U = DP.ui = {};
-  DP.built = dev;
+  DP.built = dev; DP.track=dev.sel; DP.s=null; DP.local.clear();
   const knob = (lbl, s, id, d) => {
     d = d || (s ? dev.gdesc[id] : dev.pdesc[id]) || { min: 0, max: 127, def: 0 };
     return lvKnob(lbl, { min: d.min, max: d.max, def: d.def, bip: d.min < 0, get: () => (s ? dev.dump.g[id] : dev.dump.p[id]) ?? 0,
@@ -7169,7 +7243,7 @@ function drumPanelBuild() {
   const step = (d) => { const n = U.kit.options.length || 1; userSet(0, pe0, ((dev.dump.p[pe0] ?? 0) + d + n) % n, true); drumPanelRender(); };
   U.prev = el("button", { type: "button", text: "‹", "aria-label": "previous", onclick: () => step(-1) });
   U.next = el("button", { type: "button", text: "›", "aria-label": "next", onclick: () => step(1) });
-  U.mix = [knob(t("lvLevel"), 1, gDrLvl()), knob(t("lvPan"), 0, 39), knob(t("lvFilter"), 0, 50), knob(t("lvRev"), 1, 26), knob(t("lvDly"), 1, 32)];
+  U.mix = [knob(t("lvLevel"), dev.sel===dev.info.ntrk-1?1:0, dev.sel===dev.info.ntrk-1?gDrLvl():0), knob(t("lvPan"), 0, 39), knob(t("lvFilter"), 0, 50), knob(t("lvRev"), dev.sel===dev.info.ntrk-1?1:0, dev.sel===dev.info.ntrk-1?26:36), knob(t("lvDly"), dev.sel===dev.info.ntrk-1?1:0, dev.sel===dev.info.ntrk-1?32:35)];
   const itd = dev.pdesc[53];
   U.ins = el("select", { "aria-label": "INSERT" }, ...((itd && itd.names) || ["OFF"]).map((n, k) => el("option", { value: String(k), text: n })));
   U.ins.addEventListener("change", () => userSet(0, 53, +U.ins.value, true));
@@ -7215,10 +7289,14 @@ function drumPanelBuild() {
   })();
 }
 async function drumPanelTw(lane) {
-  const d = DP.s.dtw[lane];
+  const d = DP.s.dtw[lane], device=dev, track=dev.sel;
   drumPanelRender();
   /* one request a pad in the queue (key): while one is on its way, the moves after it become the next one */
-  try { DP.s = drumPanelMerge(parse[CMD.LIVE](await rq(req.live(LIVE.DRUM_TW, lane, d.tune + 8, d.dec + 4), { key: "dtw:" + lane, front: true }))); }
+  try {
+    const state=parse[CMD.LIVE](await rq(req.live(LIVE.DRUM_TW, lane, d.tune + 8, d.dec + 4, ...(dev.info.proto>=18?[track]:[])), { key: "dtw:" + lane, front: true }));
+    if(dev!==device || DP.track!==track) return;
+    DP.s=drumPanelMerge(state);
+  }
   catch (e) { report(e); }
   drumPanelRender();
 }
@@ -8238,7 +8316,7 @@ $("dsplay").addEventListener("click", () => { if (DS.kit) op(() => dsPlay()); })
 $("dsuse").addEventListener("click", () => {
   if (!dev || !hasTracks() || !DS.kit) return;
   op(async () => {
-    const drum = dev.info.ntrk - 1;
+    const drum = lvDrum(dev.sel) ? dev.sel : dev.info.ntrk - 1;
     if (dev.sel !== drum) { dev.sel = parse[CMD.TRACK](await rq(req.track(drum))).sel; await afterSoundChange(); }
     const d = dev.pdesc[dev.info.pe0], i = d && d.names ? d.names.indexOf(dsKitName()) : -1;
     if (i < 0) { sayK("kitNoKit"); return; }
@@ -8276,6 +8354,7 @@ $("dsfile").addEventListener("change", async (e) => {
 /* ---- SLOOP 2.5: the Song page: the order of the sections A..D (the device's SONG screen, from the browser) ---- */
 const SG = { rows: null, loop: false, bytes: null, err: "", dirty: false };
 async function readSong() {
+  await deviceSongsRead();
   if (!dev || !(dev.info.proto >= 6)) { Object.assign(SG, { rows: null, err: "songOld" }); renderSong(); return; }
   const L = parse[CMD.BK_LIST](await rq(req.bkList(), { timeout: 5000, retries: 0 }));
   const it = L.rc ? null : L.items.find((x) => x.id === 1);
@@ -9158,7 +9237,7 @@ async function kitSend() {
 function kitUse(k) {
   if (!dev || !hasTracks()) return;
   op(async () => {
-    const drum = dev.info.ntrk - 1;
+    const drum = lvDrum(dev.sel) ? dev.sel : dev.info.ntrk - 1;
     if (dev.sel !== drum) { dev.sel = parse[CMD.TRACK](await rq(req.track(drum))).sel; await afterSoundChange(); }
     const d = dev.pdesc[dev.info.pe0], i = d && d.names ? d.names.indexOf(kitDest(k)) : -1;   /* (the drum track's DESC now) */
     if (i < 0) { sayK("kitNoKit"); return; }
@@ -9670,7 +9749,7 @@ let panning = false;                /* v3 firmware: another track is selected fo
 const mixTouched = (kind, i) => mixDrag === `${kind}:${i}` || performance.now() - (mixEdit.get(`${kind}:${i}`) || 0) < 600
   || (!!dev && kind === "lv" && dev.link.hasQueued("mix:" + i))
   || (kind === "pan" && (panWant.has(i) || (!!dev && dev.link.hasQueued("pan:" + i))));
-const drumTrack = (i) => !!dev && !!dev.mix && i === dev.mix.ntrk - 1;
+const drumTrack = (i) => !!dev && !!dev.mix && (dev.mix.tracks[i]?.engine >= dev.info.nengines);
 function trackName(x) {
   if (x.engine >= dev.info.nengines) return ["DRUMS", (dev.kitNames || [])[x.e0]].filter(Boolean).join(" ");
   return [dev.info.engines[x.engine], (dev.names[x.engine] || [])[x.preset]].filter(Boolean).join(" ");
@@ -9710,9 +9789,9 @@ function mixFromDump() {
 function mixToSound(i) {
   const x = dev.mix.tracks[i];
   const put = (s, id, v) => { if (v == null) return; (s ? dev.dump.g : dev.dump.p)[id] = v; showValue(key(s, id), v, false); };
-  if (drumTrack(i)) put(1, gDrLvl(), x.level);
+  if (i === dev.mix.ntrk-1) put(1, gDrLvl(), x.level);
   if (i !== dev.sel) return;
-  if (!drumTrack(i)) put(0, P.LEVEL, x.level);
+  if (i !== dev.mix.ntrk-1) put(0, P.LEVEL, x.level);
   put(0, pMute(), x.mute ? 1 : 0);
   put(0, pPan(), x.pan);
 }
@@ -9896,7 +9975,7 @@ function onPush(f) {
       if (!x || c.track === d.sel) return;
       if (c.id === pPan()) { if (!mixTouched("pan", c.track)) x.pan = c.value; }
       else if (c.id === pMute()) { if (!mixTouched("lv", c.track)) x.mute = c.value ? 1 : 0; }
-      else if (c.id === P.LEVEL && !drumTrack(c.track)) { if (!mixTouched("lv", c.track)) x.level = c.value; }
+      else if (c.id === P.LEVEL && c.track !== d.mix.ntrk-1) { if (!mixTouched("lv", c.track)) x.level = c.value; }
       else return;
       updateStrip(c.track);
     }
@@ -10671,6 +10750,56 @@ $("bk-save").addEventListener("click", () => op(async () => {
 }));
 $("bk-load").addEventListener("click", () => { if (dev) $("bk-file").click(); });
 /* (2.7) a song as one file: export it; load one (also from the LIVE page's playlist: lvSongLoad) */
+let deviceSongDirectory=null;
+async function deviceSongsRead() {
+  $("device-songs-preview").hidden=!MOCK;
+  if(!dev || dev.info.proto<19 || MOCK) { $("device-songs").hidden=true; return; }
+  $("device-songs").hidden=false;
+  const dir=deviceSongCheck(parse[CMD.SONG_LIBRARY](await rq(req.songLibrary(0),{timeout:5000}))), selected=$("device-song-slot").value;
+  deviceSongDirectory=dir;
+  $("device-song-space").textContent=`${dir.freeKiB} KiB wolne na zapis / free for saves · ${dir.totalKiB} KiB łącznie / total`;
+  $("device-song-slot").replaceChildren(...dir.songs.map(s=>el("option",{value:String(s.slot),text:`${s.slot+1}. ${s.used?s.name:"— puste / empty —"}`})));
+  if(dir.songs.some(s=>String(s.slot)===selected)) $("device-song-slot").value=selected;
+  deviceSongSelect();
+}
+function deviceSongSelect() {
+  const slot=+$("device-song-slot").value, saved=deviceSongDirectory?.songs.find(s=>s.slot===slot);
+  $("device-song-name").value=saved?.used?saved.name:`SONG ${String(slot+1).padStart(2,"0")}`;
+  for(const id of ["load","export","delete"]) $("device-song-"+id).disabled=!saved?.used;
+}
+async function deviceSongAction(action) {
+  if(!dev || dev.info.proto<19) return;
+  const slot=+$("device-song-slot").value, saved=deviceSongDirectory?.songs.find(s=>s.slot===slot), device=dev;
+  if(action===2 && !confirm("Wczytać song? Bieżąca niezapisana praca zostanie zastąpiona. / Load and replace the current work?")) return;
+  if(action===3 && !confirm("Usunąć zapisany song? Najpierw wyeksportuj go, jeśli chcesz zachować kopię. / Delete this saved song?")) return;
+  if(action===1 && saved?.used && !confirm("Zastąpić zapisany song? / Replace this saved song?")) return;
+  await op(async()=>{
+    try {
+      if(action===4) {
+        const file=await deviceSongCapture(rq,device.info,slot,(done,total)=>$("device-song-status").textContent=`Eksport / Export ${Math.round(100*done/total)}%`);
+        download(`${fileSlug(file.name)||"song"}.sloopsong`,file);
+        $("device-song-status").textContent="Plik wyeksportowany. Sprawdź plik na komputerze; następnie możesz usunąć song z FM-1. / Exported; verify the file before deleting.";
+      } else {
+        let name=$("device-song-name").value.trim();
+        if(action===1 && SG.dirty) throw new Error("Najpierw wyślij zmienioną kolejność SONG do urządzenia / Send the edited song order before saving");
+        if(action===1 && (!name || name.length>15 || /[^ -~]/.test(name))) throw new Error("Nazwa: 1–15 znaków ASCII / Name: 1–15 ASCII characters");
+        const args=action===1?Array.from(name,c=>c.charCodeAt(0)):[];
+        deviceSongCheck(parse[CMD.SONG_LIBRARY](await rq(req.songLibrary(action,slot,...args),{timeout:15000,retries:0})));
+        $("device-song-status").textContent=action===1?"Song zapisany / saved":action===2?"Song wczytany / loaded":"Zapis songa usunięty / deleted";
+        if(action===2) {
+          dev.slotUsed=Array(patternCount(dev.info)).fill(null);
+          for(let k=0;k<dev.slotUsed.length;k++) dev.slotUsed[k]=!!parse[CMD.PROJECT](await rq(req.project(2,k))).used;
+          SG.dev=dev; await afterSoundChange(); await readSong(); renderSlots();
+        }
+      }
+      if(dev===device && action!==2) await deviceSongsRead();
+    } catch(e) { $("device-song-status").textContent=e.message; }
+  });
+}
+$("device-song-slot").addEventListener("change",deviceSongSelect);
+$("device-song-read").addEventListener("click",()=>op(deviceSongsRead));
+for(const [id,action] of [["save",1],["load",2],["delete",3],["export",4]]) $("device-song-"+id).addEventListener("click",()=>deviceSongAction(action));
+
 async function songExport() {
   const name = prompt(t("sfName"), "SONG " + today());
   if (name == null) return;
@@ -10851,7 +10980,8 @@ const LVP = () => ({ pan: lvP("PAN", 39), filt: lvP("FILT", 50), rev: lvP("REV",
 const LVG = () => ({ bpm: lvGany("BPM", 0), swing: lvGany("SWING", 1), filt: lvG("FILT", 29), dust: lvG("DUST", 27), duck: lvG("DUCK", 28),
   drRev: lvG("REV", 26), drDly: lvG("DLY", 32), ch: Array.from({length:(dev.info.ntrk||4)-1},(_,i)=>lvG("CH"+(i+1),i<3?33+i:54+i-3)), drCh: lvG(dev.info.proto>=17?"DRUM":"CH4",24),
   other: lvG("OTHER", 36), route: lvGany("IN", 14), fxCh: lvG("FX CH", 45), drMap: lvG("DR MAP", 46), remote: lvG("REMOTE", 47) });
-const lvDrum = (i) => i === (dev && dev.info ? dev.info.ntrk || 4 : 4) - 1;
+const lvDrum = (i) => !!dev && (i === (dev.info.ntrk || 4)-1 || (dev.info.proto>=18 && i===6));
+const lvGlobalDrum = (i) => !!dev && i === (dev.info.ntrk || 4)-1;
 const lvGv = (id) => (dev && dev.dump ? dev.dump.g[id] : 0);
 
 /* ---- requests: the buttons' ones go first in the queue and are never sent twice (a mute is a toggle) */
@@ -11117,7 +11247,7 @@ function lvChan(i) {
   const g = LVG(), route = lvGv(g.route);
   if (route === 1) return { err: "lvClock" };
   if (route >= 2) return { ch: route - 2 };      /* IN = CH n: that channel, on the selected track */
-  const own = lvDrum(i) ? lvGv(g.drCh) : lvGv(g.ch[i]);
+  const own = lvGlobalDrum(i) ? lvGv(g.drCh) : lvGv(g.ch[i]);
   if (own) return { ch: own - 1 };
   if (lvGv(g.other)) return { err: "lvNoChan" };  /* OTHER = OFF */
   const used = new Set([...g.ch.map(lvGv), lvGv(g.drCh), lvGv(g.fxCh), lvGv(g.remote)].filter(Boolean).map((c) => c - 1));
@@ -11476,7 +11606,7 @@ function lvStrip(i) {
     return lvKnob(lbl, { min: d.min, max: d.max, def: d.def, bip,
       get: () => (glob ? lvGv(id) : tr().p[id] ?? 0), set: (v, f) => (glob ? lvGlobal(id, v, f) : lvParam(i, id, v)), mid: glob ? `g:${id}` : `s${i}:${id}` });
   };
-  s.knobs = drum
+  s.knobs = lvGlobalDrum(i)
     ? [kn(t("lsFilt"), P.filt, true), kn(t("lsPan"), P.pan, true), kn(t("lsRev"), g.drRev, false, true), kn(t("lsDly"), g.drDly, false, true)]
     : [kn(t("lsFilt"), P.filt, true), kn(t("lsPan"), P.pan, true), kn(t("lsRev"), P.rev), kn(t("lsDly"), P.dly), kn(t("lsCho"), P.cho), kn(t("lsDrv"), P.dst)];
   s.node = el("div", { class: "lstrip" + (drum ? " drum" : ""), style: `--c:${TCOL[i % 4]}`, role: "group", "aria-label": `${t("lvTrack")} ${i + 1}` },
@@ -11930,7 +12060,7 @@ function lvxBuildPerf() {
       pads.addEventListener("change", () => { LV.padSel = +pads.value; lvxBuildPerf(); });
       const tw = (k, lbl, min, max) => lvKnob(t(lbl), { min, max, def: 0, bip: true, mid: "pad:" + k,
         get: () => (LV.s && LV.s.dtw ? LV.s.dtw[LV.padSel][k] : 0),
-        set: (v) => { const d = LV.s.dtw[LV.padSel]; d[k] = v; lvSend(LIVE.DRUM_TW, LV.padSel, d.tune + 8, d.dec + 4); },
+        set: (v) => { const d = LV.s.dtw[LV.padSel]; d[k] = v; lvSend(LIVE.DRUM_TW, LV.padSel, d.tune + 8, d.dec + 4, ...(dev.info.proto>=18?[i]:[])); },
         fmt: (v) => (v > 0 ? "+" + v : String(v)) });
       U.padTw = [tw("tune", "lvxTune", -8, 7), tw("dec", "lvxDecay", -4, 3)];
       ctls.push(...U.padTw);
@@ -12015,7 +12145,7 @@ async function lvxLoadGrid() {
     for (let k = 0; k < 16; k++) {
       const idx = g.page * 16 + k;
       if (idx >= (d.info.nstep || 64)) break;
-      out.push(drum ? parse[CMD.DRUM_STEP](await rq(req.drumStep(idx), { key: "lvg:" + idx, quiet: true }))
+      out.push(drum ? parse[CMD.DRUM_STEP](await rq(req.drumStep(idx, null, dev.info.proto>=18?i:undefined), { key: "lvg:" + idx, quiet: true }))
         : parse[CMD.TRACK_STEP](await rq(req.trackStep(i, idx), { key: "lvg:" + idx, quiet: true })));
       if (d !== dev || g.track !== i) return;
     }
@@ -12034,7 +12164,7 @@ async function lvxToggle(idx, lane) {
       const nd = previewToggleDrum(st, lane);
       g.steps[k] = { ...nd, index: idx };
       lvxRenderGrid();
-      g.steps[k] = parse[CMD.DRUM_STEP](await rq(req.drumStep(idx, nd), { key: "dstep:" + idx, front: true }));
+      g.steps[k] = parse[CMD.DRUM_STEP](await rq(req.drumStep(idx, nd, dev.info.proto>=18?i:undefined), { key: "dstep:" + idx, front: true }));
     } else {
       const ns = previewToggleStep(st, LV.lastNote ?? 60);
       g.steps[k] = { ...ns, index: idx };
@@ -12386,14 +12516,14 @@ function livePush(f) {
     const c = parse[CMD.TRACK_CHANGED](f.a), o = LV.tr[c.track];
     if (!o) return;
     if (c.id === LVP().mute) { if (!lvTouched("lv:" + c.track)) o.mute = c.value ? 1 : 0; }
-    else if (c.id === 0 && !lvDrum(c.track)) { if (!lvTouched("lv:" + c.track)) o.level = c.value; }
+    else if (c.id === 0 && !lvGlobalDrum(c.track)) { if (!lvTouched("lv:" + c.track)) o.level = c.value; }
     else if (!lvTouched(`p:${c.track}:${c.id}`)) o.p[c.id] = c.value;
     lvRenderStrip(c.track);
   } else if (f.cmd === CMD.CHANGED) {
     const c = parse[CMD.CHANGED](f.a), o = LV.tr[dev.sel];
     if (c.scope) { lvRenderMaster(); if (c.id === gDrLvl()) { const ds = (dev.info.ntrk || 4) - 1; if (LV.tr[ds] && !lvTouched("lv:" + ds)) LV.tr[ds].level = c.value; lvRenderStrip(ds); } lvRenderPlay(); return; }
     if (!o) return;
-    if (c.id === 0 && !lvDrum(dev.sel)) { if (!lvTouched("lv:" + dev.sel)) o.level = c.value; }
+    if (c.id === 0 && !lvGlobalDrum(dev.sel)) { if (!lvTouched("lv:" + dev.sel)) o.level = c.value; }
     else if (c.id === LVP().mute) { if (!lvTouched("lv:" + dev.sel)) o.mute = c.value ? 1 : 0; }
     else if (!lvTouched(`p:${dev.sel}:${c.id}`)) o.p[c.id] = c.value;
     lvRenderStrip(dev.sel);

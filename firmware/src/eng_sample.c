@@ -40,13 +40,17 @@ static uint32_t pow2_q16(int32_t d16)
  * window. Slot = header (magic, count, name, data length, CRC32) + up to 16 zones in the
  * smp_zone_t layout (off relative to the slot's data at +512) + IMA ADPCM data. */
 #include "../hal/fm1_xip.h"   /* relative: hostsim includes this file too */
+#if NPART == 6
+#define SMP_USER_SLOTS 0
+#else
 #define SMP_USER_SLOTS 1
+#endif
 #define SMP_USER_BASE 0xA0000u                      /* USR1..USR3: 0xA0000..0xDBFFF */
 #define SMP_USER_SIZE 0x14000u
 #define SMP_USER_OFF(k) (SMP_USER_BASE + (k) * SMP_USER_SIZE)
 #define SMP_USER_DATA 512u
 #define SMP_USER_MAGIC 0x504D5346u                  /* "FSMP" */
-#define SMP_NALL (SMP_NSETS + 3u) /* retired source IDs stay silent instead of playing a different set */
+#define SMP_NALL (SMP_NSETS + (NPART==6?0u:3u)) /* retired source IDs stay silent instead of playing a different set */
 typedef struct {
     uint32_t magic;
     uint16_t version;
@@ -57,7 +61,11 @@ typedef struct {
 } smp_user_hdr_t;                                   /* 32 + 16 x 28 = 480 B, data at +512 */
 static smp_zone_t usr_zone[SMP_USER_SLOTS][16];     /* RAM copy, off rebased onto SMP_DATA */
 static uint8_t usr_nz[SMP_USER_SLOTS];
-static const char *const SMP_ALL_NAMES[SMP_NALL] = {SMP_SET_NAMES_INIT, "USR1", "USR2 OFF", "USR3 OFF"};
+static const char *const SMP_ALL_NAMES[SMP_NALL] = {SMP_SET_NAMES_INIT
+#if NPART != 6
+, "USR1", "USR2 OFF", "USR3 OFF"
+#endif
+};
 
 #ifndef SMP_USER_XIP                                /* host tests: a RAM image of the slots */
 #define SMP_USER_XIP(k) fm1_xip_ptr(SMP_USER_OFF((uint32_t)(k)))
@@ -108,7 +116,11 @@ static void smp_user_scan(uint32_t k)
 /* zone index in a voice: < 0x8000 built-in, else 0x8000 | slot << 5 | zone */
 static inline const smp_zone_t *smp_zone(uint32_t zi)
 {
+#if SMP_USER_SLOTS == 0
+    return &SMP_ZONES[zi<NELEM(SMP_ZONES)?zi:0u];
+#else
     return zi < 0x8000u ? &SMP_ZONES[zi] : &usr_zone[(zi >> 5) & 3u][zi & 31u];
+#endif
 }
 
 /* voice: ph[0] position (samples), ph[1] fraction Q16, s[0] predictor, s[1] step

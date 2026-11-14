@@ -151,13 +151,13 @@ UI_SMALL static uint32_t keys_lit(void)
         break;
     }
     if (kb_grid) {                                 /* the DRUMS grid page: the sound's steps of this page */
-        uint32_t len = trk_len(TDRUM), b0 = drum_cursor / 16u * 16u;
+        uint32_t len = trk_len(TDRUM_UI), b0 = drum_cursor / 16u * 16u;
         for (i = 0; i < 16u; i++) {
             uint32_t idx = b0 + i, on;
             if (idx >= len)
                 continue;
-            on = dstep_has(&TDRUM->dstep[idx], drum_lane);
-            if (song.playing && idx == TDRUM->seq_idx)
+            on = dstep_has(&TDRUM_UI->dstep[idx], drum_lane);
+            if (song.playing && idx == TDRUM_UI->seq_idx)
                 on = !on || blink;
             if (on)
                 m |= 1u << key_of_white(i);
@@ -306,7 +306,7 @@ UI_SMALL static void tracks_edit(uint32_t slot, int32_t steps)
             t->p[P_MUTE] = 0;
             return;
         }
-        vp = is_drum(t) ? &song.g[G_DRLVL] : &t->p[P_LEVEL];
+        vp = is_drum(t) ? drum_global(t,G_DRLVL) : &t->p[P_LEVEL];
         d = is_drum(t) ? &GP[G_DRLVL] : &TP[P_LEVEL];
         break;
     case 2:
@@ -480,10 +480,10 @@ UI_SMALL static void project_new(void)
         }
         fm1_irq_on();
     }
-    TDRUM->p[P_E0] = DRUM_DEFAULT_KIT;
-    memset(drum_tune, 0, sizeof drum_tune);             /* (2.7) every drum sound as the kit has it */
-    memset(drum_dec, 0, sizeof drum_dec);
-    drum_mute = 0;                                      /* (2.6: the live mutes) */
+    for(i=NPART;i<NTRK;i++) trk[i].p[P_E0]=DRUM_DEFAULT_KIT;
+    memset(drum_tunes, 0, sizeof drum_tunes);             /* (2.7) every drum sound as the kit has it */
+    memset(drum_decs, 0, sizeof drum_decs);
+    memset((void *)drum_mutes,0,sizeof drum_mutes);                                      /* (2.6: the live mutes) */
     for (i = 0; i < G_COUNT; i++)
         if (i != G_SLOT && i != G_DRCH && i != G_SYNC && i != G_MIDI && i != G_ROUTE && (i < G_CH1 || i > G_CHOTH) &&
             i != G_BEND && i != G_FXCH && i != G_DRMAP && i != G_RMCH && i != G_CLKOUT && i != G_FXFADE && (i < G_THRU1 || i > G_THRU4))                                                                     /* (the
@@ -838,9 +838,13 @@ UI_SMALL static void layer_tap(uint32_t layer)
         open_family(FAM_GLO);
         break;
     case LY_SONG:                                         /* SAVE tapped: TRACKS -> the song, else the SAVE pages */
-        if (on_song_page())
+        if (on_song_page()) {
+#if NPART == 6
+            if(song_library_open) song_library_input(1u<<panel.btn[B_SAVE],0);
+            else
+#endif
             arrangement_save();
-        else if (!ui.home && cur_page()->scope == SC_TRK)
+        } else if (!ui.home && cur_page()->scope == SC_TRK)
             studio_open(SC_SONG);
         else if (on_drum_page())
             studio_open(SC_SONG);
@@ -1141,7 +1145,7 @@ UI_SMALL static void navigation_input(void)
     if (!notes && (s = panel_enc(EN_ALGO)) != 0) {
         uint32_t total, cur = preset_pos(&total);
         if (is_drum(TSEL))
-            TDRUM->p[P_E0] = (int16_t)clamp(TDRUM->p[P_E0] + s, 0, DRUM_KITS - 1);
+            TDRUM_UI->p[P_E0] = (int16_t)clamp(TDRUM_UI->p[P_E0] + s, 0, DRUM_KITS - 1);
         else if (total)
             preset_go((uint32_t)(((int32_t)cur + s % (int32_t)total + (int32_t)total) % (int32_t)total));
     }
