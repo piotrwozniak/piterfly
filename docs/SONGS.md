@@ -14,7 +14,7 @@ SAVE on the ordinary SONG order page retains its previous meaning: saving the cu
 
 ## On the Mac
 
-Use this branch’s editor, connected by USB MIDI, and open Song. The device-song list has Save, Load, Export and Delete controls. Export reads the selected snapshot directly, without changing the current project. It verifies lengths and CRCs and downloads a `.sloopsong` file. Changing/replacing/deleting that snapshot during export causes an error instead of mixing versions.
+Use the matching 1.2.0 editor, connected by USB MIDI, and open Song. The device-song list has Save, Load, Export and Delete controls. Export reads the selected snapshot directly, without changing the current project. It verifies lengths and CRCs and downloads a `.sloopsong` file. Changing/replacing/deleting that snapshot during export causes an error instead of mixing versions.
 
 Export never deletes automatically. Check the downloaded file before deleting its device entry. To restore, import the file using the existing song-file control, then save the restored working project into a named slot. Existing current-project export remains available.
 

@@ -1,6 +1,6 @@
 # Track controls — piterfly 1.2.0
 
-The current layout is **six synth parts + two drum tracks**. The published 1.1.0 release used 7+1; its hardware verification does not cover this development build.
+The current layout is **six synth parts + two drum tracks**. The published 1.1.0 release used 7+1; its hardware verification does not cover version 1.2.0.
 
 | Tracks | Instrument | Default MIDI channels | Voices |
 | --- | --- | --- | --- |

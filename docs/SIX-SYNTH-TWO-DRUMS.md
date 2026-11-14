@@ -10,7 +10,7 @@ The on-device drum pages edit the selected drum track. Track 7 stores level/reve
 
 ## Storage
 
-This branch deliberately starts a new project format, **FUNB**, 6,160 bytes. It does not import previous project formats. Previous patterns and the previous working project will not load; create new patterns. Device settings remain PER4. All four user-sample banks are reclaimed into the 352 KiB pattern/song pool. Factory kits and SYN1–SYN4 remain. SYN kit definitions are shared library presets; each track independently selects its kit and keeps its lane tuning.
+Version 1.2.0 starts a new project format, **FUNB**, 6,160 bytes. It does not import previous project formats. Previous patterns and the previous working project will not load; create new patterns. Device settings remain PER4. All four user-sample banks are reclaimed into the 352 KiB pattern/song pool. Factory kits and SYN1–SYN4 remain. SYN kit definitions are shared library presets; each track independently selects its kit and keeps its lane tuning.
 
 ## Editor protocol 19
 
@@ -32,7 +32,7 @@ A successful target build establishes memory fit, not worst-case real-time perfo
 
 The earlier 6+2 audio checks passed on 2026-11-14; the new named-song storage adds ASan/UBSan tests for sparse snapshots, cold scans, full capacity, deletion and injected flash-write failures. `web/test_device_songs.mjs` drives the real C firmware protocol through save-list/load/export/import checks, rather than a JavaScript storage mock. Browser visual/offline checks require Playwright and remain unverified when unavailable.
 
-The target build with named songs is 581,488 bytes, with 97,848/98,304 bytes in RAM, 29,344/29,384 bytes in lowram, and 335,756/344,064 bytes in the pool. Memory fit is tight. The development package is `build/felucca-1.2.0.fwsc`. No hardware was flashed.
+The target build with named songs is 581,484 bytes, with 97,848/98,304 bytes in RAM, 29,344/29,384 bytes in lowram, and 335,756/344,064 bytes in the pool. Memory fit is tight. The release package is `build/felucca-1.2.0.fwsc`. No hardware was flashed.
 
 Verified on 2026-11-14: `sh tests/run_tests.sh` completed with `ALL HOST TESTS PASSED`, including the firmware-backed browser-control/export tests and rebuilt native/WASM comparisons. The dedicated 6+2 ThreadSanitizer run also passed. Chromium/PWA checks were skipped because Playwright is unavailable. Named-song base package (`ec2dddc`) SHA-256: `20822cecc06fb1810de8df7815c0168df3c899df152e6ece3a5eef2b3c1748eb`.
 

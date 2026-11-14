@@ -27,7 +27,7 @@ sh build.sh --release 1.2.0
 sh tests/run_tests.sh
 ```
 
-Use the prerequisites and environment overrides in [BUILDING.md](../BUILDING.md). The local output is `build/felucca-1.2.0.fwsc`, updater identity **FM-1_1120101**. Use the editor from this branch. Release assets include the `.fwsc` package, app/loader binaries, exact source archive, licences, matching browser preview, BUILD_INFO and SHA256SUMS.
+Use the prerequisites and environment overrides in [BUILDING.md](../BUILDING.md). The local output is `build/felucca-1.2.0.fwsc`, updater identity **FM-1_1120101**. Use the matching 1.2.0 editor. Release assets include the `.fwsc` package, app/loader binaries, exact source archive, licences, matching browser preview, BUILD_INFO and SHA256SUMS.
 
 [Install 1.2.0](https://piotrwozniak.github.io/piterfly/webapp/installer/) · [Release assets](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.0)
 

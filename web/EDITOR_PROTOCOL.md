@@ -1,6 +1,6 @@
 # Piterfly editor protocol (SysEx over USB-MIDI)
 
-Current development firmware is **1.2.0, protocol 19, six synths + two drums**. Use [the current track-addressing and FUNB notes](../docs/SIX-SYNTH-TWO-DRUMS.md). The versioned sections below retain earlier protocol layouts for reference; the default build does not import their project formats.
+Current release firmware is **1.2.0, protocol 19, six synths + two drums**. Use [the current track-addressing and FUNB notes](../docs/SIX-SYNTH-TWO-DRUMS.md). The versioned sections below retain earlier protocol layouts for reference; the default build does not import their project formats.
 
 The firmware side is `firmware/src/editor.c` (SLOOP is based on Felucca: the frames keep its "FL"
 header). Commands 16-26 (user presets and live sync) form protocol v2; commands 27-30 (tracks) form

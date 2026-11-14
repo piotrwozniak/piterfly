@@ -133,8 +133,8 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "16ff9fd515176a0b8c0f1227f21c7bf569357caf327b8f9fcb58b24b8fa36f4f",
-      "bytes": 5696,
+      "sha256": "a0be23d98644aef09219dcf759a2720ead69aa920da63dd987a27be8d6726f74",
+      "bytes": 5676,
       "executable": false
     },
     "SLOOP.md": {
@@ -783,8 +783,8 @@
       "executable": false
     },
     "docs/LIVE-GRANULAR.md": {
-      "sha256": "c7e9cf84d0155c0090230b164496ba616ace51a2e035b4b8bb7c3aa9611d56e0",
-      "bytes": 3774,
+      "sha256": "e30d4b59f1d4ee801e70efe452d73ae2a9d2ffc27bbe19c240dfdc8c9b80c6b5",
+      "bytes": 3764,
       "executable": false
     },
     "docs/PATTERNS-24.md": {
@@ -793,8 +793,8 @@
       "executable": false
     },
     "docs/PITERFLY.md": {
-      "sha256": "f5be35fc3ffe7c8746917f566763795057ff62b4a8818ab0d1b1fb58123ca089",
-      "bytes": 31585,
+      "sha256": "718d0949222b989a56f9acae4e6e8f55b347e23ec6908b6412acace0b2a36a08",
+      "bytes": 31563,
       "executable": false
     },
     "docs/PUBLICATION-1.0.1.md": {
@@ -823,8 +823,8 @@
       "executable": false
     },
     "docs/RELEASE-1.2.0.md": {
-      "sha256": "0a500635e8673492931c5e91168e1be1c61b5c8a705b294ff9eb521348e1d580",
-      "bytes": 2942,
+      "sha256": "b3ff5266cb9756764dfb194434844e142b8ca37fcbf28533293f5417ee886e5f",
+      "bytes": 2940,
       "executable": false
     },
     "docs/SCREENSHOTS-1.1.0.md": {
@@ -838,18 +838,18 @@
       "executable": false
     },
     "docs/SIX-SYNTH-TWO-DRUMS.md": {
-      "sha256": "debbe0ab9f5227ddb23f17b51af4b2f0461cc4fa1b4e14b998312f7c29102ced",
-      "bytes": 4776,
+      "sha256": "b34085828f4ed7e102a49026708da7f3fbef8fb77e1c78f8f5c693d8798a7258",
+      "bytes": 4761,
       "executable": false
     },
     "docs/SONGS.md": {
-      "sha256": "5d02b3f554dccde05cc16d19221b1119bd6a584cf6f9ca1e3fc2466fb1beab43",
-      "bytes": 5384,
+      "sha256": "c917c6ee7c1d4f1fb1fb75a0a62a0ae10115d2e7c92c62c3011aad8c152496f2",
+      "bytes": 5387,
       "executable": false
     },
     "docs/TRACKS.md": {
-      "sha256": "07071f9f17fa1656a07369ca11b1e7b4b8b8e9722cfef0b11c107215882b62f3",
-      "bytes": 2646,
+      "sha256": "1c39b76e6ca6e2ba40d981f7811a90aa855ccb075fd074d63c1340a5d7ed7554",
+      "bytes": 2637,
       "executable": false
     },
     "docs/audits/2026-11-13-audio-performance/REPORT.md": {
@@ -2033,8 +2033,8 @@
       "executable": false
     },
     "web/EDITOR_PROTOCOL.md": {
-      "sha256": "42e6931d7e19221691cc49af6b889f0bc730f2e6b91024ee2416fd1faa7f1d0e",
-      "bytes": 50045,
+      "sha256": "b0756cb52e1a04d0668132d930e007fefd5040a96889f989622bb3956341a3a9",
+      "bytes": 50041,
       "executable": false
     },
     "web/FUKIAI-LICENSE.txt": {

@@ -38,14 +38,14 @@ For USB, connect keyboard, FM-1 and an external synth separately to a computer o
 
 [Mac/MidiPipe setup](web/midipipe.html) · [MIDI protocol](web/EDITOR_PROTOCOL.md)
 
-## Build and try the development version
+## Build version 1.2.0
 
 ```sh
 sh build.sh --release 1.2.0
 sh tests/run_tests.sh
 ```
 
-The local firmware package is `build/felucca-1.2.0.fwsc`. Use the editor from this branch, which supports **protocol 19**. See [BUILDING.md](BUILDING.md) for dependencies and [release notes](docs/RELEASE-1.2.0.md). [Public installer](https://piotrwozniak.github.io/piterfly/webapp/installer/) · [Release downloads and exact sources](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.0).
+The local firmware package is `build/felucca-1.2.0.fwsc`. Use the matching 1.2.0 editor, which supports **protocol 19**. See [BUILDING.md](BUILDING.md) for dependencies and [release notes](docs/RELEASE-1.2.0.md). [Public installer](https://piotrwozniak.github.io/piterfly/webapp/installer/) · [Release downloads and exact sources](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.0).
 
 **Start new projects.** This version uses **FUNB, 6,160 bytes**, and deliberately does not import FUN1–FUNA projects. Settings remain **PER4**. All four user-sample banks now store patterns and named songs; factory samples remain. The updater identity remains **FM-1_1120101**. Song import replaces all 24 pattern slots and the working loop, including empty slots.
 
