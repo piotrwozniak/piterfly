@@ -807,6 +807,11 @@
       "bytes": 2156,
       "executable": false
     },
+    "docs/PUBLICATION-1.2.0.md": {
+      "sha256": "20977f188cfcccce4488e9f70161321413db872da256d361be7062985477c72d",
+      "bytes": 2734,
+      "executable": false
+    },
     "docs/RELEASE-1.0.0.md": {
       "sha256": "f84605a59e740fc88a0cfa777a78087dd86c36b294e06af7a6b2532af9c3b826",
       "bytes": 4500,
