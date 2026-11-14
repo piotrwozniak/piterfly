@@ -2048,8 +2048,8 @@
       "executable": false
     },
     "web/changes.html": {
-      "sha256": "d938371221851465e23d8a469eab8052a0c314359833985eedbbf7a9a9def0f9",
-      "bytes": 33569,
+      "sha256": "1338b990631c888f1579728ce509583f15d665e6be7f61046ca49f1d51aa53e5",
+      "bytes": 37137,
       "executable": false
     },
     "web/editor.html": {
@@ -2088,8 +2088,8 @@
       "executable": false
     },
     "web/index_pkg.html": {
-      "sha256": "97848570a839f01e429d84a6102fd2f2ba4683a4476d760154785c56eb743bc6",
-      "bytes": 31896,
+      "sha256": "67329dddbe61c7854ec206567a6bbe40b47e31d6c665d09db4066039b4450325",
+      "bytes": 31904,
       "executable": false
     },
     "web/licences.html": {
