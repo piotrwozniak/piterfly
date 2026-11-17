@@ -1,6 +1,6 @@
 {
   "origin_repository": "https://github.com/piotrwozniak/fm1-piterfly",
-  "origin_commit": "4396f5dd49179ec7675a7af6a8760d128075b588",
+  "origin_commit": "b8c02573e9e6abda397dddc7978f657fee83a286",
   "upstream_sloop_commit": "bac9c05ea7627449405aa10e48da21d75b6c8c56",
   "export_date": "2026-11-17",
   "git_metadata_created": false,
@@ -795,8 +795,8 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "8189c259a08be4fc09ddb4730e09cf1941d0b1c6d3407a817854587a2ed55719",
-      "bytes": 6643,
+      "sha256": "7bd8cff8da9579bbc09b0a8d63060a347ead4f9d2b1026a98bf8bf761044e4f5",
+      "bytes": 6769,
       "executable": false
     },
     "SLOOP.md": {
@@ -1074,6 +1074,11 @@
       "bytes": 3607,
       "executable": false
     },
+    "assets/piterfly/screenshots/home-64-1.2.3.png": {
+      "sha256": "b9e543dd2e1ebe77c20d716d5a564e67bd3aeb1d8f7fb759187152424f953fa3",
+      "bytes": 3602,
+      "executable": false
+    },
     "assets/piterfly/screenshots/home-64.png": {
       "sha256": "989a467bfd2037926dae3dfca518c9448b0a71e176914bff1a20e3fdae3300c4",
       "bytes": 3387,
@@ -1084,9 +1089,19 @@
       "bytes": 3484,
       "executable": false
     },
+    "assets/piterfly/screenshots/home-instrument-1.2.3.png": {
+      "sha256": "03bbcda23ae01b3952e89fb7c452ef1d9ccb78f60399ef589d83363d6b3a4d95",
+      "bytes": 3480,
+      "executable": false
+    },
     "assets/piterfly/screenshots/home-tracks-5-8-1.2.2.png": {
       "sha256": "7a5598d9affea03a5b108e43cc845b1f4feeb3dc1d225ed69e849f2efd04e43b",
       "bytes": 3417,
+      "executable": false
+    },
+    "assets/piterfly/screenshots/home-tracks-5-8-1.2.3.png": {
+      "sha256": "7601274cf947aa0a8e2d23189d183603bbc9dc05f6c33aee98e2a605a0496fe1",
+      "bytes": 3406,
       "executable": false
     },
     "assets/piterfly/screenshots/home-tracks-5-8.png": {
@@ -1455,8 +1470,8 @@
       "executable": false
     },
     "docs/PITERFLY.md": {
-      "sha256": "0062342cb214710294f5156a7a557f709892015fbbea61b5b51647c0818f80d5",
-      "bytes": 33544,
+      "sha256": "46a6fc28bcef74f4d138ba19b1532297dd3f085df31524a21d813875ca08a8ac",
+      "bytes": 33612,
       "executable": false
     },
     "docs/PUBLICATION-1.1.0.md": {
@@ -1467,6 +1482,11 @@
     "docs/PUBLICATION-1.2.0.md": {
       "sha256": "20977f188cfcccce4488e9f70161321413db872da256d361be7062985477c72d",
       "bytes": 2734,
+      "executable": false
+    },
+    "docs/PUBLICATION-1.2.2.md": {
+      "sha256": "fbb3a71de8100f0152eb4ab1acc74b7822c30a7cc9ab5b159ccf8f60979ce3db",
+      "bytes": 2617,
       "executable": false
     },
     "docs/RELEASE-1.0.0.md": {
@@ -1492,6 +1512,11 @@
     "docs/RELEASE-1.2.2.md": {
       "sha256": "e62dd273aa38c41dc588cc334f75a5e3c7820d7fc433f57c60a7cf58182c8f21",
       "bytes": 3900,
+      "executable": false
+    },
+    "docs/RELEASE-1.2.3.md": {
+      "sha256": "2fbba5af97a304e8a001aeb8dd289ad0263b9a60b157020e495049c0d6e1627a",
+      "bytes": 1279,
       "executable": false
     },
     "docs/SCREENSHOTS-1.1.0.md": {
@@ -2005,8 +2030,8 @@
       "executable": false
     },
     "firmware/src/ui_studio.c": {
-      "sha256": "b016197150555776534817fa7a81c403bcc2fd0231616de24ee4778dc72fc1fd",
-      "bytes": 46034,
+      "sha256": "c1eb3343c189275a3a7b6c9c301e3e8a599b15895274e86e3f1b965cfbb50080",
+      "bytes": 46031,
       "executable": false
     },
     "firmware/src/ui_vis.c": {
@@ -2025,7 +2050,7 @@
       "executable": false
     },
     "firmware/src/version.h": {
-      "sha256": "9a84e9869030fc38b1bceae3f1ddad2c3c8fb3e9802c006a6b37b968e2c82772",
+      "sha256": "3f329d3f8a034cdfd6e9ca94f50ff06ffb889857e2d4453519f461a980884341",
       "bytes": 214,
       "executable": false
     },
@@ -2195,8 +2220,8 @@
       "executable": false
     },
     "tests/home_sound_test.c": {
-      "sha256": "5f2398b535b27874472bae55ec21a7efdf2ece4955811568e8eeb5e50aeb0cb9",
-      "bytes": 1511,
+      "sha256": "e19114249fd33ca9b8e5b3817a7026f5352ff4f861b6e9a3473f6394767af05f",
+      "bytes": 1750,
       "executable": false
     },
     "tests/hostsim.c": {
@@ -2340,8 +2365,8 @@
       "executable": false
     },
     "tests/release_test.py": {
-      "sha256": "ff711f2ad001d626bdb02657205740d98ce61b1da826456ec55ececac95c3c33",
-      "bytes": 2012,
+      "sha256": "ab432775efefcb5b5426cbe5b098158db2be75d105d0e09a8c42ee9fa3e12d15",
+      "bytes": 2021,
       "executable": false
     },
     "tests/run_preview_tests.sh": {

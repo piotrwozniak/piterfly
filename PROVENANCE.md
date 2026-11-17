@@ -1,9 +1,9 @@
 # piterfly — distribution-tree provenance
 
-Piterfly 1.2.2 public source export prepared on 2026-11-17. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
+Piterfly 1.2.3 public source export prepared on 2026-11-17. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
 
 This tree derives from `piotrwozniak/fm1-piterfly`, private source commit
-`4396f5dd49179ec7675a7af6a8760d128075b588`. That project modifies SLOOP 2.8.5,
+`b8c02573e9e6abda397dddc7978f657fee83a286`. That project modifies SLOOP 2.8.5,
 upstream commit `bac9c05ea7627449405aa10e48da21d75b6c8c56` from
 <https://github.com/isod89/sloop-fm1>, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. The initial export was a plain source directory, without a Git repository or copied .git.
@@ -107,3 +107,7 @@ Seven synth tracks plus drums, FUN9/protocol 17, selective DUCK, measured dual-c
 ## Version 1.2.2
 
 Adds the approved HOME sound identity/position rail, retains LEVEL/STEPS/PAN through live and ordinary pattern selection, and respects the longest LEN/DIV loop. The FUNB/PER4/protocol-19 formats and 6+2 layout are unchanged. Control/render functions are outlined for flash fit. Current 1.2.2 screenshots are rendered by tools/preview_home_sound.c; historical images remain. Physical FM-1 acceptance remains pending.
+
+## Version 1.2.3
+
+Replaces the HOME instrument outline with the approved full-width central line and raises the marker three pixels clear of the first track frame. Audio, control and storage code is unchanged. Targeted ASan/UBSan UI/persistence checks and exact pixel comparison cover this visual patch.

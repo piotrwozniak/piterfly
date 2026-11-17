@@ -266,8 +266,8 @@ UI_SMALL static __attribute__((noinline)) void studio_sound_draw(void)
     CV_BANDS(240,24,C_BLACK) {
         cv_text(4,0,&FONT_S,name,C_WHITE);
         cv_text(236-text_w(&FONT_S,count),0,&FONT_S,count,TE_COL[song.sel&3u]);
-        cv_outline(4,18,232,5,TE_G3);
-        cv_rect(5+(int32_t)cur*224/(total>1u?total-1u:1u),19,6,3,TE_COL[song.sel&3u]);
+        cv_rect(0,17,240,1,TE_G3);
+        cv_rect(1+(int32_t)cur*232/(total>1u?total-1u:1u),16,6,3,TE_COL[song.sel&3u]);
         cv_blit(0,40);
     }
 }

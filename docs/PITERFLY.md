@@ -1,8 +1,8 @@
 # piterfly — zmiany względem SLOOP
 
-piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.2** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
+piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.3** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
 
-**Aktualizacja 1.2.0 → 1.2.2 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.2/piterfly-1.2.2.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.2](RELEASE-1.2.2.md).
+**Aktualizacja 1.2.0 → 1.2.3 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.3/piterfly-1.2.3.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.3](RELEASE-1.2.3.md).
 
 **Gałki tracka i barwy:** na HOME, FX i pozostałych zwykłych stronach parametrów PRESETS wybiera track, a ALGORITHM zmienia jego barwę/preset (na perkusji — zestaw). W aktywnym edytorze NOTES oba pokrętła miały już funkcje: PRESETS nadal zmienia zoom, ALGORITHM wybiera track. SONG, menu ustawień i kombinacje z przytrzymanymi przyciskami zachowują swoje przypisania. Podczas swobodnego nagrania wybór tracka pozostaje zablokowany.
 
@@ -37,13 +37,13 @@ Pattern przechowuje cały loop: wszystkie osiem tracków, ich nuty, brzmienia i 
 
 Ilustracje w tej instrukcji odwzorowują **ekran urządzenia 240 × 240 pikseli**. Główna galeria pochodzi z wydania 1.1.0 (7+1); nowe podglądy SONG/SONGS opisano osobno. Starsze obrazy nie potwierdzają wyglądu drugiej perkusji w 1.2.0. Nie są zrzutami edytora WWW ani zdjęciami fizycznego wyświetlacza. Dane muzyczne są przykładowe. Kliknięcie obrazu otwiera jego pełny plik.
 
-### HOME: instrument i pozycja na liście (1.2.2)
+### HOME: instrument i pozycja na liście (1.2.3)
 
-Pod nagłówkiem widzisz **silnik i nazwę brzmienia**, np. `DIGITAL DX RHODES`, oraz licznik **024/153**: bieżący numer i liczbę dostępnych brzmień. Cienka obwódka z kolorowym klockiem pokazuje pozycję na całej liście; to nie jest miernik głośności. Licznik nie dodaje duplikatów z ulubionych. Każdy track ma też numer, np. **#024**. Jeżeli dwa tracki mają #024, wskazują to samo brzmienie z listy. Dla perkusji wyświetlane są nazwa i numer wybranego zestawu. REC, SOLO i MUTE zachowują pierwszeństwo w prawym polu tracka.
+Pod nagłówkiem widzisz **silnik i nazwę brzmienia**, np. `DIGITAL DX RHODES`, oraz licznik **024/153**: bieżący numer i liczbę dostępnych brzmień. Cienka linia na całą szerokość wiersza z kolorowym klockiem, oddzielona od ramki pierwszego tracka, pokazuje pozycję na całej liście; to nie jest miernik głośności. Licznik nie dodaje duplikatów z ulubionych. Każdy track ma też numer, np. **#024**. Jeżeli dwa tracki mają #024, wskazują to samo brzmienie z listy. Dla perkusji wyświetlane są nazwa i numer wybranego zestawu. REC, SOLO i MUTE zachowują pierwszeństwo w prawym polu tracka.
 
 Wybierz inny track pokrętłem **PRESETS**, a pokrętłem **ALGORITHM** znajdź ten sam numer. Skopiowanie numeru wybiera bazowy instrument; nie kopiuje ręcznych zmian jego parametrów. Cztery wiersze nadal pokazują do 64 kroków każdego tracka, a zielone pokrętło na dole steruje **LEVEL wybranego tracka**. Na perkusji 7 jego odczyt i edycja nie dotyczą perkusji 8.
 
-![HOME 1.2.2: instrument DIGITAL DX RHODES, licznik 024/153 i pasek pozycji; tracki 1 i 3 wskazują #024](../assets/piterfly/screenshots/home-instrument-1.2.2.png)
+![HOME 1.2.3: instrument DIGITAL DX RHODES, licznik 024/153 i linię pozycji; tracki 1 i 3 wskazują #024](../assets/piterfly/screenshots/home-instrument-1.2.3.png)
 
 ### HOME: grupy ścieżek 1–4 i 5–8
 
@@ -51,7 +51,7 @@ Na urządzeniu widać jednocześnie cztery ścieżki. Wybór ścieżki pokrętł
 
 | HOME: ścieżki 1–4 | HOME: ścieżki 5–8 |
 | --- | --- |
-| <a href="../assets/piterfly/screenshots/home-64-1.2.2.png"><img src="../assets/piterfly/screenshots/home-64-1.2.2.png" width="360" alt="HOME: ścieżki 1–4"></a> | <a href="../assets/piterfly/screenshots/home-tracks-5-8-1.2.2.png"><img src="../assets/piterfly/screenshots/home-tracks-5-8-1.2.2.png" width="360" alt="HOME: ścieżki 5–8"></a> |
+| <a href="../assets/piterfly/screenshots/home-64-1.2.3.png"><img src="../assets/piterfly/screenshots/home-64-1.2.3.png" width="360" alt="HOME: ścieżki 1–4"></a> | <a href="../assets/piterfly/screenshots/home-tracks-5-8-1.2.3.png"><img src="../assets/piterfly/screenshots/home-tracks-5-8-1.2.3.png" width="360" alt="HOME: ścieżki 5–8"></a> |
 
 ### SAVE: sześć banków i 24 sloty patternów
 
