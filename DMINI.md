@@ -1,4 +1,4 @@
-# Piterfly 1.2.3 — D MINI przez MIDI THRU
+# Piterfly 1.2.4 — D MINI przez MIDI THRU
 
 MIDI THRU pozwala włączyć fizyczny syntezator do zestawu FM-1: nuty z klawiatury trafiają przez FM-1 do D MINI, a pozostałe ścieżki mogą grać wewnętrznie. Pełne testy sprzętowe układu 6+2 pozostają do wykonania.
 
@@ -37,4 +37,4 @@ THRU przekazuje **Note On/Off i velocity**, bez CC, sustainu i pitch bendu. Note
 
 Granular i DUCK przetwarzają wewnętrzne audio FM-1. Nie przetwarzają osobnego wyjścia audio D MINI ani nie wysyłają automatyki jego głośności. Wspólne efekty lub ducking całego zestawu wymagają toru za mikserem.
 
-[Wydanie 1.2.3](docs/RELEASE-1.2.3.md) · [Instrukcja](docs/PITERFLY.md) · [Budowanie](BUILDING.md)
+[Wydanie 1.2.4](docs/RELEASE-1.2.4.md) · [Instrukcja](docs/PITERFLY.md) · [Budowanie](BUILDING.md)

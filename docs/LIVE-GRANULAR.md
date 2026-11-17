@@ -1,6 +1,6 @@
-# Live granular INSERT — piterfly 1.2.3
+# Live granular INSERT — piterfly 1.2.4
 
-Available on all eight tracks in the 6+2 release. Physical acceptance of release 1.1.0 covered its earlier 7+1 layout; hardware testing of 1.2.3 is pending.
+Available on all eight tracks in the 6+2 release. Physical acceptance of release 1.1.0 covered its earlier 7+1 layout; hardware testing of 1.2.4 is pending.
 
 GRANUL is a live effect available independently on the six synth tracks and both drum tracks. It processes the part's playing audio; it is separate from the inherited GRAIN instrument engine.
 

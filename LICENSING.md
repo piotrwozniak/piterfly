@@ -1,6 +1,6 @@
 # piterfly licensing and provenance
 
-piterfly **1.2.3** is modified SLOOP 2.8.5, based on Felucca by Leo Kuroshita
+piterfly **1.2.4** is modified SLOOP 2.8.5, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. Its code is **GPL-3.0-only**, except for the
 components below. Original notices and authorship are retained.
 
@@ -9,7 +9,7 @@ generated from original piterfly geometry in `tools/gen_pixel_icons.py`. The
 inherited atlas, historical/proposal screenshots and SLOOP artwork whose terms
 were not established are excluded, together with the inherited Git history.
 Replacement does not relicense those omitted materials. See [icon rights](docs/ICON-RIGHTS.md),
-[release contents](docs/RELEASE-1.2.3.md), [notices](THIRD_PARTY_NOTICES.md)
+[release contents](docs/RELEASE-1.2.4.md), [notices](THIRD_PARTY_NOTICES.md)
 and [export provenance](PROVENANCE.md).
 
 ## Code and complete source

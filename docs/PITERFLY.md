@@ -1,8 +1,8 @@
-# piterfly 1.2.3 — zmiany względem SLOOP
+# piterfly 1.2.4 — zmiany względem SLOOP
 
-piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.3** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
+piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.4** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
 
-**Aktualizacja 1.2.0 → 1.2.3 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.3/piterfly-1.2.3.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.3](RELEASE-1.2.3.md).
+**Aktualizacja 1.2.0 → 1.2.4 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.4/piterfly-1.2.4.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.4](RELEASE-1.2.4.md).
 
 **Gałki tracka i barwy:** na HOME, FX i pozostałych zwykłych stronach parametrów PRESETS wybiera track, a ALGORITHM zmienia jego barwę/preset (na perkusji — zestaw). W aktywnym edytorze NOTES oba pokrętła miały już funkcje: PRESETS nadal zmienia zoom, ALGORITHM wybiera track. SONG, menu ustawień i kombinacje z przytrzymanymi przyciskami zachowują swoje przypisania. Podczas swobodnego nagrania wybór tracka pozostaje zablokowany.
 
@@ -37,13 +37,13 @@ Pattern przechowuje cały loop: wszystkie osiem tracków, ich nuty, brzmienia i 
 
 Ilustracje w tej instrukcji odwzorowują **ekran urządzenia 240 × 240 pikseli**. Główna galeria pochodzi z wydania 1.1.0 (7+1); nowe podglądy SONG/SONGS opisano osobno. Starsze obrazy nie potwierdzają wyglądu drugiej perkusji w bieżącym układzie 6+2. Nie są zrzutami edytora WWW ani zdjęciami fizycznego wyświetlacza. Dane muzyczne są przykładowe. Kliknięcie obrazu otwiera jego pełny plik.
 
-### HOME: instrument i pozycja na liście (1.2.3)
+### HOME: oryginalny układ i sam pasek instrumentu (1.2.4)
 
-Pod nagłówkiem widzisz **silnik i nazwę brzmienia**, np. `DIGITAL DX RHODES`, oraz licznik **024/153**: bieżący numer i liczbę dostępnych brzmień. Cienka linia na całą szerokość wiersza z kolorowym klockiem, oddzielona od ramki pierwszego tracka, pokazuje pozycję na całej liście; to nie jest miernik głośności. Licznik nie dodaje duplikatów z ulubionych. Każdy track ma też numer, np. **#024**. Jeżeli dwa tracki mają #024, wskazują to samo brzmienie z listy. Dla perkusji wyświetlane są nazwa i numer wybranego zestawu. REC, SOLO i MUTE zachowują pierwszeństwo w prawym polu tracka.
+Wersja **1.2.4 cofa ściśnięcie tracków z 1.2.2 i 1.2.3**. Tracki mają ponownie 36 pikseli wysokości i zaczynają się na y=40. Czcionki, nazwy brzmień i silników, pozycje napisów, siatki do 64 kroków i dolne pokrętła odpowiadają układowi sprzed 1.2.2.
 
-Wybierz inny track pokrętłem **PRESETS**, a pokrętłem **ALGORITHM** znajdź ten sam numer. Skopiowanie numeru wybiera bazowy instrument; nie kopiuje ręcznych zmian jego parametrów. Cztery wiersze nadal pokazują do 64 kroków każdego tracka, a zielone pokrętło na dole steruje **LEVEL wybranego tracka**. Na perkusji 7 jego odczyt i edycja nie dotyczą perkusji 8.
+Jedynym dodanym elementem jest cienka linia przez środek kolorowego klocka pozycji instrumentu. Mieści się w pustych rzędach y=35–37 istniejącego nagłówka i nie zmienia wysokości żadnej sekcji ekranu. Usunięto dodatkowy pas nazwy/licznika oraz numery # przy trackach, które w poprzednich wersjach zajmowały miejsce. Brzmienie i silnik są opisane w swoim oryginalnym wierszu tracka. PRESETS wybiera track, ALGORITHM zmienia brzmienie lub zestaw perkusyjny; klocek wskazuje pozycję na liście.
 
-![HOME 1.2.3: instrument DIGITAL DX RHODES, licznik 024/153 i linię pozycji; tracki 1 i 3 wskazują #024](../assets/piterfly/screenshots/home-instrument-1.2.3.png)
+![HOME 1.2.4: oryginalne wymiary i pozycje elementów, tylko linia instrumentu w nagłówku](../assets/piterfly/screenshots/home-instrument-1.2.4.png)
 
 ### HOME: grupy ścieżek 1–4 i 5–8
 
@@ -51,7 +51,7 @@ Na urządzeniu widać jednocześnie cztery ścieżki. Wybór ścieżki pokrętł
 
 | HOME: ścieżki 1–4 | HOME: ścieżki 5–8 |
 | --- | --- |
-| <a href="../assets/piterfly/screenshots/home-64-1.2.3.png"><img src="../assets/piterfly/screenshots/home-64-1.2.3.png" width="360" alt="HOME: ścieżki 1–4"></a> | <a href="../assets/piterfly/screenshots/home-tracks-5-8-1.2.3.png"><img src="../assets/piterfly/screenshots/home-tracks-5-8-1.2.3.png" width="360" alt="HOME: ścieżki 5–8"></a> |
+| <a href="../assets/piterfly/screenshots/home-64-1.2.4.png"><img src="../assets/piterfly/screenshots/home-64-1.2.4.png" width="360" alt="HOME: ścieżki 1–4"></a> | <a href="../assets/piterfly/screenshots/home-tracks-5-8-1.2.4.png"><img src="../assets/piterfly/screenshots/home-tracks-5-8-1.2.4.png" width="360" alt="HOME: ścieżki 5–8"></a> |
 
 ### SAVE: sześć banków i 24 sloty patternów
 
@@ -214,7 +214,7 @@ Zapisywane są tylko patterny zawierające nuty lub uderzenia perkusji, równie�
 
 **Przed aktualizacją starego układu zrób backup.** Wszystkie USR1/2/3/4 służą do zapisu patternów i songów; sample użytkownika nie są zachowywane. Pozostają sample fabryczne i zestawy SYN1–SYN4.
 
-Projekty 1.2.0–1.2.3 mają zgodny format **FUNB (6160 bajtów)**; aktualizacja między tymi wersjami zachowuje projekty. Stare patterny i projekty FUN1–FUNA nie są importowane; przy przejściu ze starszego formatu utwórz nowe patterny. Ustawienia urządzenia pozostają w PER4. Wspólna pula patternów i songów ma 352 KiB; nie ma banków sampli użytkownika.
+Projekty 1.2.0–1.2.4 mają zgodny format **FUNB (6160 bajtów)**; aktualizacja między tymi wersjami zachowuje projekty. Stare patterny i projekty FUN1–FUNA nie są importowane; przy przejściu ze starszego formatu utwórz nowe patterny. Ustawienia urządzenia pozostają w PER4. Wspólna pula patternów i songów ma 352 KiB; nie ma banków sampli użytkownika.
 
 W tym formacie usunięto pozycje USR z wyboru SAMPLE/GRAIN i drum kitów. SYN1–SYN4 mają nowe identyfikatory, dlatego również eksperymentalne projekty FUNA nie są importowane.
 
@@ -272,7 +272,7 @@ W serwisie, w sekcji MIDI THRU strony **What changes?**, dostępny jest angielsk
 | MIDI THRU | Routing, kanały, wyłączenie THRU, zwalnianie nut, USB/TRS i zachowanie ustawień |
 | Build | Kompilacja, limity pamięci i weryfikacja paczki `.fwsc` |
 
-**Aktualna wersja to 1.2.3.** Poprawkę linii instrumentu sprawdzono przez build, testy HOME/panelu i zapamiętywania parametrów pod ASan/UBSan, porównania native/WASM oraz zgodność renderu z zaakceptowanym podglądem. Szersze testy audio i protokołu wykonano dla 1.2.2; ten kod pozostał bez zmian. **Test 6+2 na fizycznym FM-1 pozostaje do wykonania.** Akceptacja sprzętowa wcześniejszego wydania 1.1.0 nie potwierdza nowego układu.
+**Aktualna wersja to 1.2.4.** Przywrócenie HOME sprawdzono porównaniem wszystkich pikseli poza trzema rzędami nowego wskaźnika z rendererem sprzed 1.2.2: osiem tracków, dwie palety oraz stany STOP/PLAY/REC/PENDING/SOLO. Testy HOME/panelu i zapamiętywania parametrów pod ASan/UBSan oraz build sprawdzają tę poprawkę. Szersze testy audio i protokołu wykonano dla 1.2.2; ten kod pozostał bez zmian. **Test 6+2 na fizycznym FM-1 pozostaje do wykonania.** Akceptacja sprzętowa wcześniejszego wydania 1.1.0 nie potwierdza nowego układu.
 
 Najważniejsze testy 6+2: [two_drums_test.c](../tests/two_drums_test.c), [test_two_drums.mjs](../web/test_two_drums.mjs), [preview_test.mjs](../tests/preview_test.mjs). Pozostałe regresje obejmują też historyczne konfiguracje: [pattern_bank_test.c](../tests/pattern_bank_test.c), [pattern24_test.c](../tests/pattern24_test.c), [pattern24_migration_test.c](../tests/pattern24_migration_test.c), [arranger_test.c](../tests/arranger_test.c), [save_safety_test.c](../tests/save_safety_test.c), [ui_pages_test.c](../tests/ui_pages_test.c), [test_web.mjs](../web/test_web.mjs).
 
@@ -281,7 +281,7 @@ Ta dokumentacja ma pierwszeństwo nad limitami i opisami czterech sekcji w zacho
 
 ## Granular na żywo
 
-W piterfly **1.2.3** dostępny jest **FX → INSERT → GRANUL**, niezależnie na każdym tracku. Gałka 1 (INSRT) zawsze wybiera typ efektu, gałka 2 (PARAM) wybiera parę, a gałki 3/4 edytują: **SIZE/DENSITY**, **PITCH/MIX**, **POS/SPREAD** lub **CAPTURE/BUF**. BUF jest informacją o pojemności, bez edycji. SELECT normalnie przechodzi między stronami FX. Pojemność i stan LIVE/FREEZE są stale widoczne. BUF podaje rzeczywiście dostępny czas historii, zależny od liczby instancji, silników i pozostałych efektów.
+W piterfly **1.2.4** dostępny jest **FX → INSERT → GRANUL**, niezależnie na każdym tracku. Gałka 1 (INSRT) zawsze wybiera typ efektu, gałka 2 (PARAM) wybiera parę, a gałki 3/4 edytują: **SIZE/DENSITY**, **PITCH/MIX**, **POS/SPREAD** lub **CAPTURE/BUF**. BUF jest informacją o pojemności, bez edycji. SELECT normalnie przechodzi między stronami FX. Pojemność i stan LIVE/FREEZE są stale widoczne. BUF podaje rzeczywiście dostępny czas historii, zależny od liczby instancji, silników i pozostałych efektów.
 
 Zmiana barwy, silnika lub presetu użytkownika zachowuje aktywny GRANUL, jego ustawienia i zamrożone audio. LIVE przechwytuje nową barwę. Edycja odrysowuje tylko zmienione pola, bez czyszczenia całego ekranu. Linie podziału, marginesy i pozycje wartości są takie same jak w CHOR; status bufora i LIVE/FREEZE nie przesuwa siatki.
 
@@ -290,7 +290,7 @@ Historia jest mono, 22,05 kHz, zapisana stratnie jako µ-law; suchy sygnał zach
 [Obsługa, ograniczenia i wyniki testów](LIVE-GRANULAR.md).
 
 
-## DUCK i granular w 1.2.3
+## DUCK i granular w 1.2.4
 
 Wybierz ścieżkę syntezatora, otwórz **FX → FILTER** i pokrętłem **2** ustaw **DUCK ON/OFF**. Stopa ścisza tylko włączone cele; wspólny **MASTER → DUCK** określa głębokość. Stopy z obu perkusji wyzwalają DUCK. Celami są wyłącznie ścieżki syntezatora 1–6. Ustawienia celów zapisują się z patternem.
 

@@ -1,4 +1,4 @@
-# Named songs — piterfly 1.2.3
+# Named songs — piterfly 1.2.4
 
 The 6+2 firmware supports **eight named song slots, subject to free flash space**. A song contains its order (up to 128 entries), nonempty stored patterns and the current working loop. Loading a song replaces all 24 working pattern slots, including clearing absent patterns. Song files contain sequencer/project data, not a rendered audio recording.
 

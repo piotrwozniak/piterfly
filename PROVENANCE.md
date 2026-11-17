@@ -1,9 +1,9 @@
 # piterfly — distribution-tree provenance
 
-Piterfly 1.2.3 public source export prepared on 2026-11-17. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
+Piterfly 1.2.4 public source export prepared on 2026-11-17. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
 
 This tree derives from `piotrwozniak/fm1-piterfly`, private source commit
-`b8c02573e9e6abda397dddc7978f657fee83a286`. That project modifies SLOOP 2.8.5,
+`8aca34147027d5dc588ff922a1acddd8beb98e93`. That project modifies SLOOP 2.8.5,
 upstream commit `bac9c05ea7627449405aa10e48da21d75b6c8c56` from
 <https://github.com/isod89/sloop-fm1>, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. The initial export was a plain source directory, without a Git repository or copied .git.
@@ -111,3 +111,7 @@ Adds the approved HOME sound identity/position rail, retains LEVEL/STEPS/PAN thr
 ## Version 1.2.3
 
 Replaces the HOME instrument outline with the approved full-width central line and raises the marker three pixels clear of the first track frame. Audio, control and storage code is unchanged. Targeted ASan/UBSan UI/persistence checks and exact pixel comparison cover this visual patch.
+
+## Version 1.2.4
+
+Restores the complete original HOME geometry from 1.2.0: 36-pixel rows at y=40, original step sizes, text positions and footer. Removes the 24-pixel strip introduced in 1.2.2 and retained in 1.2.3. Adds only the instrument line/block in empty header rows 35–37. Exact pixel comparison covers the rest of the screen across eight tracks, two palettes and four play/record states. Parameter recall fixes remain.

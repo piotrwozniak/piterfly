@@ -92,7 +92,7 @@ def licence_page(out, version, raw, release_dir=None):
 
 
 ICONS = ("icon-192.png", "icon-512.png", "icon-maskable-512.png")
-SCREENSHOTS = ('home-instrument-1.2.3.png', 'home-64-1.2.3.png', 'home-tracks-5-8-1.2.3.png', 'song-bars.png', 'song-library.png', 'cursors.png', 'glo-64.png', 'granular-pitch-mix.png', 'granular-pos-spread.png', 'home-64.png', 'home-tracks-5-8.png', 'midi-thru-tracks-4-7.png', 'midi-tracks-4-7.png', 'piterfly-duck.png', 'piterfly-granular-sound.png', 'piterfly-granular-source.png', 'piterfly-home-after.png', 'piterfly-midi-channels.png', 'piterfly-midi-home.png', 'piterfly-midi-input.png', 'piterfly-midi-thru.png', 'piterfly-options-after.png', 'rec-ready-64.png', 'save-bank-a.png', 'save-bank-b.png', 'save-bank-c.png', 'save-bank-d.png', 'save-bank-e.png', 'save-bank-f.png', 'song-position-128.png', 'song-positions-63-67.png')
+SCREENSHOTS = ('home-instrument-1.2.4.png', 'home-64-1.2.4.png', 'home-tracks-5-8-1.2.4.png', 'song-bars.png', 'song-library.png', 'cursors.png', 'glo-64.png', 'granular-pitch-mix.png', 'granular-pos-spread.png', 'home-64.png', 'home-tracks-5-8.png', 'midi-thru-tracks-4-7.png', 'midi-tracks-4-7.png', 'piterfly-duck.png', 'piterfly-granular-sound.png', 'piterfly-granular-source.png', 'piterfly-home-after.png', 'piterfly-midi-channels.png', 'piterfly-midi-home.png', 'piterfly-midi-input.png', 'piterfly-midi-thru.png', 'piterfly-options-after.png', 'rec-ready-64.png', 'save-bank-a.png', 'save-bank-b.png', 'save-bank-c.png', 'save-bank-d.png', 'save-bank-e.png', 'save-bank-f.png', 'song-position-128.png', 'song-positions-63-67.png')
 
 
 def app_files(out, version, fw_name):
@@ -178,7 +178,7 @@ def main(pkg, version, out, release_dir=None):
     logo_uri = "data:image/png;base64," + base64.b64encode(logo.read_bytes()).decode()
     html = html.replace("<!--LOGO-->", f'<img src="{logo_uri}" width="446" height="304" alt="piterfly">')
     build_info = '<section id="build-info" style="border:2px solid #ffc618;padding:16px;margin:20px 0"><strong>Piterfly 1.1.0 · 7 SYNTH PARTS + DRUMS</strong><br>24 patterns · 128 SONG positions · 64 note steps · USR1 samples</section>' if version == "1.1.0" else ""
-    if version in ("1.2.0", "1.2.1", "1.2.2", "1.2.3"):
+    if version in ("1.2.0", "1.2.1", "1.2.2", "1.2.3", "1.2.4"):
         build_info = f'<section id="build-info" style="border:2px solid #ffc618;padding:16px;margin:20px 0"><strong>Piterfly {version} · 6 SYNTHS + 2 DRUMS</strong><br>24 patterns · 128 SONG positions · up to 8 named songs · 352 KiB shared storage<br>FUNB projects · protocol 19 · no user-sample banks</section>'
     html = html.replace("<!--BUILD_INFO-->", build_info)
     inst, ed, fw = out / "webapp" / "installer", out / "webapp" / "editor", out / "firmware"

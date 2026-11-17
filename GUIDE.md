@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/piterfly/arcade-web.png" alt="SLOOP" width="420"></p>
 
-**Current piterfly 1.2.3:** [Polish guide](docs/PITERFLY.md), [release notes](docs/RELEASE-1.2.3.md) and [named songs](docs/SONGS.md): six synths plus two drums, 24 patterns, 128 SONG positions, eight named song slots subject to free memory, and no user-sample banks. Full hardware validation of this version remains pending. The upstream guide below preserves its historical four-track descriptions; current piterfly documentation takes precedence.
+**Current piterfly 1.2.4:** [Polish guide](docs/PITERFLY.md), [release notes](docs/RELEASE-1.2.4.md) and [named songs](docs/SONGS.md): six synths plus two drums, 24 patterns, 128 SONG positions, eight named song slots subject to free memory, and no user-sample banks. Full hardware validation of this version remains pending. The upstream guide below preserves its historical four-track descriptions; current piterfly documentation takes precedence.
 
 # SLOOP 2.8.5 — The Complete Guide
 

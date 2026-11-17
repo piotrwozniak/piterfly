@@ -63,6 +63,8 @@ $CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integ
 run "main LEVEL knob: all tracks, ordinary LOAD, and independent drum HOME controls" "$OUT/level_recall_test"
 $CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/home_sound_test" tests/home_sound_test.c -lm
 run "HOME instrument identity, position rail, live redraw and independent kits" "$OUT/home_sound_test"
+$CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/home_layout_test" tests/home_layout_test.c -lm
+run "original HOME geometry and fonts outside the three-row indicator" "$OUT/home_layout_test"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/pattern24_test" tests/pattern24_test.c -lm
 run "24 full-length patterns: save, load, play, protocol, live cache" "$OUT/pattern24_test"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/pattern24_migration_test" tests/pattern24_migration_test.c -lm
