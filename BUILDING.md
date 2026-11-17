@@ -54,11 +54,11 @@ On Linux x86-64 the toolchain runs natively and Docker is not needed.
 `JIELI_TOOLCHAIN` and `AC79_SDK` override the default locations
 (`~/.jieli/toolchain`, `~/fw-AC79_AIoT_SDK`).
 
-`./build.sh --release 1.2.0` labels the app `piterfly 1.2.0`, with updater identity
-`FM-1_1120101`, and creates `build/felucca-1.2.0.fwsc`. The application, package and loader retain the Piterfly product identity introduced in 1.0.1; the semantic version and binary SHA-256 identify this release.
+`./build.sh --release 1.2.3` labels the app `piterfly 1.2.3`, with updater identity
+`FM-1_1120101`, and creates `build/felucca-1.2.3.fwsc`. The application, package and loader retain the Piterfly product identity introduced in 1.0.1; the semantic version and binary SHA-256 identify this release.
 The authoritative current version is `firmware/src/version.h`.
 For a frozen source snapshot, full licences and matching local installer links,
-see [the 1.2.0 build notes](docs/RELEASE-1.2.0.md). The public release includes matching firmware, sources, licences, checksums and browser audio assets.
+see [the 1.2.3 build notes](docs/RELEASE-1.2.3.md). The public release includes matching firmware, sources, licences, checksums and browser audio assets.
 
 The default layout is six synths and two drums. Projects use FUNB (6,160 bytes), settings PER4 and editor protocol 19. Previous projects are not imported. The 3+1 and 7+1 build configurations remain regression fixtures.
 

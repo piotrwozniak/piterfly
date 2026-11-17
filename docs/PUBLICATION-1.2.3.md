@@ -18,3 +18,7 @@ Installer: <https://piotrwozniak.github.io/piterfly/webapp/installer/>.
 Documentation: <https://piotrwozniak.github.io/piterfly/webapp/changes/>.
 
 Both Pages jobs succeeded. The live installer reports 1.2.3; its firmware, SHA256SUMS, BUILD_INFO and HOME screenshot match the verified release. This record follows the frozen tag and does not alter its source archive or binaries.
+
+## Documentation correction
+
+Current guide headings, build examples, licensing summary and current-version pointers now consistently identify 1.2.3. Historical release descriptions, SDK tags and compatibility references remain unchanged. Updated documentation is provided separately as piterfly-1.2.3-documentation.zip with its own checksum; frozen firmware and original source-build assets are unchanged.

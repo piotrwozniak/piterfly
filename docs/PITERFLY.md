@@ -1,4 +1,4 @@
-# piterfly — zmiany względem SLOOP
+# piterfly 1.2.3 — zmiany względem SLOOP
 
 piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.3** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
 
@@ -10,7 +10,7 @@ piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. W
 
 Wybierz ścieżkę **7** lub **8** pokrętłem PRESETS. Strony DRUMS, siatka kroków i gałki edytują wybraną perkusję. Każda ma własny wybór zestawu, 16 brzmień/linii, 64 kroki, TUNE i DECAY każdej linii, poziom, panoramę, wysyłki REV/DLY, filtr, slicer i insert. Każda ma sześć głosów; hi-hat jednej nie ucina drugiej.
 
-Dla ścieżki 7 kanał MIDI ustawiasz przez **CH7** (domyślnie 7), dla ścieżki 8 przez **DRUM CH** (domyślnie 10). THRU działa osobno. LEVEL/REV/DLY ścieżki 7 są jej własnymi parametrami; ścieżka 8 zachowuje dotychczasowe globalne regulatory perkusji. Edytor 18 obsługuje oba tory niezależnie.
+Dla ścieżki 7 kanał MIDI ustawiasz przez **CH7** (domyślnie 7), dla ścieżki 8 przez **DRUM CH** (domyślnie 10). THRU działa osobno. LEVEL/REV/DLY ścieżki 7 są jej własnymi parametrami; ścieżka 8 zachowuje dotychczasowe globalne regulatory perkusji. Edytor z protokołem 19 obsługuje oba tory niezależnie.
 
 Biblioteka sampli i definicje zestawów SYN1–SYN4 są wspólne. Wybrany zestaw, pattern i strojenie linii zapisują się osobno dla każdej perkusji. Sześć syntezatorów nadal dzieli pulę ośmiu głosów.
 
@@ -35,7 +35,7 @@ Pattern przechowuje cały loop: wszystkie osiem tracków, ich nuty, brzmienia i 
 
 ## Ekrany wyświetlane na FM-1
 
-Ilustracje w tej instrukcji odwzorowują **ekran urządzenia 240 × 240 pikseli**. Główna galeria pochodzi z wydania 1.1.0 (7+1); nowe podglądy SONG/SONGS opisano osobno. Starsze obrazy nie potwierdzają wyglądu drugiej perkusji w 1.2.0. Nie są zrzutami edytora WWW ani zdjęciami fizycznego wyświetlacza. Dane muzyczne są przykładowe. Kliknięcie obrazu otwiera jego pełny plik.
+Ilustracje w tej instrukcji odwzorowują **ekran urządzenia 240 × 240 pikseli**. Główna galeria pochodzi z wydania 1.1.0 (7+1); nowe podglądy SONG/SONGS opisano osobno. Starsze obrazy nie potwierdzają wyglądu drugiej perkusji w bieżącym układzie 6+2. Nie są zrzutami edytora WWW ani zdjęciami fizycznego wyświetlacza. Dane muzyczne są przykładowe. Kliknięcie obrazu otwiera jego pełny plik.
 
 ### HOME: instrument i pozycja na liście (1.2.3)
 
@@ -214,7 +214,7 @@ Zapisywane są tylko patterny zawierające nuty lub uderzenia perkusji, równie�
 
 **Przed aktualizacją starego układu zrób backup.** Wszystkie USR1/2/3/4 służą do zapisu patternów i songów; sample użytkownika nie są zachowywane. Pozostają sample fabryczne i zestawy SYN1–SYN4.
 
-Projekty 1.2.0 mają format **FUNB (6160 bajtów)**. Stare patterny i projekty FUN1–FUNA nie są importowane; utwórz nowe patterny. Ustawienia urządzenia pozostają w PER4. Wspólna pula patternów i songów ma 352 KiB; nie ma banków sampli użytkownika.
+Projekty 1.2.0–1.2.3 mają zgodny format **FUNB (6160 bajtów)**; aktualizacja między tymi wersjami zachowuje projekty. Stare patterny i projekty FUN1–FUNA nie są importowane; przy przejściu ze starszego formatu utwórz nowe patterny. Ustawienia urządzenia pozostają w PER4. Wspólna pula patternów i songów ma 352 KiB; nie ma banków sampli użytkownika.
 
 W tym formacie usunięto pozycje USR z wyboru SAMPLE/GRAIN i drum kitów. SYN1–SYN4 mają nowe identyfikatory, dlatego również eksperymentalne projekty FUNA nie są importowane.
 
@@ -268,11 +268,11 @@ W serwisie, w sekcji MIDI THRU strony **What changes?**, dostępny jest angielsk
 | SONG | Przejście przez 128 pozycji, zakończenie i zapętlenie, timing audio |
 | UI | Render do framebufferów, granice ekranu, ostatni krok 64, dwa kursory, 20 000 losowych klatek |
 | Bezpieczeństwo zapisu | Symulowany błąd flash i ponowienie, wygaszenie potwierdzeń, PENDING → SAVED, także przez rzeczywisty kod protokołu MIDI |
-| WWW | Testy protokołu 18 i audio WASM; niezależne kroki/strojenie obu perkusji, odrzucanie błędnych plików. Test wizualny/offline przeglądarki pominięto: brak Playwright |
+| WWW | Testy protokołu 19 i audio WASM; niezależne kroki/strojenie obu perkusji, odrzucanie błędnych plików. Test wizualny/offline przeglądarki pominięto: brak Playwright |
 | MIDI THRU | Routing, kanały, wyłączenie THRU, zwalnianie nut, USB/TRS i zachowanie ustawień |
 | Build | Kompilacja, limity pamięci i weryfikacja paczki `.fwsc` |
 
-**Wersja 1.2.0 przeszła pełny zestaw testów hosta, testy ASan/UBSan i ThreadSanitizer oraz porównania audio natywnego/WASM. Test 6+2 na fizycznym FM-1 pozostaje do wykonania.** Akceptacja sprzętowa wcześniejszego wydania 1.1.0 nie potwierdza nowego układu.
+**Aktualna wersja to 1.2.3.** Poprawkę linii instrumentu sprawdzono przez build, testy HOME/panelu i zapamiętywania parametrów pod ASan/UBSan, porównania native/WASM oraz zgodność renderu z zaakceptowanym podglądem. Szersze testy audio i protokołu wykonano dla 1.2.2; ten kod pozostał bez zmian. **Test 6+2 na fizycznym FM-1 pozostaje do wykonania.** Akceptacja sprzętowa wcześniejszego wydania 1.1.0 nie potwierdza nowego układu.
 
 Najważniejsze testy 6+2: [two_drums_test.c](../tests/two_drums_test.c), [test_two_drums.mjs](../web/test_two_drums.mjs), [preview_test.mjs](../tests/preview_test.mjs). Pozostałe regresje obejmują też historyczne konfiguracje: [pattern_bank_test.c](../tests/pattern_bank_test.c), [pattern24_test.c](../tests/pattern24_test.c), [pattern24_migration_test.c](../tests/pattern24_migration_test.c), [arranger_test.c](../tests/arranger_test.c), [save_safety_test.c](../tests/save_safety_test.c), [ui_pages_test.c](../tests/ui_pages_test.c), [test_web.mjs](../web/test_web.mjs).
 
@@ -281,7 +281,7 @@ Ta dokumentacja ma pierwszeństwo nad limitami i opisami czterech sekcji w zacho
 
 ## Granular na żywo
 
-W piterfly **1.2.0** dostępny jest **FX → INSERT → GRANUL**, niezależnie na każdym tracku. Gałka 1 (INSRT) zawsze wybiera typ efektu, gałka 2 (PARAM) wybiera parę, a gałki 3/4 edytują: **SIZE/DENSITY**, **PITCH/MIX**, **POS/SPREAD** lub **CAPTURE/BUF**. BUF jest informacją o pojemności, bez edycji. SELECT normalnie przechodzi między stronami FX. Pojemność i stan LIVE/FREEZE są stale widoczne. BUF podaje rzeczywiście dostępny czas historii, zależny od liczby instancji, silników i pozostałych efektów.
+W piterfly **1.2.3** dostępny jest **FX → INSERT → GRANUL**, niezależnie na każdym tracku. Gałka 1 (INSRT) zawsze wybiera typ efektu, gałka 2 (PARAM) wybiera parę, a gałki 3/4 edytują: **SIZE/DENSITY**, **PITCH/MIX**, **POS/SPREAD** lub **CAPTURE/BUF**. BUF jest informacją o pojemności, bez edycji. SELECT normalnie przechodzi między stronami FX. Pojemność i stan LIVE/FREEZE są stale widoczne. BUF podaje rzeczywiście dostępny czas historii, zależny od liczby instancji, silników i pozostałych efektów.
 
 Zmiana barwy, silnika lub presetu użytkownika zachowuje aktywny GRANUL, jego ustawienia i zamrożone audio. LIVE przechwytuje nową barwę. Edycja odrysowuje tylko zmienione pola, bez czyszczenia całego ekranu. Linie podziału, marginesy i pozycje wartości są takie same jak w CHOR; status bufora i LIVE/FREEZE nie przesuwa siatki.
 
@@ -290,7 +290,7 @@ Historia jest mono, 22,05 kHz, zapisana stratnie jako µ-law; suchy sygnał zach
 [Obsługa, ograniczenia i wyniki testów](LIVE-GRANULAR.md).
 
 
-## DUCK i granular w 1.2.0
+## DUCK i granular w 1.2.3
 
 Wybierz ścieżkę syntezatora, otwórz **FX → FILTER** i pokrętłem **2** ustaw **DUCK ON/OFF**. Stopa ścisza tylko włączone cele; wspólny **MASTER → DUCK** określa głębokość. Stopy z obu perkusji wyzwalają DUCK. Celami są wyłącznie ścieżki syntezatora 1–6. Ustawienia celów zapisują się z patternem.
 

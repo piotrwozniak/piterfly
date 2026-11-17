@@ -1,4 +1,4 @@
-# Named songs — piterfly 1.2.0
+# Named songs — piterfly 1.2.3
 
 The 6+2 firmware supports **eight named song slots, subject to free flash space**. A song contains its order (up to 128 entries), nonempty stored patterns and the current working loop. Loading a song replaces all 24 working pattern slots, including clearing absent patterns. Song files contain sequencer/project data, not a rendered audio recording.
 
@@ -14,7 +14,7 @@ SAVE on the ordinary SONG order page retains its previous meaning: saving the cu
 
 ## On the Mac
 
-Use the matching 1.2.0 editor, connected by USB MIDI, and open Song. The device-song list has Save, Load, Export and Delete controls. Export reads the selected snapshot directly, without changing the current project. It verifies lengths and CRCs and downloads a `.sloopsong` file. Changing/replacing/deleting that snapshot during export causes an error instead of mixing versions.
+Use the protocol-19 editor (the 1.2.0 editor remains compatible), connected by USB MIDI, and open Song. The device-song list has Save, Load, Export and Delete controls. Export reads the selected snapshot directly, without changing the current project. It verifies lengths and CRCs and downloads a `.sloopsong` file. Changing/replacing/deleting that snapshot during export causes an error instead of mixing versions.
 
 Export never deletes automatically. Check the downloaded file before deleting its device entry. To restore, import the file using the existing song-file control, then save the restored working project into a named slot. Existing current-project export remains available.
 

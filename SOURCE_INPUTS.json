@@ -18,17 +18,17 @@
       "executable": false
     },
     "BUILDING.md": {
-      "sha256": "0be61815d6280f701c55033ff27c1aa7b864d6467ae6050f37bd6075fae197bd",
+      "sha256": "d3082ebfaef9a7a6090713e26205ecd3989941f23987a42a90578d8b333d0cfa",
       "bytes": 6866,
       "executable": false
     },
     "DEMARRAGE-RAPIDE-FR.md": {
-      "sha256": "ce93e98a9e50a09290af43d60c4b993337b84455397b5af6c6a8b9306b061920",
+      "sha256": "1934c3deb4478f575a170edf673feded887341fba59664165671f365a275b0e2",
       "bytes": 44804,
       "executable": false
     },
     "DMINI.md": {
-      "sha256": "3c2cc45a57bd45d71527e0ff89c98f2ee6e5fc7facede4ce1fb63933ec19acd0",
+      "sha256": "5f3790f0e973329680d16f8ee944e607ddd5d25fd68731d359ced669507dc6d1",
       "bytes": 2879,
       "executable": false
     },
@@ -38,7 +38,7 @@
       "executable": false
     },
     "GUIDE.md": {
-      "sha256": "a441d37670f55134e45fb0d94835054dbac52a312f6b5104dca7dbfa509c7ee2",
+      "sha256": "491bd3432ca6363d3a5d5c44603ab8ea8185e6fb538fe2bdcd878b05282ce6ab",
       "bytes": 135622,
       "executable": false
     },
@@ -98,7 +98,7 @@
       "executable": false
     },
     "LICENSING.md": {
-      "sha256": "9a99c042e28fd4d8f2d9af75b78b3ab20a0902649fe405c45ec577cb155de3c5",
+      "sha256": "0b70f609c6be2079a421b1a8a206d29d5142fa726062c247b6d56aa44640f1cf",
       "bytes": 6290,
       "executable": false
     },
@@ -813,7 +813,7 @@
       "executable": false
     },
     "docs/LIVE-GRANULAR.md": {
-      "sha256": "e30d4b59f1d4ee801e70efe452d73ae2a9d2ffc27bbe19c240dfdc8c9b80c6b5",
+      "sha256": "0dc424b0ece4d0f5ea5f398d449d042e034d52a93391a73c7b812360730cf055",
       "bytes": 3764,
       "executable": false
     },
@@ -823,8 +823,8 @@
       "executable": false
     },
     "docs/PITERFLY.md": {
-      "sha256": "46a6fc28bcef74f4d138ba19b1532297dd3f085df31524a21d813875ca08a8ac",
-      "bytes": 33612,
+      "sha256": "39f7d01ebe7a4b35dac09ab68e6ce4d1d930870de66bfb9ed5eb297fae2287e4",
+      "bytes": 33937,
       "executable": false
     },
     "docs/PUBLICATION-1.0.1.md": {
@@ -848,8 +848,8 @@
       "executable": false
     },
     "docs/PUBLICATION-1.2.3.md": {
-      "sha256": "b1ffe28b7693718a5f42e48573cf64475719ce9e2b8fae634a32169b5723fb14",
-      "bytes": 2000,
+      "sha256": "b2515c724f452ece8027e7f415f39d1e04aa453ec6e6a80b0127969009ffbb82",
+      "bytes": 2407,
       "executable": false
     },
     "docs/RELEASE-1.0.0.md": {
@@ -903,12 +903,12 @@
       "executable": false
     },
     "docs/SONGS.md": {
-      "sha256": "c917c6ee7c1d4f1fb1fb75a0a62a0ae10115d2e7c92c62c3011aad8c152496f2",
-      "bytes": 5387,
+      "sha256": "8ce2fb1976c71fd2d61c78bb60dd900d93746541f3b87283c4f7c9e7ab33bead",
+      "bytes": 5422,
       "executable": false
     },
     "docs/TRACKS.md": {
-      "sha256": "1c39b76e6ca6e2ba40d981f7811a90aa855ccb075fd074d63c1340a5d7ed7554",
+      "sha256": "f269bb10515902205c8a94250680530ddf5580a5417808a23b20f7ce35618a0f",
       "bytes": 2637,
       "executable": false
     },
@@ -2128,8 +2128,8 @@
       "executable": false
     },
     "web/changes.html": {
-      "sha256": "270eba83721f9cbbcc119609a2cde1488a1e669a33a6d84c09f9f7347c956004",
-      "bytes": 42725,
+      "sha256": "6a23dbc05e830225f98f211b557712efd41e85e4c5d91b692f7dd20cd33258dd",
+      "bytes": 40445,
       "executable": false
     },
     "web/editor.html": {
