@@ -173,7 +173,7 @@ def main(pkg, version, out, release_dir=None):
     for mark in ("/*LIB*/", "/*META*/"):
         if html.count(mark) != 1:
             raise SystemExit(f"index_pkg.html must contain {mark} once; update make_site.py")
-    html = html.replace("/*LIB*/", lib).replace("/*META*/", meta)
+    html = html.replace("/*LIB*/", lib).replace("/*META*/", meta).replace("<!--VERSION-->", html_escape.escape(version))
     logo = HERE.parent / "assets" / "piterfly" / "arcade-web.png"
     logo_uri = "data:image/png;base64," + base64.b64encode(logo.read_bytes()).decode()
     html = html.replace("<!--LOGO-->", f'<img src="{logo_uri}" width="446" height="304" alt="piterfly">')

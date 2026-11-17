@@ -2198,8 +2198,8 @@
       "executable": false
     },
     "web/index_pkg.html": {
-      "sha256": "67329dddbe61c7854ec206567a6bbe40b47e31d6c665d09db4066039b4450325",
-      "bytes": 31904,
+      "sha256": "289f997a85b2bfbb9e57a279b38975e2845d00c759412e7e5e2bc18c8c81ed97",
+      "bytes": 31967,
       "executable": false
     },
     "web/licences.html": {
@@ -2208,8 +2208,8 @@
       "executable": false
     },
     "web/make_site.py": {
-      "sha256": "416027780db1a12502b0c60c68fb1e6b50cc53746290ee9f2b244bf753aaf3d7",
-      "bytes": 16501,
+      "sha256": "7283ebdd8ec09643946b4b16e81fe07616ca652832246f9116ec2b3863e822fc",
+      "bytes": 16556,
       "executable": false
     },
     "web/midipipe.html": {
