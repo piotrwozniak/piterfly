@@ -1,5 +1,5 @@
 {
-  "origin_commit": "8aca34147027d5dc588ff922a1acddd8beb98e93",
+  "origin_commit": "6e3f735371146d4ea66ecc5436786d0405c0fc2a",
   "tracking": "sealed preferred-source files; Git metadata excluded",
   "files": {
     ".gitattributes": {
@@ -8,7 +8,7 @@
       "executable": false
     },
     ".github/workflows/pages.yml": {
-      "sha256": "96d60a21a4becd039d5426b1ae58c143142b4920579aeabc83a40c04fae5c480",
+      "sha256": "00912ad5c2cdfeadc8586d5d34c6c86f58b9775ac70cb919d1fe2d1ef37a5b97",
       "bytes": 2667,
       "executable": false
     },
@@ -18,7 +18,7 @@
       "executable": false
     },
     "BUILDING.md": {
-      "sha256": "f98035379fb2e0c4fa076b76d3f2ff531452ab6a45c007617c1aba6a2e6f26f0",
+      "sha256": "7807d924a35dc1ae7f40b220b7e1a4020f31ac44b30f82bd4ae034a3975169df",
       "bytes": 6866,
       "executable": false
     },
@@ -98,7 +98,7 @@
       "executable": false
     },
     "LICENSING.md": {
-      "sha256": "5b2c312477051ee85840bd7f618d1a4b2f1629c0669213d95401b4330af53c77",
+      "sha256": "3220b07c0b278184ffdf1b4c86b9a6b62a7af7464653d3fedccf11c5626193c5",
       "bytes": 6290,
       "executable": false
     },
@@ -118,12 +118,12 @@
       "executable": false
     },
     "PROVENANCE.md": {
-      "sha256": "b73746354d2e12aad24ffb10d0c8c879ca96a2f5ab0ff07968d9518c2a87bc35",
+      "sha256": "e8f4fdb51ef0ecb53489691733811073b73969326fb6b01b61638f3eae3a9835",
       "bytes": 8457,
       "executable": false
     },
     "PUBLIC_EXPORT.json": {
-      "sha256": "ee73c318335927c5853f4563697818b346d31a109496470bd06eaa502afb9e2e",
+      "sha256": "b8e0bf99d2d88b2d1dbc4ebcc9108169c81345293b4f3c582710b0a4af683bb8",
       "bytes": 103109,
       "executable": false
     },
@@ -133,8 +133,8 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "27f77cb0a79504c7207fca718284e9784382b8e248f7af8b94297955cb81dd1b",
-      "bytes": 6956,
+      "sha256": "e6f34b63caead0df645f98d407fba3733870d0f871240765dbf50b5a50bbf669",
+      "bytes": 6963,
       "executable": false
     },
     "SLOOP.md": {
@@ -442,6 +442,11 @@
       "bytes": 3258,
       "executable": false
     },
+    "assets/piterfly/screenshots/home-instrument-1.2.5.png": {
+      "sha256": "022eb31a25ddc1734d97c023bfce7c515b88f8bc31f95bcaaaa06938697ceaeb",
+      "bytes": 3549,
+      "executable": false
+    },
     "assets/piterfly/screenshots/home-tracks-5-8-1.2.2.png": {
       "sha256": "7a5598d9affea03a5b108e43cc845b1f4feeb3dc1d225ed69e849f2efd04e43b",
       "bytes": 3417,
@@ -455,6 +460,11 @@
     "assets/piterfly/screenshots/home-tracks-5-8-1.2.4.png": {
       "sha256": "e10f8d10502a815038a93882d92da83bb1fd646175b888ac1bf5a3753d97a4ce",
       "bytes": 3122,
+      "executable": false
+    },
+    "assets/piterfly/screenshots/home-tracks-5-8-1.2.5.png": {
+      "sha256": "7ce054382cb856d173c875bcad2de88401576b845c98f2caff34e487194a55a1",
+      "bytes": 3373,
       "executable": false
     },
     "assets/piterfly/screenshots/home-tracks-5-8.png": {
@@ -828,7 +838,7 @@
       "executable": false
     },
     "docs/LIVE-GRANULAR.md": {
-      "sha256": "cc13b4f6230ec07a77cacae273b4bb9c871375aa41abf63f4b70834ed41db3e0",
+      "sha256": "cf21c2ca96de735748fe8083cf44be5b37916e3224dfdd00c67bdeac56ad6bea",
       "bytes": 3764,
       "executable": false
     },
@@ -838,8 +848,8 @@
       "executable": false
     },
     "docs/PITERFLY.md": {
-      "sha256": "a4c3c64eff029b977a77fd0d112f43e14a0b64f6cec423f6de66a3c2b6bc9a86",
-      "bytes": 33823,
+      "sha256": "535616c566166d90bb5622a764c15fecea225f8f7e0a3dafaa7a762f90941b6e",
+      "bytes": 33704,
       "executable": false
     },
     "docs/PUBLICATION-1.0.1.md": {
@@ -912,6 +922,11 @@
       "bytes": 1890,
       "executable": false
     },
+    "docs/RELEASE-1.2.5.md": {
+      "sha256": "b33bd4714b01c32830d64c7a283c67a18d33c400767cc4e21ac72a2e8be169c4",
+      "bytes": 1036,
+      "executable": false
+    },
     "docs/SCREENSHOTS-1.1.0.md": {
       "sha256": "6f59d77e3856f191dfa19a287b1293b4eef00987001621e4f077fc71f50d044f",
       "bytes": 6964,
@@ -928,13 +943,13 @@
       "executable": false
     },
     "docs/SONGS.md": {
-      "sha256": "e12cfa4386396080c51cb9d99d89e6fdca8ff8f42dc74bbf38959d09e49ef3cf",
+      "sha256": "04cb72abb0e37f0dcd852f50cfa5c5eee3cb9685586ac4760937ad968e3d8c48",
       "bytes": 5422,
       "executable": false
     },
     "docs/TRACKS.md": {
-      "sha256": "d334174269e1a660bc73f85bde4185b5d2bfd71f93e1c62cd8293749e17b0917",
-      "bytes": 2637,
+      "sha256": "9e8582a1633640833f61129f3fbf7c8bfe61d19425dcdc8fba922bba587f4e06",
+      "bytes": 2894,
       "executable": false
     },
     "docs/audits/2026-11-13-audio-performance/REPORT.md": {
@@ -1423,8 +1438,8 @@
       "executable": false
     },
     "firmware/src/ui_studio.c": {
-      "sha256": "d58275f09b2fbb895be83b3632e7d2f307fe103a4dc2cc439d2b24e81430d62a",
-      "bytes": 45250,
+      "sha256": "577cb525b2c3cb0b2f4ab674d5769f9bfd8a86241b51c6491ca630ee4ef00c07",
+      "bytes": 45730,
       "executable": false
     },
     "firmware/src/ui_vis.c": {
@@ -1443,7 +1458,7 @@
       "executable": false
     },
     "firmware/src/version.h": {
-      "sha256": "5655ff402e1a11b10caa899a6dd27d4135004b3617bc7c3d71a73de5095c354c",
+      "sha256": "a54168b159d2a076c6d1ca78c598a8032b707c7c715a7e14d417b7895c88f32d",
       "bytes": 214,
       "executable": false
     },
@@ -1612,9 +1627,14 @@
       "bytes": 14016,
       "executable": false
     },
+    "tests/home_layout_baseline.h": {
+      "sha256": "2699fe5d2159d3430e38998a7c18b7aeb241686b0a6a7aa9f6957cf3c0bcd887",
+      "bytes": 4307,
+      "executable": false
+    },
     "tests/home_layout_test.c": {
-      "sha256": "cf15aaf63cc0f21aa77e45e9b7a6db27f7b927ffa3cef7f6f440db5d0be8ca1a",
-      "bytes": 2498,
+      "sha256": "2676b55a4fcc3c0c9b1daf6de7ff481989ef20d8bfa78dd1ba0224481a131379",
+      "bytes": 2257,
       "executable": false
     },
     "tests/home_nav_test.c": {
@@ -1623,8 +1643,8 @@
       "executable": false
     },
     "tests/home_sound_test.c": {
-      "sha256": "26a2b03bdc96ed51db86021bf196079a73c1ce511638154b25a1f3c41a9a5a3d",
-      "bytes": 1689,
+      "sha256": "55e233814541d4e9a525d6e695c3dc67149e1129921cee0dc7d2510ac36d358c",
+      "bytes": 3224,
       "executable": false
     },
     "tests/hostsim.c": {
@@ -2158,8 +2178,8 @@
       "executable": false
     },
     "web/changes.html": {
-      "sha256": "d35372d60acb11a86a2ca9a95e6d48781839d2e0cec0a60fb27fcca774547726",
-      "bytes": 40437,
+      "sha256": "643a63ed5526dd483ab1a5454c7efd76b14414dc4ea2e7f3c082f45b4bdf04ab",
+      "bytes": 40515,
       "executable": false
     },
     "web/editor.html": {
@@ -2208,8 +2228,8 @@
       "executable": false
     },
     "web/make_site.py": {
-      "sha256": "7283ebdd8ec09643946b4b16e81fe07616ca652832246f9116ec2b3863e822fc",
-      "bytes": 16556,
+      "sha256": "66aa4742fc3d3c4243702dd0253b6a1ea564d59a58b73029a87a233bbc55e74f",
+      "bytes": 16627,
       "executable": false
     },
     "web/midipipe.html": {

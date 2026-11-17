@@ -1,6 +1,6 @@
-# Track controls — piterfly 1.2.4
+# Track controls — piterfly 1.2.5
 
-The current layout is **six synth parts + two drum tracks**. The published 1.1.0 release used 7+1; its hardware verification does not cover version 1.2.4.
+The current layout is **six synth parts + two drum tracks**. The published 1.1.0 release used 7+1; its hardware verification does not cover version 1.2.5.
 
 | Tracks | Instrument | Default MIDI channels | Voices |
 | --- | --- | --- | --- |
@@ -9,6 +9,8 @@ The current layout is **six synth parts + two drum tracks**. The published 1.1.0
 | 8 | Drum part 2; set its channel with DRUM CH | 10 | Six drum voices |
 
 PRESETS selects the track on ordinary parameter pages. ALGORITHM changes the synth sound or drum kit. In NOTES, PRESETS changes zoom and ALGORITHM selects the track. HOME and REC show groups 1–4 and 5–8. GLO-held mute/solo keys and the four level knobs operate on the visible group; GLO plus the second black key switches groups.
+
+HOME shows each track’s sound name, engine and #XXX number above the start of its level bar. Drum numbers identify kits. Long sound names are shortened; REC/SOLO/MUTE temporarily replaces the number. Track sizes, fonts, grids and controls are unchanged.
 
 ## Drum tracks 7 and 8
 
@@ -26,4 +28,4 @@ Each track has its own MIDI channel, THRU switch and MIDI Learn routing. Track 7
 
 24 pattern slots and 128 SONG positions remain. A pattern holds all eight tracks. **Create new projects:** FUNB (6,160 bytes), editor protocol 19, settings PER4. Earlier FUN1–FUNA projects are not imported. All four former user-sample banks join the 352 KiB pattern/song pool; factory samples remain. Eight named song slots support save, load from a list, delete and export on the Mac, subject to available space. See [SONGS.md](SONGS.md).
 
-[Build and release notes](RELEASE-1.2.4.md) · [Polska instrukcja](PITERFLY.md) · [Implementation and verification](SIX-SYNTH-TWO-DRUMS.md)
+[Build and release notes](RELEASE-1.2.5.md) · [Polska instrukcja](PITERFLY.md) · [Implementation and verification](SIX-SYNTH-TWO-DRUMS.md)

@@ -263,7 +263,10 @@ UI_SMALL static __attribute__((noinline)) void studio_tracks_draw(void)
     studio_sound_draw();
     for (i = base; i < base+4u; i++) {
         track_t *t = &trk[i];
-        char b[24], e[16];
+        char b[24], e[16], number[5];
+        uint32_t total, sound=sound_position(t,&total);
+        number[0]='#'; number[1]=(char)('0'+(sound+1u)/100u);
+        number[2]=(char)('0'+(sound+1u)/10u%10u); number[3]=(char)('0'+(sound+1u)%10u); number[4]=0;
         uint32_t selected = song.sel == i, len = (uint32_t)clamp(t->p[P_SLEN], 1, 64);
         uint32_t level = i == TRK_DRUM ? song.g[G_DRLVL] : t->p[P_LEVEL];
         uint32_t silent = trk_silent(t) || !level, pos = t->seq_idx % len;
@@ -278,8 +281,12 @@ UI_SMALL static __attribute__((noinline)) void studio_tracks_draw(void)
             te_lower(e, ENGINES[t->eng_req % NENGINES]->name, sizeof e);
         }
         b[13] = 0;
+        /* Keep the engine beside every name; the number sits above the level bar. */
+        while (str_len(b) && 34+text_w(&FONT_S,b)+6+text_w(&FONT_S,e)>194)
+            b[str_len(b)-1u]=0;
         h = studio_hash(selected + level * 7u + silent * 997u + rec * 1999u + solo * 4999u + len * 37u +
-                        song.playing * 7u + pos * 71u, b);
+                        song.playing * 7u + pos * 71u + sound*7919u, b);
+        h=studio_hash(h,e);
         for (j = 0; j < len; j++) h = h * 31u + (uint32_t)trk_step_on(t, j);
         if (!ui.force && h == rows[i]) continue;
         rows[i] = h;
@@ -290,8 +297,7 @@ UI_SMALL static __attribute__((noinline)) void studio_tracks_draw(void)
             cv_text(11, 10, &FONT_S, n, selected ? C_BLACK : col);
         }
         cv_text(34, 1, &FONT_S, b, selected ? C_WHITE : TE_G4);
-        if (34 + text_w(&FONT_S, b) + 6 + text_w(&FONT_S, e) < 196)
-            cv_text(34 + text_w(&FONT_S, b) + 6, 1, &FONT_S, e, selected ? col : TE_G3);
+        cv_text(34 + text_w(&FONT_S, b) + 6, 1, &FONT_S, e, selected ? col : TE_G3);
         if (rec) {
             cv_rect(200, 1, 36, 14, TE_RED);
             cv_text(206, 1, &FONT_S, "rec", C_WHITE);
@@ -300,6 +306,8 @@ UI_SMALL static __attribute__((noinline)) void studio_tracks_draw(void)
             cv_text(202, 1, &FONT_S, "solo", C_BLACK);
         } else if (silent) {
             cv_text(204, 1, &FONT_S, "mute", TE_G3);
+        } else {
+            cv_text(198, 1, &FONT_S, number, selected ? col : TE_G3);
         }
         /* Each row is one real group of 16 steps, including while stopped. */
         uint32_t pages = (len + 15u) / 16u;
