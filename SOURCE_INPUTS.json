@@ -882,6 +882,11 @@
       "bytes": 2476,
       "executable": false
     },
+    "docs/PUBLICATION-1.2.5.md": {
+      "sha256": "bec8c59a42f1aba846f2b7f0e42d0b9c463ccfeb480cce6bf80fa6c1170c5af8",
+      "bytes": 1308,
+      "executable": false
+    },
     "docs/RELEASE-1.0.0.md": {
       "sha256": "f84605a59e740fc88a0cfa777a78087dd86c36b294e06af7a6b2532af9c3b826",
       "bytes": 4500,
@@ -2223,8 +2228,8 @@
       "executable": false
     },
     "web/licences.html": {
-      "sha256": "e12ae45082483ede72dc42fde2e02ff61799fe5e851ebb5e705cd37241161a90",
-      "bytes": 1468,
+      "sha256": "6abff0ccb4e8de9a6fd68d959a5b08ef2d2a68532f22d1a7735c9485ff077c0a",
+      "bytes": 1477,
       "executable": false
     },
     "web/make_site.py": {
