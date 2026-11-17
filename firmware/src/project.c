@@ -29,8 +29,8 @@ static int32_t pt_micro(const proj_trk_t *t, uint32_t i) { int32_t m=t->mf[i]&63
 static uint32_t pt_fill(const proj_trk_t *t, uint32_t i) { return t->mf[i]>>6; }
 static void pt_set_mf(proj_trk_t *t,uint32_t i,int32_t m,uint32_t f) { t->mf[i]=(uint8_t)(((uint32_t)m&63u)|(f&3u)<<6); }
 static uint32_t proj_sum(const project_t *p) { return proj_hash(p,sizeof *p-4u); }
-static int proj_ok(const project_t *p) { return p && p->magic==PROJ_MAGIC && p->size==sizeof *p && p->sum==proj_sum(p); }
-static void pt_steps_put(project_t *p,uint32_t track,const void *steps)
+UI_SMALL static __attribute__((noinline)) int proj_ok(const project_t *p) { return p && p->magic==PROJ_MAGIC && p->size==sizeof *p && p->sum==proj_sum(p); }
+UI_SMALL static void pt_steps_put(project_t *p,uint32_t track,const void *steps)
 {
     if(is_drum(&trk[track])) {
         memcpy(p->t[track].step,steps,NSTEP*8u);
@@ -41,7 +41,7 @@ static void pt_steps_put(project_t *p,uint32_t track,const void *steps)
             p->drum_tail,(const uint8_t *)steps+NSTEP*8u,NSTEP*2u);
     } else for(uint32_t k=0;k<NSTEP;k++) pc_step_put(p->t[track].step[k],(const step_t *)steps+k);
 }
-static void pt_steps_get(void *steps,const project_t *p,uint32_t track)
+UI_SMALL static void pt_steps_get(void *steps,const project_t *p,uint32_t track)
 {
     if(is_drum(&trk[track])) {
         memcpy(steps,p->t[track].step,NSTEP*8u);
@@ -161,7 +161,7 @@ UI_SMALL static void proj_tx_put(project_t *p)
     p->g[G_DRCH] = (int16_t)((song.g[G_TXLVL] & 127) | ((song.g[G_TXTONE] + 64) & 127) << 7);
     p->g[G_INFO] = song.g[G_TXMOVE];
 }
-static void proj_tx_get(const project_t *p)
+UI_SMALL static void proj_tx_get(const project_t *p)
 {
     static const uint8_t ID[7] = {G_TXSRC, G_TXLVL, G_TXTONE, G_TXMOVE, G_TXRATE, G_TXWHEN, G_TXDUCK};
     int32_t v[7];
@@ -203,7 +203,7 @@ UI_SMALL static void drum_tw_put(project_t *p)
         p->drum_tw[l] = (int16_t)w[l];
     p->g[G_SAVE] = (int16_t)(DRUM_TW_MARK | drum_tw_sum(p->drum_tw));
 }
-static void drum_tw_get(const project_t *p)
+UI_SMALL static void drum_tw_get(const project_t *p)
 {
     const int16_t *e = p->drum_tw;
     uint32_t l, b, ok = (uint16_t)p->g[G_SAVE] == (DRUM_TW_MARK | drum_tw_sum(e));
@@ -252,7 +252,7 @@ UI_SMALL static void proj_capture(project_t *p)        /* what is playing now, a
 /* a project's tracks (and its globals, all: a load; or only the drum level / reverb / delay: a song
  * section) into the working one, every value back inside its range. The audio ISR must not run
  * meanwhile (the song sections: called from it; a load: IRQ off) */
-static void proj_apply(const project_t *p, int all)
+UI_SMALL static void proj_apply(const project_t *p, int all)
 {
     gf_reset();
     uint32_t i, k;
@@ -333,6 +333,7 @@ static void proj_apply(const project_t *p, int all)
 
 #ifndef PROJ_HOST
 #if FELUCCA_ARRANGER
+UI_SMALL static __attribute__((noinline)) int section_keep(void);
 #include "arranger_scene.c"
 #endif
 
@@ -362,7 +363,13 @@ UI_SMALL static void proj_fetch(uint32_t slot)
 #include "fm6_bank.c"                           /* the FM6 patch bank (eng_fm6.c PTCH B1..B27): staged in proj_tmp */
 #endif
 
-static const char *const SEC_NAME[24] = {"A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "C1", "C2", "C3", "C4", "D1", "D2", "D3", "D4", "E1", "E2", "E3", "E4", "F1", "F2", "F3", "F4"};   /* (2.7: the slots named as the song's sections) */
+UI_SMALL static __attribute__((noinline)) void project_dirty(project_t *p)
+{
+    uint32_t bit = 1;
+    for (project_t *q = proj_slot; q != p; q++) bit <<= 1;
+    sec_dirty |= (uint8_t)bit;
+}
+
 UI_SMALL static void project_save(uint32_t slot)
 {
     project_t *p;
@@ -372,14 +379,17 @@ UI_SMALL static void project_save(uint32_t slot)
     p = project_edit(slot);
     if (!p) { ui_message("STOP TO SAVE MORE"); return; }
     proj_capture(p);
-    sec_dirty |= (uint8_t)(1u << (p - proj_slot));
+    project_dirty(p);
+#if FELUCCA_ARRANGER
+    live_sec = (int8_t)slot;
+#endif
 #if FELUCCA_FLASH
     if (flash_ok) {
         if (pb_save(slot, p, sizeof *p))
             ui_message(pb_error());
         else {
             sec_dirty &= (uint8_t)~(1u << (p - proj_slot));
-            ui_say("SAVED PATTERN ", SEC_NAME[slot]);
+            ui_say("SAVED PATTERN ", N_SECT[slot]);
         }
         return;
     }
@@ -398,7 +408,7 @@ UI_SMALL static void project_erase(uint32_t slot)
     if (song.playing || transport_req) { ui_message("STOP BEFORE ERASE"); return; }
 #endif
     if (!proj_ok(project_at(slot))) {
-        ui_say("EMPTY SECTION ", SEC_NAME[slot]);
+        ui_say("EMPTY SECTION ", N_SECT[slot]);
         return;
     }
 #if FELUCCA_FLASH
@@ -418,7 +428,7 @@ UI_SMALL static void project_erase(uint32_t slot)
         song_dirty = 1;                                     /* (saved with the settings, when quiet) */
 #endif
     fm1_irq_on();
-    ui_say("ERASED SECTION ", SEC_NAME[slot]);
+    ui_say("ERASED SECTION ", N_SECT[slot]);
 }
 
 /* (2.8.4) a part whose sound is on an engine this firmware does not have (a project Clipper wrote: HYBRID,
@@ -439,6 +449,9 @@ UI_SMALL static void proj_foreign_parts(const project_t *p)
 UI_SMALL static void project_apply(const project_t *p)
 {
     uint32_t k;
+#if FELUCCA_ARRANGER
+    live_sec = -1;
+#endif
     transport_req = 2;
     panic_req = (1u << NTRK) - 1u;
     memset((void *)drum_mutes,0,sizeof drum_mutes);                                      /* (the live mutes: a performance's, not the project's) */
@@ -458,17 +471,20 @@ UI_SMALL static void project_apply(const project_t *p)
     ui.force = 1;
 }
 
-UI_SMALL static void project_load(uint32_t slot)
+UI_SMALL static __attribute__((noinline)) void project_load(uint32_t slot)
 {
-    const project_t *p;
     if (slot >= ARR_SCENES) return;
 #if FELUCCA_ARRANGER
     if (song.playing || transport_req) { ui_message("STOP BEFORE LOAD"); return; }
 #endif
-    p = project_at(slot);
-    if (!proj_ok(p)) { ui_say("EMPTY PATTERN ", SEC_NAME[slot]); return; }
+#if FELUCCA_ARRANGER
+    if (!section_load(slot)) return;
+#else
+    const project_t *p = project_at(slot);
+    if (!proj_ok(p)) { ui_say("EMPTY PATTERN ", N_SECT[slot]); return; }
     project_apply(p);
-    ui_say("LOADED PATTERN ", SEC_NAME[slot]);
+#endif
+    ui_say("LOADED PATTERN ", N_SECT[slot]);
 }
 
 /* ---- the working project, kept in flash by itself: saved when it changed, the transport is stopped,
@@ -986,28 +1002,51 @@ UI_SMALL static void arrangement_save(void)
 /* ---- live sections (SAVE + key, ui_layers.c). A section is a project slot (A..D = 1..4): stored into RAM
  * at once (playing too), written to flash once the transport is stopped and nothing sounds (an erase
  * stops the audio for ~50 ms); a song recorded with SONG REC is saved the same way. */
+UI_SMALL static __attribute__((noinline)) project_t *section_edit(uint32_t s)
+{
+    project_t *p = project_edit(s);
+    if (p) {
+        project_dirty(p);
+        save_pending = 1;
+    } else ui_message("STOP TO SAVE MORE");
+    return p;
+}
 UI_SMALL static int section_store(uint32_t s)
 {
-    project_t *p;
-    if (s >= ARR_SCENES) return 0;
     fm1_irq_off();
-    p = project_edit(s);
+    project_t *p = section_edit(s);
     if (p) {
         proj_capture(p);
-        sec_dirty |= (uint8_t)(1u << (p - proj_slot));
         live_sec = (int8_t)s;
-        save_pending = 1;
     }
     fm1_irq_on();
-    if (!p) ui_message("STOP TO SAVE MORE");
     return p != 0;
 }
-UI_SMALL static void section_load(uint32_t s)
+/* Called with audio excluded, including directly from the audio block. */
+UI_SMALL static __attribute__((noinline)) int section_keep(void)
 {
+    if (live_sec < 0) return 1;
+    /* SONG is not running here: reuse its backup rather than another 6 KiB buffer. */
+    proj_capture(&song_keep);
+    const project_t *old = project_at((uint32_t)live_sec);
+    if (old && !memcmp(old, &song_keep, sizeof song_keep)) return 1;
+    project_t *p = section_edit((uint32_t)live_sec);
+    if (!p) return 0;
+    memcpy(p, &song_keep, sizeof *p);
+    return 1;
+}
+UI_SMALL static __attribute__((noinline)) int section_load(uint32_t s)
+{
+    if (s >= ARR_SCENES) return 0;
+    fm1_irq_off();
+    int kept = section_keep();
+    fm1_irq_on();
+    if (!kept) return 0;
     const project_t *p = project_at(s);
-    if (!proj_ok(p)) return;
+    if (!proj_ok(p)) { ui_say("EMPTY PATTERN ", N_SECT[s]); return 0; }
     project_apply(p);
     live_sec = (int8_t)s;
+    return 1;
 }
 UI_SMALL static void sections_write(void)                        /* the dirty sections and song into flash */
 {

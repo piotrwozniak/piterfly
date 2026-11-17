@@ -40,9 +40,9 @@ int main(void)
         arrangement_apply(i);
         assert(trk[0].step[63].note[0] == 40 + i);
     }
-    /* Slot F4 also switches through the real next-bar path, directly from flash. */
+    /* Slot F4 also switches through the real full-loop path, directly from flash. */
     trk[0].step[63].note[0] = 1;
-    song.playing = 1; clk_beat = 4; live_bar = 0xFFFFFFFFu; live_req = 23;
+    live_sec = -1; song.playing = 1; clk_beat = 16; live_bar = 0xFFFFFFFFu; live_req = 23;
     live_block();
     assert(live_sec == 23 && trk[0].step[63].note[0] == 63);
     song.playing = 0;

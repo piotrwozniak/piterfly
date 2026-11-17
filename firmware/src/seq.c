@@ -2498,9 +2498,9 @@ static void click_tick(void)
 /* -------------------------------------------------------- sequencer --- */
 #if FELUCCA_ARRANGER
 /* ---- LIVE SECTIONS (SAVE held + key, ui_layers.c): a section asked for while playing starts on the
- * next bar, every track from its step 0 (as the song does). SONG REC writes the order you play into the
+ * end of the longest track cycle (whole bars), every track from its step 0 (as the song does). SONG REC writes the order you play into the
  * song chain (arrangement): each section with the bars it played, from the bar after the arm. */
-static volatile int8_t live_req = -1;              /* section asked for (UI), applied on the next bar */
+static volatile int8_t live_req = -1;              /* section asked for (UI), applied at the loop boundary */
 static volatile int8_t live_sec = -1;              /* the section playing: last jumped to, loaded or stored */
 static uint32_t live_bar = 0xFFFFFFFFu;            /* clk_beat / 4 of the last bar seen (= bars the section played) */
 /* QUICK CHAIN (SAVE held, two or more section keys tapped): the sections in order, looped, each for the bars its
@@ -2552,7 +2552,7 @@ static void srec_stop(void)
     srec = 0;
 }
 static void seq_reset_tracks(uint32_t pos);
-static void live_block(void)                       /* once a block while playing a loop (not the song) */
+UI_SMALL static void live_block(void)                       /* once a block while playing a loop (not the song) */
 {
     if ((clk_beat & 3u) || (clk_beat >> 2) == live_bar)
         return;
@@ -2571,11 +2571,11 @@ static void live_block(void)                       /* once a block while playing
         chain_i = (uint8_t)((chain_i + 1u) % (chain_n < CHAIN_MAX ? chain_n : CHAIN_MAX));
         live_req = (int8_t)(chain_sec[chain_i] % ARR_SCENES);
     }
-    if (live_req >= 0) {
+    if (live_req >= 0 && live_bar % section_bars(ARR_SCENES) == 0u) {
         uint32_t s = (uint32_t)live_req;
         live_req = -1;
         {                                           /* (the UI asked for a section it checked: no hash here) */
-            arrangement_apply(s);
+            if (!arrangement_apply(s)) { chain_n = 0; return; }
             song.rec = 0;                           /* (a take does not run on into another section) */
             live_sec = (int8_t)s;
             seq_reset_tracks(clk_pos);              /* on the bar: every track from its step 0 */

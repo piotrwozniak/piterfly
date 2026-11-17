@@ -61,13 +61,13 @@ static void project_load(uint32_t i) { (void)i; loads++; }
 static void project_erase(uint32_t i) { (void)i; erases++; ui_message("ERASED"); }
 static void arrangement_save(void) {}
 static uint32_t arrangement_ready(void) { return 3; }
-static void arrangement_apply(uint32_t s) { (void)s; }
+static int arrangement_apply(uint32_t s) { (void)s; return 1; }
 static uint32_t section_bars(uint32_t s) { return s == 1u ? 2u : 1u; }   /* (B: two bars) */
 static void song_backup(void) {}
 static void song_restore(void) {}
 static uint32_t sec_stores, sec_loads;
 static int section_store(uint32_t s) { sec_stores++; live_sec = (int8_t)s; return 1; }
-static void section_load(uint32_t s) { sec_loads++; live_sec = (int8_t)s; }
+static int section_load(uint32_t s) { sec_loads++; live_sec = (int8_t)s; return 1; }
 static int up_used(uint32_t k) { return k < 2; }
 static int up_load(uint32_t k) { (void)k; return 0; }
 static int up_load_to(track_t *t, uint32_t k) { (void)t; (void)k; return 0; }

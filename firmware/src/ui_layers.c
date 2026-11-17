@@ -24,7 +24,7 @@
 static const uint8_t LAYER_BTN[LY_COUNT] = {NB, B_FX, B_EDIT, B_ARP, B_SEQ, B_SCL, B_GLO, B_SAVE};
 static const char *const LAYER_NAME[LY_COUNT] = {"", "punch", "erase", "roll", "steps", "key", "mix", "song"};
 static int section_store(uint32_t s);                  /* project.c */
-static void section_load(uint32_t s);
+static int section_load(uint32_t s);
 static uint8_t section_bank; /* six banks of four patterns */
 static uint8_t sec_armed;                               /* store over a used section: the key again within 3 s */
 static uint32_t sec_armed_ms;
@@ -396,8 +396,7 @@ UI_SMALL static void layer_key(uint32_t layer, uint32_t k, uint32_t down)
                 if (chain_taps < CHAIN_MAX && (fm1_in.buttons & ly_bit[LY_SONG]))
                     chain_tap[chain_taps++] = (uint8_t)slot;   /* (SAVE held: more taps make a chain) */
             } else {
-                section_load(slot);
-                ui_say("LOADED ", b);
+                if (section_load(slot)) ui_say("LOADED ", b);
             }
         } else if (w < 8) {
             uint32_t s = slot;

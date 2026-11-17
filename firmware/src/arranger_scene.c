@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Shared scene application for firmware and host audio integration tests. */
-static uint32_t arrangement_ready(void)
+UI_SMALL static uint32_t arrangement_ready(void)
 {
     uint32_t i, ready = 0;
     for (i = 0; i < ARR_SCENES; i++)
@@ -9,54 +9,59 @@ static uint32_t arrangement_ready(void)
 }
 
 /* the bars a section's loop takes (its longest pattern: ceil(LEN x step / bar), at least 1): the quick
- * chain (seq.c chain_*) plays each of its sections this long */
-static uint32_t section_bars(uint32_t s)
+ * chain (seq.c chain_*) plays each of its sections this long. ARR_SCENES measures the live loop. */
+UI_SMALL static uint32_t section_bars(uint32_t s)
 {
-    const project_t *p = project_at(s);
-    uint32_t k, bars = 1;
-    if (!proj_ok(p))
+    const project_t *p = s == ARR_SCENES ? 0 : project_at(s);
+    uint32_t k, longest = 1;
+    if (s != ARR_SCENES && !proj_ok(p))
         return 1;
     for (k = 0; k < NTRK; k++) {
-        uint32_t len = (uint32_t)clamp(pt_get(&p->t[k],P_SLEN), 1, NSTEP), u = div_units((uint32_t)pt_get(&p->t[k],P_SDIV) % NDIV_STEP);
-        uint32_t b = (len * u + 4u * BEAT_U - 1u) / (4u * BEAT_U);   /* (64 x 8 beats fits 32 bits) */
-        if (b > bars)
-            bars = b;
+        uint32_t len = (uint32_t)clamp(p ? pt_get(&p->t[k],P_SLEN) : trk[k].p[P_SLEN], 1, NSTEP);
+        uint32_t u = div_units((uint32_t)(p ? pt_get(&p->t[k],P_SDIV) : trk[k].p[P_SDIV]) % NDIV_STEP);
+        if (len * u > longest) longest = len * u;
     }
-    return bars > 64u ? 64u : bars;
+    uint32_t bars = (longest + 4u * BEAT_U - 1u) / (4u * BEAT_U);
+    return bars;
 }
 
 /* Called only at an audio-block boundary, after validation of all slots at
  * start. The song keeps one tempo and global FX across every section (only the drum
  * level and reverb come from it). */
-static void arrangement_apply(uint32_t scene)
+UI_SMALL static int arrangement_apply(uint32_t scene)
 {
     uint32_t k;
     for (k = 0; k < NTRK; k++) {
         track_t *t = &trk[k];
         seq_release(t);
+        locks_restore(t);
         kh_release(t);                            /* (2.7: KBD HOLD's notes, and their MIDI note-offs) */
         trk_all_off(t);
         t->nheld = t->arp_phys = t->arp_note = t->rh_n = t->rskip_n = 0;
         t->arp_ch[0] = t->arp_ch[1] = t->arp_ch[2] = 0;
         t->rskip_lanes = 0;
     }
+#ifndef PROJ_HOST
+    if (!arrangement_clock.running && !section_keep()) return 0;
+#endif
     const project_t *p = project_at(scene);
-    if (!p) return;
+    if (!p) return 0;
     proj_apply(p, 0);
     sync_reload = 1;
     ui.force = 1;
+    return 1;
 }
 
 /* ---- song mode keeps the loop you made: PLAY in song mode puts it aside (each section then plays
  * over the tracks), STOP (or the song's end) brings it back */
 static project_t song_keep;
 static uint8_t song_kept;
-static void song_backup(void)                  /* (audio ISR: seq_start) */
+UI_SMALL static void song_backup(void)                  /* (audio ISR: seq_start) */
 {
     proj_capture(&song_keep);
     song_kept = 1;
 }
-static void song_restore(void)                 /* (audio ISR: seq_stop) */
+UI_SMALL static void song_restore(void)                 /* (audio ISR: seq_stop) */
 {
     uint32_t i;
     if (!song_kept)

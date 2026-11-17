@@ -1753,7 +1753,7 @@ static void t_chain(void)
     t0 = n ? ev[0].blk : 0;
     for (i = 1; i < n && i < 6u; i++) {
         static const uint32_t AT[6] = {0, 1, 3, 4, 6, 7};
-        uint32_t want = t0 + AT[i] * bar, got = ev[i].blk;
+        uint32_t want = t0 + (AT[i] * FS * 2u + CTL / 2u) / CTL, got = ev[i].blk;
         ok &= got + 1u >= want && got <= want + 1u;
     }
     if (!ok) {
@@ -1761,7 +1761,7 @@ static void t_chain(void)
         for (i = 0; i < n; i++) printf(" %c@%u", 'A' + ev[i].sec, ev[i].blk);
         printf(" (bar %u blocks)\n", bar);
     }
-    check(ok, "2.4: chain A B: A on the next bar, B a bar later, A two bars after that, round again (bar exact)");
+    check(ok, "2.4: chain A B: A after the full C loop, B a bar later, A two bars after that (bar exact)");
     check(chain_n == 2u && chain_i == 1u && chain_bars == 2u, "2.4: the chain state follows: entry 2 (B), 2 bars");
     chain_n = 0;                                     /* a single tap of A: the chain ends, A plays on */
     live_req = 0;

@@ -827,6 +827,7 @@ static void round_trip(void)
     {
         uint32_t sl = rn(4);
         project_save(sl);
+        live_sec = -1; /* Unrelated working loop; active-pattern edits now intentionally persist on LOAD. */
         scramble_light();
         int lost = rn(2);
         if (lost) proj_slot[sl].magic ^= 0xFFu;     /* (the RAM copy lost: from flash) */

@@ -38,7 +38,7 @@ UI_SMALL static int32_t batt_shown(void)
 }
 
 /* top bar: transport, BPM, octave | USB, battery, CPU; messages replace it */
-UI_SMALL static void draw_head(void)
+UI_SMALL static __attribute__((noinline)) void draw_head(void)
 {
     char b[16];
     uint32_t i, pages = 0, page = ui.home ? 0u : page_pos(&pages);
@@ -120,7 +120,7 @@ UI_SMALL static void draw_head(void)
 }
 /* full redraw: the strips (head, columns, graph, foot) cover the rest, so only
  * the space between them is cleared, then the rules are drawn */
-UI_SMALL static void draw_frame(void)
+UI_SMALL static __attribute__((noinline)) void draw_frame(void)
 {
     uint32_t i;
     lcd_fill(0, H_HEAD, 240, Y_LABEL - H_HEAD, C_BLACK);
@@ -748,7 +748,7 @@ UI_SMALL static void graph_big(void)
     }
 }
 
-UI_SMALL static void draw_graph(void)
+UI_SMALL static __attribute__((noinline)) void draw_graph(void)
 {
     const page_t *pg = cur_page();
     const track_t *t = TSEL;
@@ -849,7 +849,7 @@ UI_SMALL static uint32_t page_pos(uint32_t *n)
     return k;
 }
 
-UI_SMALL static void draw_foot(void)
+UI_SMALL static __attribute__((noinline)) void draw_foot(void)
 {
     char s[48], pn[16], en[10], ti[20];
     const track_t *t = TSEL;
@@ -933,7 +933,7 @@ UI_SMALL static void draw_foot(void)
     cv_blit(0, Y_FOOT);
     }
 }
-UI_SMALL static void draw_columns(void)
+UI_SMALL static __attribute__((noinline)) void draw_columns(void)
 {
     uint32_t c;
     char val[12];

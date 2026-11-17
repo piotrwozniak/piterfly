@@ -1,9 +1,9 @@
 # piterfly — distribution-tree provenance
 
-Piterfly 1.2.0 public source export prepared on 2026-11-14. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
+Piterfly 1.2.2 public source export prepared on 2026-11-17. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
 
 This tree derives from `piotrwozniak/fm1-piterfly`, private source commit
-`c51551312ea3bf7a99ec7872a8e65c121dadcb5c`. That project modifies SLOOP 2.8.5,
+`4396f5dd49179ec7675a7af6a8760d128075b588`. That project modifies SLOOP 2.8.5,
 upstream commit `bac9c05ea7627449405aa10e48da21d75b6c8c56` from
 <https://github.com/isod89/sloop-fm1>, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. The initial export was a plain source directory, without a Git repository or copied .git.
@@ -103,3 +103,7 @@ qualification still required. Published 1.0.0 tags and assets stay unchanged.
 ## Piterfly 1.1.0
 
 Seven synth tracks plus drums, FUN9/protocol 17, selective DUCK, measured dual-core granular balancing and native FM-1 documentation are carried from the current development tree. The public identity, updater compatibility, sealed source inventory and exact-release Pages pipeline introduced in 1.0.1 are retained. The USB MIDI names are piterfly and piterfly Update. Promotional media and private development history remain outside the public source export.
+
+## Version 1.2.2
+
+Adds the approved HOME sound identity/position rail, retains LEVEL/STEPS/PAN through live and ordinary pattern selection, and respects the longest LEN/DIV loop. The FUNB/PER4/protocol-19 formats and 6+2 layout are unchanged. Control/render functions are outlined for flash fit. Current 1.2.2 screenshots are rendered by tools/preview_home_sound.c; historical images remain. Physical FM-1 acceptance remains pending.

@@ -1,12 +1,12 @@
 <p align="center"><img src="assets/piterfly/arcade-web.png" alt="piterfly" width="240"></p>
 
-# piterfly 1.2.0 for M-VAVE FM-1
+# piterfly 1.2.2 for M-VAVE FM-1
 
-An alternative operating system based on **SLOOP 2.8.5** and Felucca. Version 1.2.0 has **six synth parts and two independent drum tracks**.
+An alternative operating system based on **SLOOP 2.8.5** and Felucca. Version 1.2.2 has **six synth parts and two independent drum tracks**.
 
-**Release 1.2.0:** Software tests and the target build pass. Physical FM-1 testing of 6+2 is still pending. The published 1.1.0 release used 7+1; its hardware acceptance does not apply to this build.
+**Release 1.2.2:** Software tests and the target build pass. Physical FM-1 testing of 6+2 is still pending. The published 1.1.0 release used 7+1; its hardware acceptance does not apply to this build.
 
-[Polska instrukcja](docs/PITERFLY.md) · [Track controls](docs/TRACKS.md) · [1.2.0 notes](docs/RELEASE-1.2.0.md) · [Granular controls](docs/LIVE-GRANULAR.md)
+[Polska instrukcja](docs/PITERFLY.md) · [Track controls](docs/TRACKS.md) · [1.2.2 notes](docs/RELEASE-1.2.2.md) · [Granular controls](docs/LIVE-GRANULAR.md)
 
 ## Tracks and controls
 
@@ -17,6 +17,12 @@ An alternative operating system based on **SLOOP 2.8.5** and Felucca. Version 1.
 - Each track retains up to **64 steps**, with micro timing, fill conditions and parameter locks.
 
 Select track 7 or 8 to edit that drum part on the DRUMS pages. Track 7 uses its own track LEVEL/REV/DLY parameters; track 8 retains the existing global drum controls. The matching editor routes these controls independently.
+
+Live pattern selection waits for the complete longest track cycle (LEN and DIV, rounded up to whole bars). A 64-step loop at 1/16 switches after four bars. Switching retains edits to the outgoing pattern, including its instruments and kits; stop and wait for **PATTERNS SAVED** to commit them to flash. A full four-slot edit cache refuses switching with **STOP TO SAVE MORE**.
+
+HOME shows the selected engine, sound name and position, such as **024/153**, above a thin outlined rail with a position block. Each track also shows its sound number (**#024**); matching numbers identify the same base sound. Drum tracks show their kit number. LEVEL, STEPS and PAN edits survive live switching and ordinary LOAD on all eight tracks.
+
+![HOME instrument identity and position rail](assets/piterfly/screenshots/home-instrument-1.2.2.png)
 
 ## Effects
 
@@ -38,16 +44,16 @@ For USB, connect keyboard, FM-1 and an external synth separately to a computer o
 
 [Mac/MidiPipe setup](web/midipipe.html) · [MIDI protocol](web/EDITOR_PROTOCOL.md)
 
-## Build version 1.2.0
+## Build version 1.2.2
 
 ```sh
-sh build.sh --release 1.2.0
+sh build.sh --release 1.2.2
 sh tests/run_tests.sh
 ```
 
-The local firmware package is `build/felucca-1.2.0.fwsc`. Use the matching 1.2.0 editor, which supports **protocol 19**. See [BUILDING.md](BUILDING.md) for dependencies and [release notes](docs/RELEASE-1.2.0.md). [Public installer](https://piotrwozniak.github.io/piterfly/webapp/installer/) · [Release downloads and exact sources](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.0).
+The local firmware package is `build/felucca-1.2.2.fwsc`. Use an editor supporting **protocol 19**; the 1.2.0 editor remains compatible. See [BUILDING.md](BUILDING.md) for dependencies and [release notes](docs/RELEASE-1.2.2.md). [Download release 1.2.2](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.2) or use the [public installer](https://piotrwozniak.github.io/piterfly/webapp/installer/). The local bundle is `build/releases/piterfly-1.2.2/`, including firmware, exact sources, licences and checksums.
 
-**Start new projects.** This version uses **FUNB, 6,160 bytes**, and deliberately does not import FUN1–FUNA projects. Settings remain **PER4**. All four user-sample banks now store patterns and named songs; factory samples remain. The updater identity remains **FM-1_1120101**. Song import replaces all 24 pattern slots and the working loop, including empty slots.
+**Compatible with 1.2.0 projects.** This version uses **FUNB, 6,160 bytes**, and deliberately does not import FUN1–FUNA projects. Settings remain **PER4**. All four user-sample banks now store patterns and named songs; factory samples remain. The updater identity remains **FM-1_1120101**. Song import replaces all 24 pattern slots and the working loop, including empty slots.
 
 The full host suite, dedicated 6+2 memory/race checks and native/WASM audio checks pass. Target memory fit is tight; these checks do not establish worst-case real-time performance on the physical FM-1.
 

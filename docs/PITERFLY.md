@@ -1,8 +1,8 @@
 # piterfly — zmiany względem SLOOP
 
-piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.0** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
+piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.2** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
 
-**Ta wersja wymaga nowych projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Nie importuje projektów FUN1–FUNA. Pakiet lokalny: `build/felucca-1.2.0.fwsc`. Korzystaj z edytora 1.2.0. [Publiczny instalator](https://piotrwozniak.github.io/piterfly/webapp/installer/) · [Pliki wydania](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.0).
+**Aktualizacja 1.2.0 → 1.2.2 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.2/piterfly-1.2.2.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.2](RELEASE-1.2.2.md).
 
 **Gałki tracka i barwy:** na HOME, FX i pozostałych zwykłych stronach parametrów PRESETS wybiera track, a ALGORITHM zmienia jego barwę/preset (na perkusji — zestaw). W aktywnym edytorze NOTES oba pokrętła miały już funkcje: PRESETS nadal zmienia zoom, ALGORITHM wybiera track. SONG, menu ustawień i kombinacje z przytrzymanymi przyciskami zachowują swoje przypisania. Podczas swobodnego nagrania wybór tracka pozostaje zablokowany.
 
@@ -37,13 +37,21 @@ Pattern przechowuje cały loop: wszystkie osiem tracków, ich nuty, brzmienia i 
 
 Ilustracje w tej instrukcji odwzorowują **ekran urządzenia 240 × 240 pikseli**. Główna galeria pochodzi z wydania 1.1.0 (7+1); nowe podglądy SONG/SONGS opisano osobno. Starsze obrazy nie potwierdzają wyglądu drugiej perkusji w 1.2.0. Nie są zrzutami edytora WWW ani zdjęciami fizycznego wyświetlacza. Dane muzyczne są przykładowe. Kliknięcie obrazu otwiera jego pełny plik.
 
+### HOME: instrument i pozycja na liście (1.2.2)
+
+Pod nagłówkiem widzisz **silnik i nazwę brzmienia**, np. `DIGITAL DX RHODES`, oraz licznik **024/153**: bieżący numer i liczbę dostępnych brzmień. Cienka obwódka z kolorowym klockiem pokazuje pozycję na całej liście; to nie jest miernik głośności. Licznik nie dodaje duplikatów z ulubionych. Każdy track ma też numer, np. **#024**. Jeżeli dwa tracki mają #024, wskazują to samo brzmienie z listy. Dla perkusji wyświetlane są nazwa i numer wybranego zestawu. REC, SOLO i MUTE zachowują pierwszeństwo w prawym polu tracka.
+
+Wybierz inny track pokrętłem **PRESETS**, a pokrętłem **ALGORITHM** znajdź ten sam numer. Skopiowanie numeru wybiera bazowy instrument; nie kopiuje ręcznych zmian jego parametrów. Cztery wiersze nadal pokazują do 64 kroków każdego tracka, a zielone pokrętło na dole steruje **LEVEL wybranego tracka**. Na perkusji 7 jego odczyt i edycja nie dotyczą perkusji 8.
+
+![HOME 1.2.2: instrument DIGITAL DX RHODES, licznik 024/153 i pasek pozycji; tracki 1 i 3 wskazują #024](../assets/piterfly/screenshots/home-instrument-1.2.2.png)
+
 ### HOME: grupy ścieżek 1–4 i 5–8
 
 Na urządzeniu widać jednocześnie cztery ścieżki. Wybór ścieżki pokrętłem **PRESETS** przełącza grupę. Pierwszy ekran pokazuje **1–4**, drugi **5–8**, z perkusjami pod numerami 7 i 8. Ścieżki 1–6 są syntezatorami.
 
 | HOME: ścieżki 1–4 | HOME: ścieżki 5–8 |
 | --- | --- |
-| <a href="../assets/piterfly/screenshots/home-64.png"><img src="../assets/piterfly/screenshots/home-64.png" width="360" alt="HOME: ścieżki 1–4"></a> | <a href="../assets/piterfly/screenshots/home-tracks-5-8.png"><img src="../assets/piterfly/screenshots/home-tracks-5-8.png" width="360" alt="HOME: ścieżki 5–8"></a> |
+| <a href="../assets/piterfly/screenshots/home-64-1.2.2.png"><img src="../assets/piterfly/screenshots/home-64-1.2.2.png" width="360" alt="HOME: ścieżki 1–4"></a> | <a href="../assets/piterfly/screenshots/home-tracks-5-8-1.2.2.png"><img src="../assets/piterfly/screenshots/home-tracks-5-8-1.2.2.png" width="360" alt="HOME: ścieżki 5–8"></a> |
 
 ### SAVE: sześć banków i 24 sloty patternów
 
@@ -98,7 +106,9 @@ Białe klawisze liczymy od lewej, od F3, jako 1–16.
 
 Podświetlają się wyłącznie **klawisze 1, 5, 9 i 13**, wskazując początki czterech grup. Kolory zielony i czerwony dotyczą ekranu. Obecny sterownik klawiszy obsługuje jasność, ale nie wybór kolorów RGB.
 
-Wczytanie podczas grania następuje na początku następnego taktu, a przy zatrzymanym odtwarzaniu — od razu. W aktywnym trybie odtwarzania SONG ręczne przełączanie patternów jest blokowane.
+Podczas grania wybór czeka do końca pełnego obiegu najdłuższej ścieżki, z uwzględnieniem LEN i DIV, zaokrąglonego w górę do pełnych taktów. Przy DIV 1/16 pattern 32-krokowy trwa dwa takty, a 64-krokowy cztery; przełączenie nie ucina go po 16 krokach. Przy zatrzymanym odtwarzaniu wybór działa od razu.
+
+Zmiany LEVEL, brzmień, instrumentów, kitów i sekwencji bieżącego patternu są zachowywane przy przełączeniu, także przez zwykłe LOAD na stronie SONG i w edytorze, również gdy zmienisz coś po wybraniu następnego patternu, ale przed jego startem. Dotyczy to patternu wybranego lub zapisanego przez warstwę SAVE i edytor. Roboczy loop bez przypisanego slotu trzeba najpierw zapisać. Zmiany oczekujące w RAM trafią do flash po zatrzymaniu i chwili ciszy. Jeśli cztery bufory są zajęte, **STOP TO SAVE MORE** blokuje przejście, chroniąc edycję. Zatrzymaj transport i poczekaj na **PATTERNS SAVED**, zanim wyłączysz zasilanie. W aktywnym trybie odtwarzania SONG ręczne przełączanie patternów jest blokowane.
 
 Nadpisanie zajętego miejsca wymaga ponownego naciśnięcia tego samego klawisza zapisu w ciągu trzech sekund. Puszczenie SAVE, zmiana banku lub wybranie innej operacji kasuje potwierdzenie.
 

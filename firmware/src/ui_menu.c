@@ -105,7 +105,7 @@ UI_SMALL static const char *mi_value(uint32_t i, uint16_t *c)
     }
 }
 
-UI_SMALL static void draw_menu(void)
+UI_SMALL static __attribute__((noinline)) void draw_menu(void)
 {
     uint32_t i, pass, sec = mi_sec(ui.menu_sel % MI_COUNT);
     uint32_t sig = ui.menu * 7u + ui.menu_sel * 131u + settings.palette * 1009u + settings.lowcut * 7919u +

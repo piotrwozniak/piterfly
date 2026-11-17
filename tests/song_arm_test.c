@@ -24,7 +24,7 @@ static struct {uint8_t home,page,force,msg_t;char msg[24];} ui;
 static int32_t enc[NE];
 static uint32_t ready, scene_saves, order_saves, loads;
 static uint32_t arrangement_ready(void) {return ready;}
-static void arrangement_apply(uint32_t scene) {(void)scene;}
+static int arrangement_apply(uint32_t scene) {(void)scene;return 1;}
 static uint32_t section_bars(uint32_t s) {(void)s;return 1;}
 static const page_t *cur_page(void) {return &PAGES[ui.page];}
 static int project_used(uint32_t i) {return (ready>>i)&1u;}

@@ -357,7 +357,7 @@ armed fill.
   nudge / lock dot stays in the top right. The GLO layer's row 3 reads *fill* (lit while a fill plays) and *bar* (framed
   while armed, lit during its bar).
 - **Quick chain** (no protocol: on the device only): SAVE held while playing, two or more section keys (1–4) tapped in any
-  order, up to 8 (repeats allowed), then SAVE let go: the first section starts on the next bar as before, then each next
+  order, up to 8 (repeats allowed), then SAVE let go: the first section starts at the end of the current full loop (since piterfly 1.2.1), then each next
   one after the previous one has played its **pattern length** (the longest track: ceil(LEN × step / bar) bars, at least
   1, from the section's project in RAM), round and round until a single section tap, STOP or PLAY in song mode. The SAVE
   layer's sub line reads *chain A B B C*; the section playing is lit, the next one framed. SONG REC records what the chain
@@ -456,7 +456,7 @@ and every reply is `op` followed by the live state. Each op runs the code of the
 | 6 | track, note (drums: lane 0..15), level (0 NORM, 1 GHOST, 2 SOFT, 3 HARD), down 1 / up 0 | ROLL, as ARP + key (`seq.c roll_start`): the note repeats at GLO's ROLL rate while held (recorded with REC on). The page's rolls use the key 0x80 + note, so letting go of ARP on the FM-1 does not end them; up does |
 | 7 | track, note (drums: lane), down / up | ERASE, as EDIT + key: playing, the steps it passes; stopped, every step (`erase_now`, one undo) |
 | 8 | track, tool (0 shift, 1 length, 2 transpose), 1 up / 0 down | the pattern, as EDIT + KNOB 1..3 (`pattern_rotate`, `pattern_length` ×2 / ½, `pattern_transpose`): each one undo |
-| 9 | n, then n sections 0..3 (n ≤ 8; 0: the chain stops) | a chain, as SAVE + several keys (`chain_release`): the first is asked for the next bar, each plays its bars, looped. Only while playing; an empty section refuses it |
+| 9 | n, then n sections 0..3 (n ≤ 8; 0: the chain stops) | a chain, as SAVE + several keys (`chain_release`): the first waits for the current full loop to finish (piterfly 1.2.1), each plays its bars, looped. Only while playing; an empty section refuses it |
 | 10 | bits (1 the reverb, 2 the echo; 0 let go) | THROW, as FX + OCT− / OCT+ (`thr_ed`, with the FM-1's own) |
 | 11 | 0..126, or 127 | the master level from the page; 127, or turning the MASTER knob, gives it back to the knob (`ed_master`, main.c) |
 | 12 | lane, TUNE + 8 (0..15), DECAY + 4 (0..7) | a drum sound's TUNE and DECAY, as the DRUMS screen's SOUND page |
@@ -498,7 +498,7 @@ use IDs 64–83 for B1–F4. Sample INFO advertises three slots; ID 35 is
 unavailable. The working-project backup remains ID 0.
 
 LIVE op 13, slot selects a stored pattern, immediately when stopped or
-on the next bar while playing. LIVE op 14, slot stores the current loop.
+at the end of the longest current track cycle (LEN × DIV, rounded up to whole bars) while playing. Since 1.2.1 selection also retains outgoing live-pattern edits; a full pending-edit cache refuses the switch. LIVE op 14, slot stores the current loop.
 The LIVE state appends four 7-bit bytes of the pattern-ready mask after
 the existing drum-tuning fields. Op 14 then appends a result: 0 success,
 2 invalid slot, 3 live snapshot cache full (stop to flush it).

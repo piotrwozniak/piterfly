@@ -74,13 +74,13 @@ static uint32_t last_erased;
 static void project_erase(uint32_t i) { last_erased = i; erases++; ui_message("ERASED"); }
 static void arrangement_save(void) {}
 static uint32_t arrangement_ready(void) { return 3; }
-static void arrangement_apply(uint32_t s) { (void)s; }
+static int arrangement_apply(uint32_t s) { (void)s; return 1; }
 static uint32_t section_bars(uint32_t s) { return s == 1u ? 2u : 1u; }   /* (B: two bars) */
 static void song_backup(void) {}
 static void song_restore(void) {}
 static uint32_t sec_stores, sec_loads;
 static int section_store(uint32_t s) { sec_stores++; live_sec = (int8_t)s; return 1; }
-static void section_load(uint32_t s) { sec_loads++; live_sec = (int8_t)s; }
+static int section_load(uint32_t s) { sec_loads++; live_sec = (int8_t)s; return 1; }
 static int up_used(uint32_t k) { return k < 2; }
 static int up_load(uint32_t k) { (void)k; return 0; }
 static int up_load_to(track_t *t, uint32_t k) { (void)t; (void)k; return 0; }
@@ -192,36 +192,36 @@ int main(int argc, char **argv)
     {
         song.sel = 0; song.playing = 0; song.rec = 0; rec_wait = 1;
         ui.force = 1; studio_tracks_draw();
-        check(swap16(screen[40 * 240]) == TE_COL[0] && swap16(screen[75 * 240 + 239]) == TE_COL[0],
+        check(swap16(screen[64 * 240]) == TE_COL[0] && swap16(screen[93 * 240 + 239]) == TE_COL[0],
               "HOME selected track has a complete frame in its own colour");
         uint32_t tag_red = 0;
-        for (uint32_t y = 42; y < 54; y++) for (uint32_t x = 200; x < 236; x++)
+        for (uint32_t y = 66; y < 78; y++) for (uint32_t x = 200; x < 236; x++)
             tag_red += swap16(screen[y * 240 + x]) == TE_RED;
         check(!tag_red, "HOME waiting state has no ARM or REC tag");
         fm1_ms += 125; ui.force = 0; studio_tracks_draw();
-        check(swap16(screen[40 * 240]) == TE_COL[0], "HOME selected-track frame does not blink");
+        check(swap16(screen[64 * 240]) == TE_COL[0], "HOME selected-track frame does not blink");
         rec_wait = 0; song.playing = 1; song.rec = 2; studio_tracks_draw();
-        check(swap16(screen[40 * 240]) == TE_COL[0] && swap16(screen[76 * 240]) == TE_RED &&
-              swap16(screen[111 * 240 + 239]) == TE_RED && swap16(screen[77 * 240 + 200]) == TE_RED,
+        check(swap16(screen[64 * 240]) == TE_COL[0] && swap16(screen[94 * 240]) == TE_RED &&
+              swap16(screen[123 * 240 + 239]) == TE_RED && swap16(screen[95 * 240 + 200]) == TE_RED,
               "HOME frames the actual recording track and shows REC independently of track selection");
         ppm("home-recording-frame");
         song.rec = 4; studio_tracks_draw();
-        check(swap16(screen[76 * 240]) == C_BLACK && swap16(screen[112 * 240]) == TE_RED,
+        check(swap16(screen[94 * 240]) == C_BLACK && swap16(screen[124 * 240]) == TE_RED,
               "recording target change moves the frame and clears the previous row without force");
         song.rec = 0; studio_tracks_draw();
-        check(swap16(screen[112 * 240]) == C_BLACK, "ending recording clears the red frame");
+        check(swap16(screen[124 * 240]) == C_BLACK, "ending recording clears the red frame");
         ft_on = 1; ft_trk = 3; song.playing = 0; studio_tracks_draw();
-        check(swap16(screen[148 * 240]) == TE_RED && swap16(screen[40 * 240]) == TE_COL[0],
+        check(swap16(screen[154 * 240]) == TE_RED && swap16(screen[64 * 240]) == TE_COL[0],
               "free-take recording frame uses its fixed recording target");
         ft_on = 0; ft_trk = 0; song.rec = 0; rec_wait = 0; song.playing = 0;
         uint32_t ok = 1;
         for (uint32_t t = 0; t < NTRK; t++) {
             song.sel = t; ui.force = 0; studio_tracks_draw();
-            ok &= swap16(screen[(40 + 36 * t) * 240]) == TE_COL[t];
+            ok &= swap16(screen[(64 + 30 * t) * 240]) == TE_COL[t];
             song.playing = 1; song.rec = 1u << t; studio_tracks_draw();
-            ok &= swap16(screen[(40 + 36 * t) * 240]) == TE_RED;
+            ok &= swap16(screen[(64 + 30 * t) * 240]) == TE_RED;
             song.rec = 0; studio_tracks_draw();
-            ok &= swap16(screen[(40 + 36 * t) * 240]) == TE_COL[t];
+            ok &= swap16(screen[(64 + 30 * t) * 240]) == TE_COL[t];
             song.playing = 0;
         }
         check(ok, "all selected track colours turn red only during recording and return afterwards");
@@ -263,16 +263,16 @@ int main(int argc, char **argv)
         memset(&trk[0].step[0], 0, sizeof(step_t));
         trk[0].step[16].n = 1; trk[0].step[16].time = ST_NOTE; trk[0].step[16].note[0] = 60;
         ui.force = 1; frame(); ppm("home-32-steps");
-        check(swap16(screen[58 * 240 + 34]) == TE_G1 && swap16(screen[66 * 240 + 34]) == TE_COL[0],
+        check(swap16(screen[80 * 240 + 34]) == TE_G1 && swap16(screen[86 * 240 + 34]) == TE_COL[0],
               "HOME 32 steps: step 17 is a separate second row, never folded into step 1");
         trk[0].p[P_SLEN] = 64;
         trk[0].step[63].n = 1; trk[0].step[63].time = ST_NOTE; trk[0].step[63].note[0] = 60;
         ui.force = 1; frame(); ppm("home-64-steps");
-        check(swap16(screen[70 * 240 + 184]) == TE_COL[0], "HOME 64 steps: step 64 is visible in the fourth row");
+        check(swap16(screen[89 * 240 + 184]) == TE_COL[0], "HOME 64 steps: step 64 is visible in the fourth row");
         song.playing = 1; trk[0].seq_idx = 63;
         studio_tracks_draw();
-        check(swap16(screen[70 * 240 + 184]) == C_WHITE && swap16(screen[72 * 240 + 191]) == C_WHITE &&
-              swap16(screen[71 * 240 + 185]) == TE_COL[0], "HOME step 64 has a full outline with its note colour preserved");
+        check(swap16(screen[89 * 240 + 184]) == C_WHITE && swap16(screen[91 * 240 + 191]) == C_WHITE &&
+              swap16(screen[90 * 240 + 185]) == TE_COL[0], "HOME step 64 has a full outline with its note colour preserved");
         ppm("home-outline-64");
         ui.page = (uint8_t)page_first(FAM_GLO); ui.home = 0; ui.force = 1; ui_draw();
         check(swap16(screen[215 * 240 + 226]) == C_WHITE && swap16(screen[217 * 240 + 237]) == C_WHITE &&

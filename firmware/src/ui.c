@@ -788,19 +788,21 @@ UI_SMALL static void bank_resolve(void)
     }
     bank_ready = 1;
 }
-UI_SMALL static uint32_t base_pos(uint32_t *total)            /* list index of the selected track's preset (no favourites) */
+UI_SMALL static uint32_t track_sound_pos(const track_t *t, uint32_t *total)            /* list index of a track's preset (no favourites) */
 {
     uint32_t i, cur = 0;
     if (!bank_ready)
         bank_resolve();
     for (i = 0; i < NBANK; i++)
-        if (BANK[i].e == TSEL->eng_req && bank_pi[i] == TSEL->preset)
+        if (BANK[i].e == t->eng_req && bank_pi[i] == t->preset)
             cur = i;
-    if (user_of(TSEL) < UP_SLOTS)
-        cur = NBANK + up_rank(user_of(TSEL));
+    if (user_of(t) < UP_SLOTS)
+        cur = NBANK + up_rank(user_of(t));
     *total = NBANK + up_count();
     return cur;
 }
+
+UI_SMALL static uint32_t base_pos(uint32_t *total) { return track_sound_pos(TSEL,total); }
 
 /* list index n (< total) -> engine, *k its preset; NENGINES = user preset, *k its slot (no favourites) */
 UI_SMALL static uint32_t base_at(uint32_t n, uint32_t *k)
@@ -1029,7 +1031,7 @@ UI_SMALL static const param_desc_t *home_param(uint32_t k, int16_t **vp)
     if (is_drum(TSEL)) {
         id = DRUM_HOME[k & 3u][1];
         if (DRUM_HOME[k & 3u][0]) {
-            *vp = &song.g[id];
+            *vp = drum_global(TSEL, id);
             return &GP[id];
         }
         *vp = &TSEL->p[id];

@@ -6,7 +6,7 @@ static arr_config_t arrangement;
 static arr_clock_t arrangement_clock;
 static uint8_t arrangement_enabled;
 static uint32_t arrangement_ready(void);              /* project.c */
-static void arrangement_apply(uint32_t scene);         /* project.c */
+static int arrangement_apply(uint32_t scene);         /* project.c */
 
 static int arrangement_start(void)
 {

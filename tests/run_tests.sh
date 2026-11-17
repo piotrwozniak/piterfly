@@ -57,6 +57,12 @@ $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/project_codec_test
 run "packed projects: every parameter range, 200000 steps and every lock" "$OUT/project_codec_test"
 $CC -o "$OUT/pattern_bank_test" tests/pattern_bank_test.c
 run "24-pattern journal: migration, capacity, interrupted writes" "$OUT/pattern_bank_test"
+$CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/pattern_switch_test" tests/pattern_switch_test.c -lm
+run "live patterns: full loop boundaries, retained sounds, flash and full cache" "$OUT/pattern_switch_test"
+$CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/level_recall_test" tests/level_recall_test.c -lm
+run "main LEVEL knob: all tracks, ordinary LOAD, and independent drum HOME controls" "$OUT/level_recall_test"
+$CC -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/home_sound_test" tests/home_sound_test.c -lm
+run "HOME instrument identity, position rail, live redraw and independent kits" "$OUT/home_sound_test"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/pattern24_test" tests/pattern24_test.c -lm
 run "24 full-length patterns: save, load, play, protocol, live cache" "$OUT/pattern24_test"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/pattern24_migration_test" tests/pattern24_migration_test.c -lm
