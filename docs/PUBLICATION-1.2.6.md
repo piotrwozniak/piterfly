@@ -9,4 +9,4 @@ Published on 2026-11-26. [Release 1.2.6](https://github.com/piotrwozniak/piterfl
 - ASan/UBSan checks covered track clears through simulated power cycles, interrupted workspace replacement, saved-song preservation and the SONG outline colours. Browser audio passed native/WASM comparisons.
 - The public installer, firmware, browser audio, checksums and SONG documentation were verified after deployment. [Pages deployment](https://github.com/piotrwozniak/piterfly/actions/runs/45842330102)
 
-Physical FM-1 validation remains pending.
+On 2026-11-26, the project owner reported that piterfly 1.2.6 worked on a physical M-VAVE FM-1. The report did not specify individual test cases.
