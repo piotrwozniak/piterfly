@@ -1,8 +1,8 @@
-# Named songs — piterfly 1.2.5
+# Named songs — piterfly 1.2.6
 
 The 6+2 firmware supports **eight named song slots, subject to free flash space**. A song contains its order (up to 128 entries), nonempty stored patterns and the current working loop. Loading a song replaces all 24 working pattern slots, including clearing absent patterns. Song files contain sequencer/project data, not a rendered audio recording.
 
-![Named-song list rendered by the actual firmware UI with example data](../assets/piterfly/screenshots/song-library.png)
+![Named-song list rendered by the actual firmware UI with example data](../assets/piterfly/screenshots/song-library-1.2.6.png)
 
 Example screen rendered from the firmware; not a photograph of the physical display.
 
@@ -10,7 +10,9 @@ Example screen rendered from the firmware; not a photograph of the physical disp
 
 Stop playback. Open SONG and turn ALGORITHM to open SONGS. K1 or PRESETS selects a slot; K2 selects a character position; K3 edits the name (15 characters maximum). SAVE stores. Replacing an occupied slot needs a second SAVE within three seconds. OCT+ twice loads the selected song; OCT− twice deletes it. ALGORITHM or HOME returns to the order editor.
 
-SAVE on the ordinary SONG order page retains its previous meaning: saving the current order. Saving an independent named song happens in the SONGS list.
+For a fresh working project, press **REC twice within three seconds** on the SONGS list. **NEW SONG** confirms that the working loop, all 24 working pattern slots and the song order have been cleared. Named songs stay available in the library. After clearing an individual track with a long REC press, **CLEAR SAVED** confirms the change has reached flash.
+
+The selected row on the SONG order page has a thin outline in its pattern colour. SAVE records the order on this page. Use SAVE on the SONGS list to store a named song.
 
 ## On the Mac
 
@@ -38,7 +40,7 @@ Consequently, there is **no fixed number of full songs implied by 352 KiB**. Two
 
 The device and editor display available KiB. At capacity, **NO SPACE: EXPORT/DELETE** refuses the save and retains the previous complete named snapshot. A failed replacement may leave valid new working records allocated, but does not replace the saved directory entry until all its data has committed.
 
-The deletion tombstone keeps the slot’s 8 KiB metadata block allocated so old versions cannot reappear after a restart. Deleting an entry releases only pattern/loop records no longer referenced by another saved song or the current working project. Deleting the currently loaded song keeps the current work; load another song to release its unshared working data. One block is reserved so deletion can still commit after a normal save runs out of space. Delete has confirmation and no undo.
+The deletion tombstone keeps the slot’s 8 KiB metadata block allocated so old versions cannot reappear after a restart. Deleting an entry releases only pattern/loop records no longer referenced by another saved song or the current working project. Deleting the currently loaded song keeps the current work. Loading another song or choosing **NEW SONG** releases its unshared working data. One block is reserved so deletion can still commit after a normal save runs out of space. Delete has confirmation and no undo.
 
 ## Compatibility and verification
 

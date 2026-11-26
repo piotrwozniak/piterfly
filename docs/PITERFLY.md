@@ -1,8 +1,8 @@
-# piterfly 1.2.5 — zmiany względem SLOOP
+# piterfly 1.2.6 — zmiany względem SLOOP
 
-piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.5** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
+piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.6** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
 
-**Aktualizacja 1.2.0 → 1.2.5 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.5/piterfly-1.2.5.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.5](RELEASE-1.2.5.md).
+**Aktualizacja 1.2.0 → 1.2.6 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.6/piterfly-1.2.6.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.6](RELEASE-1.2.6.md).
 
 **Gałki tracka i barwy:** na HOME, FX i pozostałych zwykłych stronach parametrów PRESETS wybiera track, a ALGORITHM zmienia jego barwę/preset (na perkusji — zestaw). W aktywnym edytorze NOTES oba pokrętła miały już funkcje: PRESETS nadal zmienia zoom, ALGORITHM wybiera track. SONG, menu ustawień i kombinacje z przytrzymanymi przyciskami zachowują swoje przypisania. Podczas swobodnego nagrania wybór tracka pozostaje zablokowany.
 
@@ -174,6 +174,8 @@ Między ikoną kasety a numerem tracka dodano odstęp. Kaseta oznacza wybrany tr
 
 Pattern zapisany podczas grania najpierw trafia do roboczej pamięci RAM. **PENDING** oznacza, że czeka na trwały zapis. Na HOME stan ten pozostaje widoczny; jest przekazywany również do edytora WWW.
 
+Po skasowaniu ścieżki przez przytrzymanie **REC** zatrzymaj odtwarzanie. **CLEAR SAVED** potwierdza zapis do flash.
+
 Zatrzymaj odtwarzanie, puść nuty i daj urządzeniu chwilę bez obsługi. Zapis do flash czeka na ciszę i bezczynność; próby są ograniczone czasowo, więc nie musi nastąpić natychmiast po STOP. **PATTERNS SAVED** potwierdza zakończenie zapisu patternów. WWW również odróżnia oczekiwanie od zakończenia.
 
 - Zapisane we flash patterny pozostają po odłączeniu zasilania.
@@ -183,7 +185,9 @@ Zatrzymaj odtwarzanie, puść nuty i daj urządzeniu chwilę bez obsługi. Zapis
 
 To nie jest gwarancja zachowania zmian przy dowolnej awarii sprzętu. Nie odłączaj zasilania w trakcie zapisu ani aktualizacji.
 
-![SONG: BARS zawsze widoczne, żółty licznik wybranej pozycji w prawym dolnym rogu](../assets/piterfly/screenshots/song-bars.png)
+Zaznaczony wiersz **SONG** ma ramkę w kolorze patternu. Żółty licznik w prawym dolnym rogu pokazuje liczbę taktów.
+
+![SONG: ramka w kolorze patternu i liczba taktów](../assets/piterfly/screenshots/song-order-1.2.6.png)
 
 Podgląd z renderera firmware z przykładowymi danymi, nie zdjęcie urządzenia.
 
@@ -197,14 +201,15 @@ Podgląd z renderera firmware z przykładowymi danymi, nie zdjęcie urządzenia.
 2. **K1 / PRESETS** wybiera miejsce. **K2** wybiera pozycję w nazwie, **K3** zmienia znak; nazwa ma maksymalnie 15 znaków.
 3. **SAVE** zapisuje pełną bieżącą kolejność, roboczy loop i niepuste patterny. Przy zastępowaniu istniejącego songa naciśnij SAVE drugi raz w ciągu 3 sekund.
 4. **OCT+ dwa razy** wczytuje wybrany song z listy i zastępuje bieżącą pracę. **OCT− dwa razy** usuwa zapis songa. ALGORITHM albo HOME zamyka listę.
+5. **REC dwa razy w ciągu 3 sekund** czyści bieżący loop, wszystkie 24 robocze sloty patternów i kolejność utworu. Komunikat **NEW SONG** potwierdza zapis tej zmiany. Nazwane utwory są nadal dostępne w bibliotece.
 
-[Podgląd nowej listy SONGS](../assets/piterfly/screenshots/song-library.png) pochodzi z rzeczywistego renderera firmware z przykładowymi danymi; nie jest zdjęciem urządzenia.
+[Podgląd nowej listy SONGS](../assets/piterfly/screenshots/song-library-1.2.6.png) pochodzi z rzeczywistego renderera firmware z przykładowymi danymi; nie jest zdjęciem urządzenia.
 
 Dotychczasowy SAVE na stronie kolejności SONG nadal zapisuje samą kolejność bieżącego projektu. Aby zachować osobny nazwany utwór, przejdź do listy SONGS.
 
 Zapisywane są tylko patterny zawierające nuty lub uderzenia perkusji, również na wyciszonych trackach i poza bieżącą długością pętli. Pusty pattern z samymi ustawieniami brzmienia nie jest zachowywany; roboczy loop jest zachowywany zawsze. Niezmienione patterny mogą być współdzielone przez kilka songów. SYN1–SYN4 i bank patchy FM6 pozostają wspólną biblioteką urządzenia; nazwany song ani plik songa nie tworzy ich osobnej kopii. Zachowaj je przez backup, jeżeli ich używasz.
 
-**NO SPACE: EXPORT/DELETE** oznacza, że zapis nie zmieścił się; poprzednia wersja zapisanego songa pozostaje dostępna. Nie jest to komunikat sukcesu. Usuwanie ma rezerwę miejsca, więc można je wykonać także po odmowie zapisu. Usunięcie zwalnia dane patternów i loopa nieużywane przez pozostałe songi ani bieżący projekt; 8 KiB wpisu kasowania pozostaje zajęte, aby starszy zapis nie wrócił po restarcie. Jeżeli usuniesz aktualnie wczytany song, jego robocza zawartość pozostaje; wczytaj inny song, żeby zwolnić niewspółdzielone dane tej pracy.
+**NO SPACE: EXPORT/DELETE** oznacza, że zapis nie zmieścił się; poprzednia wersja zapisanego songa pozostaje dostępna. Nie jest to komunikat sukcesu. Usuwanie ma rezerwę miejsca, więc można je wykonać także po odmowie zapisu. Usunięcie zwalnia dane patternów i loopa nieużywane przez pozostałe songi ani bieżący projekt; 8 KiB wpisu kasowania pozostaje zajęte, aby starszy zapis nie wrócił po restarcie. Jeżeli usuniesz aktualnie wczytany song, jego robocza zawartość pozostaje. Wczytanie innego songa lub **NEW SONG** zwalnia jego niewspółdzielone dane.
 
 **Na Macu:** w edytorze z tego brancha, w Song, wybierz zapis z listy i kliknij **Eksport na komputer**. Powstaje plik `.sloopsong`, bez wczytywania tego songa i bez automatycznego kasowania. Po sprawdzeniu pliku użyj **Usuń**, żeby zrobić miejsce. Plik można później wczytać dotychczasowym importem i ponownie zapisać w wybranym miejscu biblioteki. Dotychczasowy eksport bieżącego projektu nadal działa.
 
@@ -214,7 +219,7 @@ Zapisywane są tylko patterny zawierające nuty lub uderzenia perkusji, równie�
 
 **Przed aktualizacją starego układu zrób backup.** Wszystkie USR1/2/3/4 służą do zapisu patternów i songów; sample użytkownika nie są zachowywane. Pozostają sample fabryczne i zestawy SYN1–SYN4.
 
-Projekty 1.2.0–1.2.5 mają zgodny format **FUNB (6160 bajtów)**; aktualizacja między tymi wersjami zachowuje projekty. Stare patterny i projekty FUN1–FUNA nie są importowane; przy przejściu ze starszego formatu utwórz nowe patterny. Ustawienia urządzenia pozostają w PER4. Wspólna pula patternów i songów ma 352 KiB; nie ma banków sampli użytkownika.
+Projekty 1.2.0–1.2.6 mają zgodny format **FUNB (6160 bajtów)**; aktualizacja między tymi wersjami zachowuje projekty. Stare patterny i projekty FUN1–FUNA nie są importowane; przy przejściu ze starszego formatu utwórz nowe patterny. Ustawienia urządzenia pozostają w PER4. Wspólna pula patternów i songów ma 352 KiB; nie ma banków sampli użytkownika.
 
 W tym formacie usunięto pozycje USR z wyboru SAMPLE/GRAIN i drum kitów. SYN1–SYN4 mają nowe identyfikatory, dlatego również eksperymentalne projekty FUNA nie są importowane.
 
@@ -272,7 +277,7 @@ W serwisie, w sekcji MIDI THRU strony **What changes?**, dostępny jest angielsk
 | MIDI THRU | Routing, kanały, wyłączenie THRU, zwalnianie nut, USB/TRS i zachowanie ustawień |
 | Build | Kompilacja, limity pamięci i weryfikacja paczki `.fwsc` |
 
-**Aktualna wersja to 1.2.5.** Przywrócenie HOME sprawdzono porównaniem wszystkich pikseli poza trzema rzędami nowego wskaźnika z rendererem sprzed 1.2.2: osiem tracków, dwie palety oraz stany STOP/PLAY/REC/PENDING/SOLO. Testy HOME/panelu i zapamiętywania parametrów pod ASan/UBSan oraz build sprawdzają tę poprawkę. Szersze testy audio i protokołu wykonano dla 1.2.2; ten kod pozostał bez zmian. **Test 6+2 na fizycznym FM-1 pozostaje do wykonania.** Akceptacja sprzętowa wcześniejszego wydania 1.1.0 nie potwierdza nowego układu.
+**Aktualna wersja to 1.2.6.** Testy obejmują zapis po skasowaniu ścieżek, restart na symulowanej pamięci flash, tworzenie pustego utworu i ramkę w SONG. Test 6+2 na fizycznym FM-1 pozostaje do wykonania. [Informacje o wydaniu](RELEASE-1.2.6.md).
 
 Najważniejsze testy 6+2: [two_drums_test.c](../tests/two_drums_test.c), [test_two_drums.mjs](../web/test_two_drums.mjs), [preview_test.mjs](../tests/preview_test.mjs). Pozostałe regresje obejmują też historyczne konfiguracje: [pattern_bank_test.c](../tests/pattern_bank_test.c), [pattern24_test.c](../tests/pattern24_test.c), [pattern24_migration_test.c](../tests/pattern24_migration_test.c), [arranger_test.c](../tests/arranger_test.c), [save_safety_test.c](../tests/save_safety_test.c), [ui_pages_test.c](../tests/ui_pages_test.c), [test_web.mjs](../web/test_web.mjs).
 
@@ -281,7 +286,7 @@ Ta dokumentacja ma pierwszeństwo nad limitami i opisami czterech sekcji w zacho
 
 ## Granular na żywo
 
-W piterfly **1.2.5** dostępny jest **FX → INSERT → GRANUL**, niezależnie na każdym tracku. Gałka 1 (INSRT) zawsze wybiera typ efektu, gałka 2 (PARAM) wybiera parę, a gałki 3/4 edytują: **SIZE/DENSITY**, **PITCH/MIX**, **POS/SPREAD** lub **CAPTURE/BUF**. BUF jest informacją o pojemności, bez edycji. SELECT normalnie przechodzi między stronami FX. Pojemność i stan LIVE/FREEZE są stale widoczne. BUF podaje rzeczywiście dostępny czas historii, zależny od liczby instancji, silników i pozostałych efektów.
+W piterfly **1.2.6** dostępny jest **FX → INSERT → GRANUL**, niezależnie na każdym tracku. Gałka 1 (INSRT) zawsze wybiera typ efektu, gałka 2 (PARAM) wybiera parę, a gałki 3/4 edytują: **SIZE/DENSITY**, **PITCH/MIX**, **POS/SPREAD** lub **CAPTURE/BUF**. BUF jest informacją o pojemności, bez edycji. SELECT normalnie przechodzi między stronami FX. Pojemność i stan LIVE/FREEZE są stale widoczne. BUF podaje rzeczywiście dostępny czas historii, zależny od liczby instancji, silników i pozostałych efektów.
 
 Zmiana barwy, silnika lub presetu użytkownika zachowuje aktywny GRANUL, jego ustawienia i zamrożone audio. LIVE przechwytuje nową barwę. Edycja odrysowuje tylko zmienione pola, bez czyszczenia całego ekranu. Linie podziału, marginesy i pozycje wartości są takie same jak w CHOR; status bufora i LIVE/FREEZE nie przesuwa siatki.
 
@@ -290,7 +295,7 @@ Historia jest mono, 22,05 kHz, zapisana stratnie jako µ-law; suchy sygnał zach
 [Obsługa, ograniczenia i wyniki testów](LIVE-GRANULAR.md).
 
 
-## DUCK i granular w 1.2.5
+## DUCK i granular w 1.2.6
 
 Wybierz ścieżkę syntezatora, otwórz **FX → FILTER** i pokrętłem **2** ustaw **DUCK ON/OFF**. Stopa ścisza tylko włączone cele; wspólny **MASTER → DUCK** określa głębokość. Stopy z obu perkusji wyzwalają DUCK. Celami są wyłącznie ścieżki syntezatora 1–6. Ustawienia celów zapisują się z patternem.
 

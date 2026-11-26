@@ -19,6 +19,7 @@ UI_SMALL static void song_sane(void)                         /* a bad chain (bla
 static uint32_t song_library_free(void), song_library_used(uint32_t slot);
 static void song_library_name(uint32_t slot,char *dst), song_library_message(uint32_t rc);
 static uint32_t song_library_save(uint32_t slot,const char *name), song_library_load(uint32_t slot), song_library_delete(uint32_t slot);
+static uint32_t song_library_new(void);
 static uint8_t song_library_open, song_library_slot, song_name_pos, song_library_armed;
 static char song_name[16];
 UI_SMALL static __attribute__((noinline)) void song_library_pick(uint32_t slot)
@@ -48,7 +49,7 @@ UI_SMALL static __attribute__((noinline)) void song_library_draw(void)
         cv_rect(48+song_name_pos*8u,19,8,2,TE_G2);
         cv_text(4,26,&FONT_S,"K1 slot K2 pos K3 letter",TE_G3);
         cv_text(4,43,&FONT_S,"SAVE save  OCT+ load",TE_G3);
-        cv_text(4,60,&FONT_S,"OCT- delete ALGO back",TE_G3);
+        cv_text(4,60,&FONT_S,"OCT- del REC new ALGO back",TE_G3);
         if(ui.msg_t) { cv_rect(0,20,240,32,C_WHITE); cv_text(4,28,&FONT_S,ui.msg,C_BLACK); }
         cv_blit(0,160);
     }
@@ -70,19 +71,23 @@ UI_SMALL static __attribute__((noinline)) void song_library_input(uint32_t press
         song_name[song_name_pos]=chars[n]; song_name[15]=0; song_library_armed=0;
     }
     panel_enc(EN_K4); panel_enc(EN_SELECT);
-    uint32_t op=(pressed>>panel.btn[B_SAVE]&1u)?1u:(pressed>>panel.btn[B_OCTUP]&1u)?2u:(pressed>>panel.btn[B_OCTDN]&1u)?3u:0u;
+    uint32_t op=(pressed>>panel.btn[B_SAVE]&1u)?1u:(pressed>>panel.btn[B_OCTUP]&1u)?2u:
+                (pressed>>panel.btn[B_OCTDN]&1u)?3u:(pressed>>panel.btn[B_REC]&1u)?4u:0u;
     if(!op) return;
     if(song.playing || transport_req) { ui_message("STOP FIRST"); return; }
     if((op!=1u || song_library_used(song_library_slot)) &&
        (song_library_armed!=op || fm1_ms-song_store_t>3000u)) {
         song_library_armed=(uint8_t)op; song_store_t=fm1_ms;
-        ui_message(op==1u?"SAVE AGAIN: REPLACE":op==2u?"OCT+ AGAIN: LOAD":"OCT- AGAIN: DELETE"); return;
+        ui_message(op==1u?"SAVE AGAIN: REPLACE":op==2u?"OCT+ AGAIN: LOAD":
+                   op==3u?"OCT- AGAIN: DELETE":"REC AGAIN: CLEAR SONG"); return;
     }
     song_library_armed=0;
-    uint32_t rc=op==1u?song_library_save(song_library_slot,song_name):op==2u?song_library_load(song_library_slot):song_library_delete(song_library_slot);
-    song_library_message(rc);
-    if(!rc && op==2u) ui_message("SONG LOADED");
-    if(!rc && op==3u) { song_library_pick(song_library_slot); ui_message("SONG DELETED"); }
+    uint32_t rc=op==1u?song_library_save(song_library_slot,song_name):op==2u?song_library_load(song_library_slot):
+                op==3u?song_library_delete(song_library_slot):song_library_new();
+    if(rc || op==1u) song_library_message(rc);
+    else if(op==2u) ui_message("SONG LOADED");
+    else if(op==3u) { song_library_pick(song_library_slot); ui_message("SONG DELETED"); }
+    else { song_library_open=0; song_cursor=0; ui_message("NEW SONG"); }
 }
 #endif
 
@@ -140,7 +145,7 @@ UI_SMALL static void song_screen_draw(void)
                 cv_rect(60, 19, (int32_t)(arrangement_clock.bar + 1u) * w / (e->bars ? e->bars : 1), 2, C_WHITE);
                 cv_rect(226, 9, 9, 9, SC[1]);
             }
-            if (selected) cv_rect(0, 1, 240, 1, TE_G2), cv_rect(0, 24, 240, 1, TE_G2);
+            if (selected) cv_outline(0, 0, 240, 26, sc);
         }
         cv_blit(0, 42 + 26u * i);
         }

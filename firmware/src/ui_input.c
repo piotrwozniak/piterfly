@@ -462,7 +462,7 @@ UI_SMALL static void step_edit(uint32_t slot, int32_t steps)
 }
 
 /* a new project: every track empty, the default sounds, 90 BPM (TOOLS > NEW) */
-UI_SMALL static void project_new(void)
+UI_SMALL static __attribute__((noinline)) void project_new(void)
 {
     uint32_t i;
 #if FELUCCA_ARRANGER
@@ -617,6 +617,7 @@ UI_SMALL static void edit_param(uint32_t slot, int32_t steps)
         fm1_irq_off();
         track_defaults_steps(TSEL);
         fm1_irq_on();
+        autosave_clear = 1;
         ui_message("PATTERN CLEARED");
         break;
     case G_INITSND:
@@ -634,6 +635,7 @@ UI_SMALL static void edit_param(uint32_t slot, int32_t steps)
         }
 #endif
         project_new();
+        autosave_clear = 1;
         ui_message("NEW LOOP, A-D KEPT");
         break;
     default:
@@ -1083,6 +1085,7 @@ UI_SMALL static void holds_input(uint32_t pressed, uint32_t now_ms)
         t->nheld = 0;                                     /* and the latched arp chord */
         t->arp_phys = 0;
         fm1_irq_on();
+        autosave_clear = 1;
         b[0] = (char)('1' + ui.hold_trk);
         ui_say("TRACK ", b);
         ui.hold_kind = 0;

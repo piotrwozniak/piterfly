@@ -10,6 +10,74 @@ static void cold(void) {
  memset(proj_slot,0,sizeof proj_slot); memset(&proj_cache,0,sizeof proj_cache); sec_dirty=0;
  pb_ready=0; memset(pb_sector,0,sizeof pb_sector); pb_scan();
 }
+static void clear_tracks_and_reboot(void) {
+ harness_init(); song.playing=0; transport_req=0; project_stage_busy=0;
+ for(uint32_t t=0;t<NTRK;t++) steps_clear(&trk[t]);
+ studio_open(SC_TRK);
+ song.sel=NPART+1u;
+ persist_flush_now(); /* The older autosave contains the empty loop. */
+ trk[NPART-1u].step[63]=(step_t){{60},1,ST_NOTE,0,100,0,0};
+ dstep_set(&trk[NPART].dstep[0],0,LV_NORM,1);
+ dstep_set(&trk[NPART+1u].dstep[63],15,LV_HARD,1);
+ persist_flush_now();
+ uint32_t rec=1u<<panel.btn[B_REC];
+ for(uint32_t t=NPART-1u;t<NTRK;t++) {
+  song.sel=(uint8_t)t;
+  fm1_in.buttons=rec;
+  holds_input(rec,fm1_ms);
+  fm1_ms+=700u; holds_input(0,fm1_ms);
+  fm1_ms+=HOLD_CLEAR_MS; holds_input(0,fm1_ms);
+  assert(!trk_step_on(&trk[t],t==NPART?0u:63u));
+  fm1_in.buttons=0; holds_input(0,fm1_ms);
+ }
+ ui_input_ms=autosave_ms=fm1_ms; autosave_checked=fm1_ms-1000u;
+ fl_fail_at=1;
+ autosave_tick();
+ assert(autosave_clear && !strcmp(ui.msg,"SAVE ERROR"));
+ fm1_ms+=1000u;
+ autosave_tick();
+ assert(!autosave_clear && !strcmp(ui.msg,"CLEAR SAVED"));
+ cold(); autosave_resume();
+ assert(!trk_step_on(&trk[NPART-1u],63) && !trk_step_on(&trk[NPART],0) && !trk_step_on(&trk[NPART+1u],63));
+ puts("REC clears the last synth and both drum tracks and survives power cycle PASS");
+}
+static void press_rec(void) {
+ edges_btn=fm1_in.buttons=1u<<panel.btn[B_REC];
+ ui_input();
+ fm1_in.buttons=0;
+ ui_input();
+}
+static void new_song(void) {
+ harness_init(); song.playing=0; transport_req=0; project_stage_busy=0; rec_wait=0;
+ pattern(23,48);
+ arrangement.count=1; arrangement.entry[0]=(arr_entry_t){23,5}; arrangement_enabled=1;
+ assert(!song_library_save(0,"KEEP"));
+ studio_open(SC_SONG);
+ encs[panel.enc[EN_ALGO]]=1; song_screen_input(0,0); assert(song_library_open);
+ song_screen_draw();
+ press_rec();
+ assert(song_library_armed==4 && project_at(23) && trk[0].step[0].n);
+ fl_fail_at=1; press_rec();
+ assert(song_library_open && project_at(23) && trk[0].step[0].n && arrangement_enabled);
+ steps_clear(&trk[0]);
+ cold(); persist_boot(); autosave_resume();
+ assert(project_at(23) && trk[0].step[0].n && arrangement.entry[0].scene==23);
+ press_rec(); press_rec();
+ assert(!song_library_open && !strcmp(ui.msg,"NEW SONG") && !undo.valid);
+ assert(!project_at(23) && !trk[0].step[0].n && !arrangement_enabled && arrangement.count==4);
+ assert(song_library_used(0));
+ cold(); persist_boot(); autosave_resume();
+ assert(!project_at(23) && !trk[0].step[0].n && !arrangement_enabled && arrangement.count==4);
+
+ /* With identical settings, a second NEW still supersedes patterns saved after the first. */
+ transport_req=0; pattern(4,60); persist_flush_now();
+ assert(!song_library_new());
+ cold(); persist_boot(); autosave_resume();
+ assert(!project_at(4) && !trk[0].step[0].n);
+ transport_req=0;
+ assert(!song_library_load(0) && project_at(23) && trk[0].step[0].note[0]==48);
+ puts("NEW SONG: confirmation, interrupted write, repeat after edits, cold start and named snapshot preservation PASS");
+}
 static void incompatible_records(void) {
  harness_init(); song.playing=0; transport_req=0; project_stage_busy=0;
  proj_capture(&proj_tmp.v9); proj_tmp.v9.magic=0x46554E41u; proj_tmp.v9.sum=proj_sum(&proj_tmp.v9);
@@ -41,7 +109,7 @@ static void panel_library(void) {
  assert(dstep_has(&trk[6].dstep[63],15) && arrangement.entry[0].scene==2 && arrangement.entry[0].bars==8);
  transport_req=0;
  uint32_t del=1u<<panel.btn[B_OCTDN]; song_screen_input(del,0); assert(song_library_used(0));
- song_screen_input(del,0); assert(!song_library_used(0)); song_screen_draw();
+ song_screen_input(del,0); assert(!song_library_used(0) && dstep_has(&trk[6].dstep[63],15)); song_screen_draw();
  song_screen_input(0,1); assert(!song_library_open);
  puts("panel library: real SAVE tap, sparse drum-tail pattern, naming, load/delete confirmation, draw bounds and boot resume PASS");
 }
@@ -109,6 +177,8 @@ int main(void) {
   assert(!rc);
  }
  assert(full && song_library_used(1));
+ assert(!song_library_new() && !project_at(4) && song_library_used(1));
+ transport_req=0;
  assert(!song_library_delete(1));
  cold(); assert(!song_library_used(1));
  puts("named songs: sparse snapshots, independent load, cold scan, export reads, delete and full-space recovery PASS");
@@ -116,5 +186,7 @@ int main(void) {
  panel_library();
  interrupted_load();
  incompatible_records();
+    clear_tracks_and_reboot();
+    new_song();
  return 0;
 }

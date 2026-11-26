@@ -75,6 +75,18 @@ int main(int argc,char **argv)
     arrangement.entry[2]=(arr_entry_t){2,8};
     arrangement.entry[3]=(arr_entry_t){3,1};
     palette_set(2);song_screen_draw();
+    assert(screen[42*240] == swap16(TE_COL[0]));
+    assert(screen[54*240] == swap16(TE_COL[0]));
+    assert(screen[54*240+239] == swap16(TE_COL[0]));
+    assert(screen[67*240+120] == swap16(TE_COL[0]));
+    ui.force=0;
+    enc[EN_K1]=1; song_screen_input(0,0); song_screen_draw();
+    assert(screen[54*240] == swap16(C_BLACK));
+    assert(screen[80*240] == swap16(TE_COL[1]));
+    enc[EN_K2]=2; song_screen_input(0,0); song_screen_draw();
+    assert(screen[80*240] == swap16(TE_COL[3]));
+    enc[EN_K2]=-2; song_screen_input(0,0);
+    enc[EN_K1]=-1; song_screen_input(0,0); song_screen_draw();
     if(argc>1) {
         FILE *f=fopen(argv[1],"wb");assert(f);
         fprintf(f,"P6\n240 240\n255\n");

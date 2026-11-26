@@ -513,16 +513,24 @@ UI_SMALL static void autosave_tick(void)                /* main loop */
 #if FELUCCA_FLASH
     uint32_t h, now = fm1_ms;
     if (project_stage_locked(fm1_ms) || !flash_ok || song.playing || transport_req || rec_wait || ft_on || ui.menu ||
-        now - ui_input_ms < AUTOSAVE_IDLE || now - autosave_ms < AUTOSAVE_GAP || now - autosave_checked < 1000u)
+        (!autosave_clear && (now - ui_input_ms < AUTOSAVE_IDLE || now - autosave_ms < AUTOSAVE_GAP)) ||
+        now - autosave_checked < 1000u || !audio_quiet())
         return;
     autosave_checked = now;
     proj_capture(&autosave_buf);
     h = autosave_buf.sum;
-    if (h == autosave_hash || !audio_quiet())
-        return;
-    if (pb_autosave_save(&autosave_buf, sizeof autosave_buf) == 0)
+    if (h != autosave_hash) {
+        autosave_ms = now;
+        if (pb_autosave_save(&autosave_buf, sizeof autosave_buf)) {
+            if (autosave_clear) ui_message(pb_error());
+            return;
+        }
         autosave_hash = h;
-    autosave_ms = fm1_ms;
+    }
+    if (autosave_clear) {
+        autosave_clear = 0;
+        ui_message("CLEAR SAVED");
+    }
 #endif
 }
 
@@ -536,7 +544,9 @@ UI_SMALL static void autosave_resume(void)              /* power-on: the project
     if (!flash_ok)
         return;
     n = pb_load(pb_autosave_latest(), &proj_tmp, sizeof proj_tmp);
+#if NPART != 6                                     /* FUNB only uses the paired journal. */
     if(n < 0) n = st_load(OBJ_AUTOSAVE, &proj_tmp, sizeof proj_tmp);
+#endif
     if (!proj_import(q, &proj_tmp, n))
         return;
     autosave_hash = q->sum;

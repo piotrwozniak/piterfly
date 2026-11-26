@@ -25,6 +25,7 @@ UI_SMALL static uint32_t user_of(const track_t *t)    /* user preset slot its so
 }
 static uint32_t up_gen;                      /* bumped on every user bank change (redraws) */
 static uint8_t sync_reload;                  /* engine / preset / project / user preset loaded: editor RELOAD push */
+static uint8_t autosave_clear;               /* explicit clear: save as soon as stopped and quiet */
 
 #define ACC C_HI                   /* amber everywhere; white is the only accent */
 #define VAL(c) ((c) == ui.hot_col && ui.hot_t ? C_WHITE : TE_COL[(c) & 3u])   /* LIVE: one colour per knob */

@@ -1,9 +1,9 @@
 # piterfly — distribution-tree provenance
 
-Piterfly 1.2.5 public source export prepared on 2026-11-18. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
+Piterfly 1.2.6 public source export prepared on 2026-11-26. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
 
 This tree derives from `piotrwozniak/fm1-piterfly`, private source commit
-`6e3f735371146d4ea66ecc5436786d0405c0fc2a`. That project modifies SLOOP 2.8.5,
+`a0509e725118090819784961669bf8d45a604418`. That project modifies SLOOP 2.8.5,
 upstream commit `bac9c05ea7627449405aa10e48da21d75b6c8c56` from
 <https://github.com/isod89/sloop-fm1>, based on Felucca by Leo Kuroshita
 (@kurogedelic), Hügelton Instruments. The initial export was a plain source directory, without a Git repository or copied .git.
@@ -115,3 +115,7 @@ Replaces the HOME instrument outline with the approved full-width central line a
 ## Version 1.2.5
 
 Restores the complete original HOME geometry from 1.2.0: 36-pixel rows at y=40, original step sizes, text positions and footer. Removes the 24-pixel strip introduced in 1.2.2 and retained in 1.2.3. Adds only the instrument line/block in empty header rows 35–37. Exact pixel comparison covers the rest of the screen across eight tracks, two palettes and four play/record states. Parameter recall fixes remain.
+
+## Version 1.2.6
+
+The working loop is saved after track clears. NEW SONG clears the working project and keeps the named library available. The SONG order shows a pattern-coloured outline around the selected row. The release includes two examples captured from the firmware renderer.

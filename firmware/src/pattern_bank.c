@@ -140,7 +140,9 @@ UI_SMALL static int pb_save(uint32_t slot, const void *src, uint32_t len)
 #if NPART == 6 && defined(ST_XIP_PTR)
     pb_full=0;
     if(slot<24u && !len && pb_sector[slot]<0) return 0;
-    if(slot<PB_COUNT && pb_sector[slot]>=0 && pb_length[slot]==len && (!len || !memcmp(pb_xip(slot),src,len))) return 0;
+    /* An autosave or workspace mount must be newer than the records it supersedes. */
+    if(slot<SONG_ACTIVE && (slot<24u || slot>25u) && pb_sector[slot]>=0 && pb_length[slot]==len &&
+       (!len || !memcmp(pb_xip(slot),src,len))) return 0;
 #endif
     if (slot >= PB_COUNT || len > PB_PAYLOAD_MAX || (!src && len) || pb_serial == 0xFFFFFFFFu) return -1;
 #if NPART == 6 && defined(ST_XIP_PTR)

@@ -1,6 +1,6 @@
-# Track controls — piterfly 1.2.5
+# Track controls — piterfly 1.2.6
 
-The current layout is **six synth parts + two drum tracks**. The published 1.1.0 release used 7+1; its hardware verification does not cover version 1.2.5.
+The current layout is **six synth parts + two drum tracks**. The published 1.1.0 release used 7+1; its hardware verification does not cover version 1.2.6.
 
 | Tracks | Instrument | Default MIDI channels | Voices |
 | --- | --- | --- | --- |
@@ -28,4 +28,4 @@ Each track has its own MIDI channel, THRU switch and MIDI Learn routing. Track 7
 
 24 pattern slots and 128 SONG positions remain. A pattern holds all eight tracks. **Create new projects:** FUNB (6,160 bytes), editor protocol 19, settings PER4. Earlier FUN1–FUNA projects are not imported. All four former user-sample banks join the 352 KiB pattern/song pool; factory samples remain. Eight named song slots support save, load from a list, delete and export on the Mac, subject to available space. See [SONGS.md](SONGS.md).
 
-[Build and release notes](RELEASE-1.2.5.md) · [Polska instrukcja](PITERFLY.md) · [Implementation and verification](SIX-SYNTH-TWO-DRUMS.md)
+[Build and release notes](RELEASE-1.2.6.md) · [Polska instrukcja](PITERFLY.md) · [Implementation and verification](SIX-SYNTH-TWO-DRUMS.md)
