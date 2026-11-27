@@ -3,7 +3,7 @@
  * Copyright (C) 2026 Adrien Tibi (Recursive Field Instruments)
  * Ported from Melodee; source revisions and MPL permission: see THIRD_PARTY_NOTICES.md. */
 /* USB MIDI output in host mode. The main loop owns EP0 and switches roles.
- * TIMER5 owns MIDI transfers while connected. The device role is selected at boot.
+ * TIMER5 owns MIDI transfers while connected. USB starts in the device role.
  * The FM-1 needs an externally powered USB hub/adapter for bus-powered synths. */
 #include "usb_host_desc.h"
 
@@ -13,25 +13,15 @@ enum { UH_MSG_NONE, UH_MSG_ON, UH_MSG_OFF, UH_MSG_MIDI, UH_MSG_NOMIDI, UH_MSG_LO
 #define UH_MAX_ERRORS 16u
 #define UH_ROOT_TRIES 5u                                /* resets of a device that does not answer at all (uh_connect) */
 
-static struct {
-    volatile uint8_t want;                                       /* requested mode (main loop) */
-    volatile uint8_t on;                                         /* the port is a host */
-    volatile uint8_t run;                               /* TIMER5 owns the active MIDI endpoints */
-    volatile uint8_t fault;                             /* TIMER5 -> main loop: reset the bus and look again */
-    uint8_t seen, next_addr, dev, tried;
-    uint8_t hub_addr, hub_mps, hub_ports, hub_poll_port;
-    uint8_t out_mps, tx_count, tx_errors, line_idle;
-    volatile uint8_t cleanup;                           /* block new MIDI until outstanding notes are released */
-    uint8_t tx_cleanup, clock_started;
-    uint16_t cleanup_at;
-    uint8_t msg;                                        /* one UH_MSG_* for the application */
-    uint8_t answered;                                   /* the device on the root port answered its first request (uh_connect) */
-    uint32_t t_ms, retry_ms;
-    uint32_t tx_ms, hub_poll_ms;
-} uh;
+#define uh_links (usb_payload.host)
 
-/* Notes acknowledged by the synth, plus any Note On with an uncertain ACK after a fault. */
-static uint32_t uh_notes[64];
+static struct {
+    volatile uint8_t want, on, run, fault, control, tx_count, active, discovered;
+    uint8_t multi, seen, next_addr, dev, tried;
+    uint8_t hub_addr, hub_mps, hub_ports, hub_poll_port;
+    uint8_t current, round, tx_errors, line_idle, tx_cleanup, msg, answered;
+    uint32_t t_ms, retry_ms, tx_ms, hub_poll_ms;
+} uh;
 
 static void usb_host_switch(uint32_t on) { if (!usb.detached) uh.want = on != 0; }
 
@@ -67,7 +57,7 @@ static int uh_csr0(uint32_t want_set, uint32_t want_clr)
 
 /* One control transfer to `addr`: SETUP, the IN data stage if any, the status stage. Bytes read, or < 0.
  * Only requests without an OUT data stage (every one used here). */
-static int uh_ctl(uint8_t addr, uint8_t rt, uint8_t rq, uint16_t val, uint16_t idx, uint16_t len, uint8_t *out,
+static int uh_ctl_locked(uint8_t addr, uint8_t rt, uint8_t rq, uint16_t val, uint16_t idx, uint16_t len, uint8_t *out,
                   uint8_t mps)
 {
     uint32_t got = 0, n, i;
@@ -115,6 +105,43 @@ static int uh_ctl(uint8_t addr, uint8_t rt, uint8_t rq, uint16_t val, uint16_t i
             sie_wr(S_CSR0, 0);
     }
     return r < 0 ? r : (int)got;
+}
+
+/* Main-loop control transfers and TIMER5 share the address and endpoint index. */
+static void uh_take(void)
+{
+    uh.control = 1;
+    RING_PUBLISH();
+    while (uh.tx_count && !uh.fault)
+        fm1_wdt_feed();
+}
+static void uh_give(void)
+{
+    RING_PUBLISH();
+    uh.control = 0;
+}
+
+static int uh_ctl(uint8_t addr, uint8_t rt, uint8_t rq, uint16_t val, uint16_t idx, uint16_t len,
+                  uint8_t *out, uint8_t mps)
+{
+    uh_take();
+    int r = uh.fault ? -1 : uh_ctl_locked(addr, rt, rq, val, idx, len, out, mps);
+    uh_give();
+    return r;
+}
+
+static void uh_bind(uint32_t slot, const uh_midi_t *m)
+{
+    uh_link_t *d = &uh_links[slot];
+    uh_take();
+    d->addr = uh.dev;
+    d->mps = (uint8_t)m->out_mps;
+    d->type = (uint8_t)(m->out_type << 4 | m->out_ep);
+    d->interval = m->out_type == 3u ? m->out_interval : (uh.multi ? 4u : 0u);
+    d->toggle = 0;
+    d->cleanup_at = 0;
+    uh.active |= (uint8_t)(1u << slot);
+    uh_give();
 }
 
 /* ---------------------------------------------------- enumeration --- */
@@ -194,7 +221,6 @@ static int uh_hub_status(uint8_t p, uint8_t *b)
 {
     if (uh_ctl(uh.hub_addr, 0xA3, 0, 0, p, 4, b, uh.hub_mps) < 4 ||
         ((b[2] & 1u) && uh_ctl(uh.hub_addr, 0x23, 1, 16, p, 0, 0, uh.hub_mps) < 0)) {
-        uh.hub_addr = 0;
         return 0;
     }
     return 1;
@@ -220,46 +246,44 @@ static int uh_hub_probe(uint8_t addr, uint8_t mps, uint8_t cfgval, uh_midi_t *m)
     uh.hub_poll_port = 1;
     uh.hub_poll_ms = fm1_ms;
     for (p = 1; p <= ports; p++) {
+        if (uh.multi && p > UH_PORTS)
+            break;
         if (!uh_hub_status(p, b))
-            return 0;
-        if (uh_hub_port_probe(p, (uint32_t)(b[0] | b[1] << 8), m))
-            return 1;
+            break;
+        if (b[0] & 1u)
+            uh.discovered |= (uint8_t)(1u << (p - 1u));
+        if (uh_hub_port_probe(p, (uint32_t)(b[0] | b[1] << 8), m)) {
+            uh_bind(uh.multi ? p - 1u : 0u, m);
+            if (!uh.multi)
+                break;
+        }
     }
-    return 0;
+    return uh.active != 0;
 }
 
-/* Host EP1 sends to the OUT endpoint of the selected interface. */
-static void uh_start_ep(const uh_midi_t *m)
+static void uh_start_ep(void)
 {
-    sie_wr(S_FADDR, uh.dev);
     sie_wr(S_INDEX, 1);
-    uh.out_mps = (uint8_t)m->out_mps;
-    uh.tx_count = uh.tx_errors = 0;
-    uh.line_idle = 0;
     fm1_usb_ep_txbuf(1, ep1tx);
     sie_wr(S_TXMAXP, 0xFF);
     sie_wr(S_TXCSR1, 0x48);                             /* clear data toggle and flush FIFO */
-    sie_wr(S_TXCSR2, 0x20);                             /* TX half of a bidirectional endpoint */
-    sie_wr(S_TXTYPE, (uint32_t)(m->out_type << 4 | m->out_ep));
-    sie_wr(S_TXINTERVAL, m->out_type == 3u ? m->out_interval : 0u);
     fm1_usb_ep_enable(1u << 1);
-    uh.fault = 0;
+    uh.line_idle = uh.tx_errors = uh.round = 0;
     RING_PUBLISH();
     uh.run = 1;
 }
 
-static void uh_track_packet(uint32_t uncertain)
+static void uh_track_packet(uh_link_t *d, uint32_t uncertain)
 {
-    uint32_t i;
-    for (i = 0; i < 4u * uh.tx_count; i += 4u) {
+    for (uint32_t i = 0; i < 4u * uh.tx_count; i += 4u) {
         uint32_t st = ep1tx[i + 1], kind = st & 0xF0u;
         if (st == 0xFAu || st == 0xFBu) {
-            uh.clock_started = 1;
+            d->clock = 1;
         } else if (st == 0xFCu && !uncertain) {
-            uh.clock_started = 0;
+            d->clock = 0;
         } else if (kind == 0x90u || kind == 0x80u) {
             uint32_t note = ep1tx[i + 2] & 127u;
-            uint32_t *word = &uh_notes[(st & 15u) * 4u + note / 32u];
+            uint32_t *word = &d->notes[(st & 15u) * 4u + note / 32u];
             uint32_t bit = 1u << (note & 31u);
             if (kind == 0x90u && ep1tx[i + 3])
                 *word |= bit;
@@ -269,15 +293,26 @@ static void uh_track_packet(uint32_t uncertain)
     }
 }
 
-/* Keep note ownership for the next connection when an OUT packet may have reached the synth. */
+static void uh_drop(uint32_t slot)
+{
+    uh_link_t *d = &uh_links[slot];
+    uh.active &= (uint8_t)~(1u << slot);
+    d->read = d->write;
+    d->cleanup_at = 0;
+    d->cleanup = 1;
+}
+
+/* Keep note ownership when an OUT packet may have reached the synth. */
 static void uh_session_end(void)
 {
     uh.run = 0;
     RING_PUBLISH();
-    uh_track_packet(1);
+    uh_track_packet(&uh_links[uh.current], 1);
     uh.tx_count = 0;
+    uh.discovered = 0;
+    for (uint32_t i = 0; i < UH_PORTS; i++)
+        uh_drop(i);
     mo_r = mo_w;
-    uh.cleanup_at = 0;
 }
 
 /* the controller's port as a host with nothing attached yet */
@@ -328,7 +363,9 @@ static void uh_connect(void)
             break;
     }
     if (ok) {
-        uh_start_ep(&m);
+        if (!uh.hub_addr)
+            uh_bind(0, &m);
+        uh_start_ep();
         uh.msg = UH_MSG_MIDI;
         uh.tried = 0;
     } else {
@@ -344,19 +381,21 @@ static void usb_host_task(uint32_t now)
     if (usb.detached)
         return;
     if (uh.want != uh.on) {
-        if (!uh.want && uh.run) {                       /* let TIMER5 end any sounding notes before detaching */
+        if (!uh.want && uh.run && !uh.fault) {          /* let TIMER5 end sounding notes while the bus responds */
             return;
         }
         usb.up = 0;                                     /* TIMER5 leaves the SIE to this context */
         RING_PUBLISH();
         usb.config = 0;
         usb.suspended = 0;
-        uh_session_end();
+        if (uh.on)
+            uh_session_end();                          /* only the host owns these bytes now */
         uh.fault = 0;
         uh.tried = 0;
         if (uh.want) {
 #if FELUCCA_UAC
             uac_stream(0);
+            uac.feed = 0;
 #endif
 #if FELUCCA_CDC
             cdc.dtr = cdc.e0_rx = cdc.rx_pend = 0;
@@ -364,19 +403,23 @@ static void usb_host_task(uint32_t now)
 #if FELUCCA_OTA
             so_r = so_w;
             sx_ready = sx_collect = sx_busy = 0;
+            usb.ota_req = 0;
 #endif
             usb.sx_on = 0;
             fm1_usb_off();
+            mo_r = mo_w;
+            memset(uh_links, 0, sizeof uh_links);
+            RING_PUBLISH();
             uh.on = 1;
             RING_PUBLISH();
-            uh.cleanup = 1;                            /* release any notes from an interrupted connection */
             uh_host_up();
             uh.retry_ms = now;
             uh.msg = UH_MSG_ON;
         } else {
-            uh.on = 0;
-            RING_PUBLISH();
             fm1_usb_off();
+            memset(&usb_payload.device, 0, sizeof usb_payload.device);
+            RING_PUBLISH();
+            uh.on = 0;
             usb_retry_ms = now - 1000u;                 /* usb_retry makes the port a device again at once */
             uh.msg = UH_MSG_OFF;
         }
@@ -386,14 +429,13 @@ static void usb_host_task(uint32_t now)
         return;
     if (uh.fault) {                                     /* stall, or the controller stopped answering (TIMER5 cleared run) */
         uh_session_end();
-        uh.cleanup = 1;
         uh.fault = 0;
         uh_host_up();
         uh.retry_ms = now + 500u;
         uh.msg = UH_MSG_LOST;
         return;
     }
-    if (uh.run)
+    if (uh.run && (!uh.multi || !uh.hub_addr || !uh.want))
         return;
     if ((int32_t)(now - uh.t_ms) < 20 || (int32_t)(now - uh.retry_ms) < 0)
         return;
@@ -409,23 +451,44 @@ static void usb_host_task(uint32_t now)
         return;
     }
     uh.line_idle = 0;
-    if (uh.tried) {
-        if (uh.hub_addr && uh.hub_ports && (uint32_t)(now - uh.hub_poll_ms) >= 100u) {
+    if (uh.hub_addr && (uh.tried || uh.multi)) {
+        if (uh.hub_ports && (uint32_t)(now - uh.hub_poll_ms) >= 40u) {
             uint8_t b[4], p = uh.hub_poll_port;
+            uint32_t slot = uh.multi ? p - 1u : 0u;
+            uint32_t bit = 1u << (p - 1u);
             uh_midi_t m;
             uh.hub_poll_ms = now;
-            uh.hub_poll_port = p == uh.hub_ports ? 1u : (uint8_t)(p + 1u);
-            if (uh_hub_status(p, b) && (b[2] & 1u) && (b[0] & 1u) && !(b[1] & 2u)) {
-                uh_wait(100);                          /* newly attached device settles before port reset */
-                if (uh_hub_status(p, b) && uh_hub_port_probe(p, (uint32_t)(b[0] | b[1] << 8), &m)) {
-                    uh_start_ep(&m);
-                    uh.msg = UH_MSG_MIDI;
-                    uh.tried = 0;
+            uh.hub_poll_port = p >= uh.hub_ports || (uh.multi && p == UH_PORTS) ? 1u : (uint8_t)(p + 1u);
+            if (uh_hub_status(p, b)) {
+                uint32_t probe = (b[0] & 1u) && (b[2] & 1u);
+                if (uh.multi) {
+                    uh_take();
+                    if (!(b[0] & 1u) || (b[2] & 1u)) {
+                        uh_drop(slot);
+                        uh.discovered &= (uint8_t)~bit;
+                    }
+                    probe = (b[0] & 1u) && !(uh.discovered & bit);
+                    if (probe)
+                        uh.discovered |= (uint8_t)bit;
+                    uh_give();
                 }
+                if (probe && !uh.fault) {
+                    if (uh_hub_port_probe(p, (uint32_t)(b[0] | b[1] << 8), &m)) {
+                        uh_bind(slot, &m);
+                        if (!uh.run)
+                            uh_start_ep();
+                        uh.msg = UH_MSG_MIDI;
+                        uh.tried = 0;
+                    }
+                }
+            } else {
+                uh.fault = 1;
             }
         }
-        return;                                        /* direct failures wait for root unplug/replug */
+        return;
     }
+    if (uh.tried)
+        return;                                        /* direct failures wait for root unplug/replug */
     if (uh.seen < 5u) {                                 /* 100 ms of a steady line before the bus reset */
         uh.seen++;
         return;
@@ -441,61 +504,106 @@ static void uh_fail(void)
     uh.fault = 1;
 }
 
-/* Retain ring slots and the DMA buffer until ACK. A NAK or transient error retries the same data toggle;
- * a stall, repeated errors or 500 ms without completion hands recovery to the main loop. Never wait here. */
+static void uh_enqueue(uint32_t slot, uint32_t packet)
+{
+    uh_link_t *d = &uh_links[slot];
+    if (!(uh.active & (1u << slot)) || d->cleanup)
+        return;
+    if ((uint8_t)(d->write - d->read) >= MQ) {
+        d->cleanup = 1;
+        return;
+    }
+    d->queue[d->write % MQ] = packet & ~0xF0u;
+    RING_PUBLISH();
+    d->write++;
+}
+
+static void uh_midi_out(uint32_t packet)
+{
+    if (!uh.run || !uh.want)
+        return;
+    if (!uh.multi || !uh.hub_addr) {
+        uh_enqueue(0, packet);
+    } else if ((packet & 15u) == 15u) {                  /* clock and transport are shared */
+        for (uint32_t i = 0; i < UH_PORTS; i++)
+            uh_enqueue(i, packet);
+    } else if ((packet >> 4 & 15u) < UH_PORTS) {
+        uh_enqueue(packet >> 4 & 15u, packet);
+    }
+}
+
+/* ACK advances the ring and the next DATA PID. Reprogram that PID when sharing EP1. */
 static void uh_tx_poll(void)
 {
-    uint32_t csr = sie_rd(S_TXCSR1), n = 0;
+    uh_link_t *d = &uh_links[uh.current];
+    uint32_t n = 0;
     if (uh.tx_count) {
-        if ((csr & 0x20u) || fm1_ms - uh.tx_ms >= 500u) {
-            uh_fail();
-            return;
-        }
-        if (csr & 0x84u) {                              /* Error / NAK timeout */
-            if ((csr & 4u) && ++uh.tx_errors >= UH_MAX_ERRORS) {
+        uint32_t csr = sie_rd(S_TXCSR1);
+        uint32_t shared = uh.multi && uh.hub_addr;
+        if ((csr & 0x20u) || fm1_ms - uh.tx_ms >= (shared ? 8u : 500u) ||
+            ((csr & 4u) && ++uh.tx_errors >= UH_MAX_ERRORS)) {
+            if (!shared) {
                 uh_fail();
                 return;
             }
-            sie_wr(S_TXCSR1, 0x01u);                    /* retry retained FIFO, preserving data toggle */
+            uh_track_packet(d, 1);
+            sie_wr(S_TXCSR1, 8u);                       /* abort this FIFO before selecting a different address */
+            uh_drop(uh.current);
+            uh.discovered &= (uint8_t)~(1u << uh.current);
+        } else if (csr & 0x84u) {
+            sie_wr(S_TXCSR1, 1u);                       /* retry the same packet and data toggle */
             return;
+        } else if (csr & 3u) {
+            return;
+        } else {
+            uh_track_packet(d, 0);
+            d->toggle ^= 1u;
+            if (!uh.tx_cleanup)
+                d->read += uh.tx_count;
         }
-        if (csr & 0x03u) return;                        /* no ACK yet */
-        uh_track_packet(0);
-        if (!uh.tx_cleanup)
-            mo_r += uh.tx_count;
-        uh.tx_count = uh.tx_errors = 0;
+        uh.tx_count = 0;
     }
-    if (!uh.want)
-        uh.cleanup = 1;
-    uh.tx_cleanup = uh.cleanup;
-    while (n + 4u <= uh.out_mps) {
+    if (uh.control)
+        return;
+    if (!uh.active) {
+        uh.run = 0;
+        return;
+    }
+    uint32_t slot = uh.round;
+    for (uint32_t i = 0; i < UH_PORTS; i++) {
+        d = &uh_links[slot];
+        if ((uh.active & (1u << slot)) && (!uh.want || d->cleanup || d->read != d->write))
+            break;
+        if (++slot == UH_PORTS)
+            slot = 0;
+    }
+    if (!((uh.active & (1u << slot)) && (!uh.want || d->cleanup || d->read != d->write)))
+        return;
+    uh.round = (uint8_t)(slot + 1u == UH_PORTS ? 0u : slot + 1u);
+    uh.tx_cleanup = d->cleanup || !uh.want;
+    while (n + 4u <= d->mps) {
         uint32_t p;
         if (uh.tx_cleanup) {
-            mo_r = mo_w;                               /* stale events give way to Note Offs and Stop */
-            if (uh.clock_started && !n) {
-                ep1tx[0] = 0x0Fu;
-                ep1tx[1] = 0xFCu;
-                ep1tx[2] = ep1tx[3] = 0;
-                n = 4u;
-                break;                                 /* clear clock_started only after ACK */
-            }
+            d->read = d->write;
             p = 0;
-            while (uh.cleanup_at < 2048u) {
-                uint32_t at = uh.cleanup_at++;
-                uint32_t word = uh_notes[at / 32u];
+            if (!n && d->clock) {
+                p = 0xFC0Fu;
+            } else while (d->cleanup_at < 2048u) {
+                uint32_t at = d->cleanup_at++;
+                uint32_t word = d->notes[at / 32u];
                 if (word & (1u << (at & 31u))) {
                     p = 0x8008u | (at / 128u) << 8 | (at & 127u) << 16;
                     break;
                 }
                 if (!word)
-                    uh.cleanup_at = (uint16_t)((at + 32u) & ~31u);
+                    d->cleanup_at = (uint16_t)((at + 32u) & ~31u);
             }
             if (!p)
                 break;
         } else {
-            if (mo_r + n / 4u == mo_w)
+            if ((uint8_t)(d->read + n / 4u) == d->write)
                 break;
-            p = midi_out_q[(mo_r + n / 4u) % MQ];
+            p = d->queue[(d->read + n / 4u) % MQ];
         }
         ep1tx[n++] = (uint8_t)p;
         ep1tx[n++] = (uint8_t)(p >> 8);
@@ -503,22 +611,29 @@ static void uh_tx_poll(void)
         ep1tx[n++] = (uint8_t)(p >> 24);
     }
     if (!n) {
-        if (uh.tx_cleanup) {
-            uh.cleanup_at = 0;
-            uh.cleanup = 0;
-            if (!uh.want)
-                uh.run = 0;                            /* main loop may now switch back to device mode */
+        d->cleanup_at = d->cleanup = 0;
+        if (!uh.want) {
+            uh.active &= (uint8_t)~(1u << slot);
+            uh.run = uh.active != 0;
         }
         return;
     }
+    uh.current = (uint8_t)slot;
+    sie_wr(S_FADDR, d->addr);
+    sie_wr(S_TXTYPE, d->type);
+    sie_wr(S_TXINTERVAL, d->interval);
+    sie_wr(S_TXCSR2, uh.multi && uh.hub_addr ? 0x22u | d->toggle : 0x20u);
+    uh.tx_errors = 0;
     uh.tx_count = (uint8_t)(n / 4u);
     uh.tx_ms = fm1_ms;
     fm1_usb_ep_send(1, ep1tx, n);
-    sie_wr(S_TXCSR1, 0x01u);
+    sie_wr(S_TXCSR1, 1u);
 }
 
 static void uh_poll(void)
 {
+    if (uh.fault || (uh.control && !uh.tx_count))
+        return;
     if (!fm1_usb_line()) {
         /* EOP also drives SE0 briefly. Require 8 ms of idle samples. */
         if (++uh.line_idle >= 16u) uh_fail();

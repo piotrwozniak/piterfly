@@ -46,6 +46,45 @@ enum { S_FADDR = 0, S_POWER = 1, S_INTRTX1 = 2, S_INTRTX2 = 3, S_INTRRX1 = 4, S_
        S_TXMAXP = 16, S_CSR0 = 17, S_TXCSR1 = 17, S_TXCSR2 = 18, S_RXMAXP = 19, S_RXCSR1 = 20, S_RXCSR2 = 21,
        S_COUNT0 = 22, S_RXCOUNT1 = 22, S_RXCOUNT2 = 23 };
 
+#define MQ 64u
+#define SXQ 64u
+#define UA_N 512u                /* USB audio ring, 16-bit L | R << 16 */
+#if FELUCCA_USB_HOST
+#define UH_PORTS 6u
+typedef struct {
+    uint32_t queue[MQ], notes[64];
+    volatile uint8_t read, write, cleanup;
+    uint8_t addr, mps, type, interval, toggle, clock;
+    uint16_t cleanup_at;
+} uh_link_t;
+#endif
+
+/* The role handover stops USB and publishes disabled flags before reusing
+ * the payload storage. DMA buffers and TRS MIDI input are independent. */
+static union {
+    struct {
+#if FELUCCA_UAC
+        uint32_t audio[UA_N];
+#endif
+#if FELUCCA_OTA
+        uint8_t sysex_in[640];
+        uint32_t sysex_out[SXQ];
+#endif
+        uint32_t midi_out[MQ];
+    } device;
+#if FELUCCA_USB_HOST
+    uh_link_t host[UH_PORTS];
+#endif
+} usb_payload;
+#if FELUCCA_USB_HOST && FELUCCA_UAC && FELUCCA_OTA
+_Static_assert(sizeof usb_payload.host <= sizeof usb_payload.device, "USB host fits in device payload RAM");
+#endif
+
+#define ua_ring (usb_payload.device.audio)
+#define sx_frame (usb_payload.device.sysex_in)
+#define sx_out_q (usb_payload.device.sysex_out)
+#define midi_out_q (usb_payload.device.midi_out)
+
 static uint8_t ep0buf[64 + 4] __attribute__((aligned(4)));
 static uint8_t ep1tx[64] __attribute__((aligned(4)));
 static uint8_t ep1rx[64 + 4] __attribute__((aligned(4)));
@@ -77,7 +116,6 @@ static struct {
  * band: ~5.8 ms). Measured under load (65 % CPU): a 64..112 band started renders at
  * 48..119 with no glitch; one render was once seen 29 frames under the floor: a packet (46) must
  * still be in hand then. */
-#define UA_N 512u                /* ring, frames (16-bit L | R << 16); a power of two */
 #define UA_PRIME 104u            /* silence ahead of the first rendered frame */
 #define UA_LO 80u                /* a render may start late: keep a packet and more in hand */
 #define UA_HI 128u
@@ -95,7 +133,6 @@ _Static_assert(UA_HI48 + UA_REND48 + UA_MAXF < UA_N, "the ring holds the band, a
 #endif
 #define UAC_MAXP (UA_MAXF * 4u)
 _Static_assert(UA_HI + HALF_FRAMES + UA_MAXF < UA_N, "the ring holds the band, a render and a packet");
-static uint32_t ua_ring[UA_N];
 static volatile uint32_t ua_w, ua_r;
 static uint32_t ep4tx[UA_MAXF] __attribute__((aligned(4)));
 static struct {
@@ -153,18 +190,14 @@ static struct {
 /* M-UPGRADE SysEx (ota.c): one received frame at a time (7-bit bytes between
  * F0 and F7; frames arriving while one is pending are dropped, the host
  * retries), and a TX ring of SysEx event packets sent before any MIDI. */
-static uint8_t sx_frame[640];
 static uint32_t sx_pos;
 static volatile uint32_t sx_frame_len;
 static volatile uint8_t sx_ready, sx_collect, sx_busy;
-#define SXQ 64u
-static uint32_t sx_out_q[SXQ];
 static volatile uint32_t so_w, so_r;
 #endif
 
 /* MIDI rings: 4-byte USB-MIDI event packets */
-#define MQ 64u
-static uint32_t midi_in_q[MQ], midi_out_q[MQ];
+static uint32_t midi_in_q[MQ];
 static volatile uint32_t mi_w, mi_r, mo_w, mo_r;
 static volatile uint8_t midi_in_lost;               /* (2.8.3) a note message did not fit: seq.c ends the MIDI notes held
                                                      * (a lost note-off must not leave a note stuck; after Melodee 1.5) */
@@ -886,6 +919,10 @@ static void ota_idle(void);
 
 static int ota_wire_send(const uint8_t *p, uint32_t n)   /* F0..F7 -> USB-MIDI SysEx packets */
 {
+#if FELUCCA_USB_HOST
+    if (!usb.config)
+        return -1;                                     /* editor polling can outlive the device role */
+#endif
     uint32_t i = 0, t0 = ota_now_ms();
     sx_busy = 1;
     while (i < n) {
@@ -1238,13 +1275,9 @@ static void midi_out_event(uint32_t pkt)                /* from the audio ISR */
 {
 #if FELUCCA_USB_HOST
     if (uh.on) {
-        if (!uh.run || !uh.want || uh.cleanup)
-            return;
-        if (mo_w - mo_r >= MQ) {
-            uh.cleanup = 1;                              /* a lost Note Off must not strand sounding notes */
-            return;
-        }
-    } else
+        uh_midi_out(pkt);
+        return;
+    }
 #endif
     if (!usb.config || mo_w - mo_r >= MQ) {
         return;
@@ -1252,6 +1285,17 @@ static void midi_out_event(uint32_t pkt)                /* from the audio ISR */
     midi_out_q[mo_w % MQ] = pkt;
     RING_PUBLISH();
     mo_w++;
+}
+
+static void midi_out_track(uint32_t track, uint32_t packet)
+{
+#if FELUCCA_USB_HOST
+    if (uh.on)
+        packet |= track << 4;                         /* private port tag, removed before sending */
+#else
+    (void)track;
+#endif
+    midi_out_event(packet);
 }
 
 static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */

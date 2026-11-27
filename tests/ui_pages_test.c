@@ -103,7 +103,7 @@ static void settings_save(void) {}
 #undef FELUCCA_USB_HOST
 #define FELUCCA_USB_HOST 1
 enum { UH_MSG_NOMIDI = 1, UH_MSG_LOW };
-static struct { uint8_t want, run, msg; } uh;
+static struct { uint8_t want, run, msg, on, multi; } uh;
 static void usb_host_switch(uint32_t on) { uh.want = on != 0; }
 #endif
 #include "../firmware/src/ui_menu.c"
@@ -1027,6 +1027,12 @@ int main(int argc, char **argv)
             ppm("menu-usb-host");
             tap(B_OCTUP); uh.run = 0; frame();
             check(!uh.want && lights_word() == saved, "menu USB HOST: OCT+ turns host off, settings word unchanged");
+            encs[panel.enc[EN_K4]] = 1; frame();
+            check(!strcmp(mi_value(MI_USB_ROUTE, &colour), "TRACK 1-6"), "menu USB route: K4 selects the six-track map");
+            uh.on = 1;
+            encs[panel.enc[EN_K4]] = -1; frame();
+            check(uh.multi, "menu USB route: changing ports requires USB HOST off");
+            uh.on = uh.multi = 0;
         }
 #else
         check(MS_FIRST[MS_AUDIO + 1] - MS_FIRST[MS_AUDIO] == 4u && MI_RATE == MI_USB + 1 && MI_FRESO == MI_RATE + 1,

@@ -18,6 +18,9 @@ enum { MI_COLOR, MI_ZOOM, MI_ACCEL, MI_LIGHTS, MI_KEYS, MI_NOTES, MI_LOWCUT,
        MI_RATE,
 #if FELUCCA_USB_HOST
        MI_USB_HOST,
+#if !FELUCCA_CDC
+       MI_USB_ROUTE,
+#endif
 #else
        MI_FRESO,
 #endif
@@ -34,6 +37,9 @@ static const char *const MI_NAME[MI_COUNT] = {
     "USB RATE",
 #if FELUCCA_USB_HOST
     "USB HOST",
+#if !FELUCCA_CDC
+    "USB ROUTE",
+#endif
 #else
     "FILTER RESO",
 #endif
@@ -112,6 +118,9 @@ UI_SMALL static const char *mi_value(uint32_t i, uint16_t *c)
         if (uh.msg == UH_MSG_NOMIDI || uh.msg == UH_MSG_LOW)
             return "NO MIDI OUT";
         return "LOOKING";
+#if !FELUCCA_CDC
+    case MI_USB_ROUTE: return uh.multi ? "TRACK 1-6" : "ONE DEVICE";
+#endif
 #endif
 #if FELUCCA_CDC
     case MI_SERIAL: return usb_serial ? "ON" : "OFF";
@@ -319,6 +328,12 @@ UI_SMALL static void mi_set(uint32_t i, int32_t s)
     case MI_USB_HOST:
         usb_host_switch(s > 0 ? 1u : s < 0 ? 0u : !uh.want);
         break;
+#if !FELUCCA_CDC
+    case MI_USB_ROUTE:
+        if (!uh.want && !uh.on)
+            uh.multi = (uint8_t)(s ? s > 0 : !uh.multi);
+        break;
+#endif
 #endif
     case MI_USB:                                       /* right FULL, left MASTER */
         usb_full = (uint8_t)(s > 0 ? 1u : s < 0 ? 0u : !usb_full);

@@ -1,5 +1,5 @@
 {
-  "origin_commit": "3deeeb671489c86e8487c9b7bb035f5799010b3d",
+  "origin_commit": "51d6dfd5aa7856bf8e3b76ded7aa2e48db763f9d",
   "tracking": "sealed preferred-source files; Git metadata excluded",
   "files": {
     ".gitattributes": {
@@ -8,7 +8,7 @@
       "executable": false
     },
     ".github/workflows/pages.yml": {
-      "sha256": "0b5f92520bf98d8dd5e0c29c126158ab34a16d3509efa295b8222defe14600b5",
+      "sha256": "b49015e0dab8774c8b2f5e4580ebf3611e7b1a754e0d22e5bceeaab309352087",
       "bytes": 2667,
       "executable": false
     },
@@ -18,8 +18,8 @@
       "executable": false
     },
     "BUILDING.md": {
-      "sha256": "d9db110f91660d0dee6868108f82ab92fd49616a8067404f9ded321d198f55ca",
-      "bytes": 6970,
+      "sha256": "f6cc25805a24dacf5d10c9f3ea2ab289822b799a3f105dbb161315cd27d6db7b",
+      "bytes": 6991,
       "executable": false
     },
     "DEMARRAGE-RAPIDE-FR.md": {
@@ -38,8 +38,8 @@
       "executable": false
     },
     "GUIDE.md": {
-      "sha256": "d5a42d9dd9ffd9f2daaa18065e4a5943be861f7a44fa9e859c987abdaef4a6da",
-      "bytes": 136806,
+      "sha256": "0c006f0e4fa01959187701784da44c5719e16e298670d6ca12ff2f41029cceb5",
+      "bytes": 136837,
       "executable": false
     },
     "INSTALL-SLOOP.bat": {
@@ -123,12 +123,12 @@
       "executable": false
     },
     "PROVENANCE.md": {
-      "sha256": "ffae03f3fdf714cfb21f7a9b2481c6f0aec0aaf5ac17d2a411e5334be263df7c",
-      "bytes": 9095,
+      "sha256": "86ae25cac6d9b0f61129a37b867d0f460d2813a803770ad178132d883869740c",
+      "bytes": 9236,
       "executable": false
     },
     "PUBLIC_EXPORT.json": {
-      "sha256": "72005a95bc52ed3c2883dec37468a322b30a2268549f1029b8fe85053cf61f56",
+      "sha256": "bf092557886b4521880a9d1d72be5db8a01e0d6f07d9986ec2a375caa841203b",
       "bytes": 104765,
       "executable": false
     },
@@ -138,8 +138,8 @@
       "executable": false
     },
     "README.md": {
-      "sha256": "edfa8838bc77c82a233c167b339cd3d3b80d4556a3211d798ad31fd7fd1e3e6c",
-      "bytes": 7433,
+      "sha256": "40a5ff827fcc5d8a26ef1f470242f0c338e7a67227f75db5e46b8cc8bb3b87c4",
+      "bytes": 7371,
       "executable": false
     },
     "SLOOP.md": {
@@ -492,6 +492,16 @@
       "bytes": 3770,
       "executable": false
     },
+    "assets/piterfly/screenshots/menu-usb-host-1.2.9.png": {
+      "sha256": "8a0885c28453af8baac84b3321419d8a2882cb08db81c72609f3f8cfb13316e9",
+      "bytes": 3420,
+      "executable": false
+    },
+    "assets/piterfly/screenshots/menu-usb-route-1.2.9.png": {
+      "sha256": "7df4a01f3214cc1cf8ba4dd386e5bc01047d675b2924289c7b63ca4a652492bf",
+      "bytes": 3280,
+      "executable": false
+    },
     "assets/piterfly/screenshots/midi-thru-tracks-4-7.png": {
       "sha256": "30ecd393b7fac35f87b89956ef88bde7e328aa7e8d2f749a83623bca4c946543",
       "bytes": 2545,
@@ -838,8 +848,8 @@
       "executable": false
     },
     "docs/DEPLOYMENT.md": {
-      "sha256": "09d8da64ee00c6759e8cb663b7ea087e235c650b512879419bcb9a0c1d7cbda6",
-      "bytes": 2074,
+      "sha256": "3372d971c06337f8ef4fb79cbc3b99ca4aad3e71dd5960b17549e2ffd912acd4",
+      "bytes": 2046,
       "executable": false
     },
     "docs/GRANULAR-FX-FEASIBILITY.md": {
@@ -868,8 +878,8 @@
       "executable": false
     },
     "docs/PITERFLY.md": {
-      "sha256": "8c0ff3e57ce4fa03369dc2988b3903f70b16b4892bf3856b64a80e501ee1455f",
-      "bytes": 35166,
+      "sha256": "921ac3c241e08625afeaf2790a5ea5db0829828661721e59571c113f22a94fc0",
+      "bytes": 36571,
       "executable": false
     },
     "docs/PUBLICATION-1.0.1.md": {
@@ -965,6 +975,11 @@
     "docs/RELEASE-1.2.7.md": {
       "sha256": "3b61c00c5bd952cddec0ce297455a27810022b50561255077957fa1c007b3b84",
       "bytes": 1638,
+      "executable": false
+    },
+    "docs/RELEASE-1.2.9.md": {
+      "sha256": "4515483e4d4c64a8758c7cc8c4b14a80cdcb2318e6a23a319f1d31e190d92fad",
+      "bytes": 1948,
       "executable": false
     },
     "docs/SCREENSHOTS-1.1.0.md": {
@@ -1328,8 +1343,8 @@
       "executable": false
     },
     "firmware/src/icons.c": {
-      "sha256": "2a442b909d4a299440ac980bf12ca902c273c71028e67c5bcc27564e0599087a",
-      "bytes": 8413,
+      "sha256": "ac6b40b864ba0116a836cf9e121a80e94fd76ef0e89c51e5b2b59ff13170cd76",
+      "bytes": 8411,
       "executable": false
     },
     "firmware/src/lcd.c": {
@@ -1418,8 +1433,8 @@
       "executable": false
     },
     "firmware/src/seq.c": {
-      "sha256": "770ebda9d3bf17273a27ff7d46784eff8a201bcb216ba8eb981fffecae7d09e7",
-      "bytes": 162366,
+      "sha256": "838f5dcd4f38b7e053881d7767110fb51b83d3f942b67e9b8a7bed5c1675406b",
+      "bytes": 162466,
       "executable": false
     },
     "firmware/src/slicer.c": {
@@ -1468,8 +1483,8 @@
       "executable": false
     },
     "firmware/src/ui_menu.c": {
-      "sha256": "370b67b8b42d5cbfb2fd1de4772f2c7fa2779677f1b094c5e48c422e2baeb3a6",
-      "bytes": 19307,
+      "sha256": "06fdeb425e57b8d8996208b6ae472baa60bbdd13bba2b1c0d020ad6d560c06f6",
+      "bytes": 19637,
       "executable": false
     },
     "firmware/src/ui_song.c": {
@@ -1493,13 +1508,13 @@
       "executable": false
     },
     "firmware/src/usb.c": {
-      "sha256": "90b99e195e990afa1a512d538cfd11d9b0f3a1d52c504dbe4a7ef721260fdb31",
-      "bytes": 52313,
+      "sha256": "f9a867ad446f8e6a0c3abff32e6eb840a5a9c9cdc60b0ab150f136326550abae",
+      "bytes": 53428,
       "executable": false
     },
     "firmware/src/usb_host.c": {
-      "sha256": "06d8f84539ee3d9c21ca7b36ae22128fba150de86b6b9094d960b23288d1a533",
-      "bytes": 19589,
+      "sha256": "5db0155a51b741e8071552818cd16f1282d0c3543ff21c58232b157144bacf08",
+      "bytes": 22211,
       "executable": false
     },
     "firmware/src/usb_host_desc.h": {
@@ -1508,7 +1523,7 @@
       "executable": false
     },
     "firmware/src/version.h": {
-      "sha256": "3558c6157d40ded95a907031f73dacd24c9e391416cc3a030fe7d653d41522eb",
+      "sha256": "6674f834c32a7f369c51faed7b19893c31d579847cc0f01d2bd7ef2adf156978",
       "bytes": 214,
       "executable": false
     },
@@ -1518,8 +1533,8 @@
       "executable": false
     },
     "fmhub.json": {
-      "sha256": "c1ddd3a4eafa208c996a48fa11a8ac604574d1cebbf20275c0e8e6fc8e70b77a",
-      "bytes": 926,
+      "sha256": "b5b6ed22f357087872913eaa18b01fa973103b6f8ec57e5be6e713897899df8f",
+      "bytes": 940,
       "executable": false
     },
     "tests/_cap26.c": {
@@ -1788,8 +1803,8 @@
       "executable": false
     },
     "tests/pixel_icons_test.py": {
-      "sha256": "fe70672f385d6baf9f8fcff9ff3a896667ae0bfdae4dc40a7c8ee70f3d00ab26",
-      "bytes": 1911,
+      "sha256": "1f3a1a20e6501d42b08522e7c319c5312aa8c8060a6212ce0cb699fbdd342f1a",
+      "bytes": 2446,
       "executable": false
     },
     "tests/preset_level.c": {
@@ -1853,8 +1868,8 @@
       "executable": true
     },
     "tests/run_tests.sh": {
-      "sha256": "a3fd69b64c5d735c621e046037227c7f3260abe651d70c236be679203f791b4a",
-      "bytes": 24067,
+      "sha256": "1e53e103fcb1f913c95ef0f0f2e195824a041e0f96ce0b8b3fe8bd10d387e174",
+      "bytes": 24063,
       "executable": false
     },
     "tests/sample_pitch_test.c": {
@@ -1983,8 +1998,8 @@
       "executable": false
     },
     "tests/ui_pages_test.c": {
-      "sha256": "4d8e74dcda129cbd0fefdd8d0df9e955bc98785c348cc80e3cd7b7ba06a53ee4",
-      "bytes": 152787,
+      "sha256": "c89b195ecdd2137d9f4604b2e06f9140e79e9651c91d7ee7b894ebbec28bfbe6",
+      "bytes": 153161,
       "executable": false
     },
     "tests/unison_level_test.c": {
@@ -1998,8 +2013,8 @@
       "executable": false
     },
     "tests/usb_host_output_test.c": {
-      "sha256": "022778ed25f4955430e5cee18bf4a23d98ded709f20dfc4bbfae9ffcf12cfe41",
-      "bytes": 7096,
+      "sha256": "3ebdee11ea294179b7c2855ca1e7b27b90bc727c9ed5599e604d32b2b0eba650",
+      "bytes": 13610,
       "executable": false
     },
     "tests/userkit_test.c": {
@@ -2083,8 +2098,8 @@
       "executable": false
     },
     "tools/gen_icons.py": {
-      "sha256": "265ac900b9174347952de70f1c065386199f47880184e0a2fc03a7890d5bbc33",
-      "bytes": 3903,
+      "sha256": "65231caa6da1478dceb29c577802cf40c8056bb316ed3b6fe47ab6c9b33a89f7",
+      "bytes": 4502,
       "executable": false
     },
     "tools/gen_logo.py": {
@@ -2233,8 +2248,8 @@
       "executable": false
     },
     "web/changes.html": {
-      "sha256": "c884d1086433a83a5801de7e738afe253ce4ba88fe82a8d5c0b270765299533e",
-      "bytes": 45919,
+      "sha256": "83b2b312d1cfe1b3318a4f29732ef94d6da619ddc7a675bdba9147ae18c67edd",
+      "bytes": 47376,
       "executable": false
     },
     "web/editor.html": {
@@ -2283,8 +2298,8 @@
       "executable": false
     },
     "web/make_site.py": {
-      "sha256": "a7610227ed91bbce5f61f443fc2a74a0677dee05d5a95549dd910b4e3412c722",
-      "bytes": 16726,
+      "sha256": "e3b2d194128e9f399ca930abcb114546fb0e3de7f14425a658674f98d35ed6a1",
+      "bytes": 16803,
       "executable": false
     },
     "web/midipipe.html": {

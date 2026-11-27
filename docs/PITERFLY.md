@@ -1,8 +1,8 @@
-# piterfly 1.2.7 — zmiany względem SLOOP
+# piterfly 1.2.9 — zmiany względem SLOOP
 
-Piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Wersja 1.2.7 dodaje [USB MIDI Host](#usb-midi-host-bez-komputera). Wersję 1.2.6 właściciel sprawdził na fizycznym FM-1. Nowy tryb USB Host zweryfikowano w testach programowych.
+Piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Wersja 1.2.9 kieruje nuty do sześciu syntezatorów przez jeden zasilany hub w trybie [USB MIDI Host](#usb-midi-host-bez-komputera).
 
-**Wersja 1.2.7 jest zgodna z projektami od 1.2.0.** Format **FUNB** ma 6160 bajtów. Edytor używa protokołu **19**, a ustawienia formatu **PER4**. Pakiet wydania to `piterfly-1.2.7.fwsc`. [Informacje o wydaniu 1.2.7](RELEASE-1.2.7.md).
+**Wersja 1.2.9 jest zgodna z projektami od 1.2.0.** Format **FUNB** ma 6160 bajtów. Edytor używa protokołu **19**, a ustawienia formatu **PER4**. Pakiet wydania to `piterfly-1.2.9.fwsc`. [Informacje o wydaniu 1.2.9](RELEASE-1.2.9.md).
 
 **Gałki tracka i barwy:** na HOME, FX i pozostałych zwykłych stronach parametrów PRESETS wybiera track, a ALGORITHM zmienia jego barwę/preset (na perkusji — zestaw). W aktywnym edytorze NOTES oba pokrętła miały już funkcje: PRESETS nadal zmienia zoom, ALGORITHM wybiera track. SONG, menu ustawień i kombinacje z przytrzymanymi przyciskami zachowują swoje przypisania. Podczas swobodnego nagrania wybór tracka pozostaje zablokowany.
 
@@ -242,9 +242,18 @@ Szczegóły pamięci i protokołu: [PATTERNS-24.md](PATTERNS-24.md), [EDITOR_PRO
 3. Ustaw taki sam kanał MIDI na ścieżce FM-1 i w syntezatorze. Klawisze FM-1 wysyłają nuty. Aby wysłać także zapisane patterny, ustaw **GLO → MIDI 2 → OUT = SEQ**. **GLO → MIDI 3 → CLOCK = OUT** włącza wysyłanie zegara przy synchronizacji wewnętrznej.
 4. Wyprowadź dźwięk z wyjścia audio syntezatora. Klawiaturę do FM-1 możesz podłączyć przez **TRS MIDI IN** i przekazywać nuty przełącznikiem THRU danej ścieżki.
 
-Tryb używa **USB MIDI 1.0 OUT** i obsługuje jeden syntezator. Po włączeniu urządzenia USB HOST jest wyłączony. Przekręć **K3** w lewo, aby wrócić do połączenia z komputerem, edytorem, instalatorem lub USB Audio.
+W trybie **ONE DEVICE** FM-1 wysyła **USB MIDI 1.0 OUT** do jednego syntezatora. Po uruchomieniu USB HOST jest wyłączony. Przekręć **K3** w lewo, aby wrócić do połączenia z komputerem, edytorem, instalatorem lub USB Audio.
 
-![Menu USB z K3 USB HOST i statusem MIDI READY. Render panelu z testu programowego.](../assets/piterfly/screenshots/menu-usb-host-1.2.7.png)
+![Menu USB po ustawieniu K4 na TRACK 1-6 przy USB HOST OFF.](../assets/piterfly/screenshots/menu-usb-route-1.2.9.png)
+![Menu USB po włączeniu K3 i wykryciu syntezatora.](../assets/piterfly/screenshots/menu-usb-host-1.2.9.png)
+
+**K1 (USB AUDIO)** ustawia poziom nagrania na komputerze. **MASTER** podąża za fizycznym pokrętłem MASTER. **FULL** wysyła miks na poziomie maksymalnego MASTER, a pokrętłem możesz niezależnie ściszyć odsłuch. Użyj tej opcji przy wyłączonym **USB HOST**.
+
+### Sześć syntezatorów przez jeden hub
+
+Przy wyłączonym **USB HOST** ustaw **K4 → USB ROUTE → TRACK 1-6**, a potem włącz hosta przez **K3**. Firmware przypisuje ścieżki syntezatorów 1–6 do odpowiadających portów 1–6 jednego zasilanego huba. Kanał odbioru ustaw osobno przez **GLO → MIDI** i **MIDI 4-7**. Odbiorniki na osobnych portach mogą używać tego samego kanału. Jeśli wybierasz ścieżkę kanałem kontrolera w trybie **IN = NOTES**, ustaw odrębne kanały ścieżek. **MIDI READY** pojawia się po wykryciu co najmniej jednego odbiornika. **OUT = SEQ** wysyła też nagrane patterny, a włączony **CLOCK = OUT** trafia do wszystkich aktywnych odbiorników.
+
+W tym trybie obie ścieżki perkusyjne grają wewnętrznie. Używaj portów danych jednego kontrolera huba. Kolejność gniazd zgłaszana przez hub wyznacza przypisanie do ścieżek. **ONE DEVICE** przywraca wysyłkę wszystkich ścieżek do jednego zewnętrznego odbiornika. Po ponownym uruchomieniu FM-1 wybór wraca do **ONE DEVICE** z wyłączonym hostem. Kontroler podłączony do **TRS MIDI IN** może przekazywać nuty do tych portów przez **MIDI THRU**. [Informacje o wersji 1.2.9](RELEASE-1.2.9.md)
 
 ## MIDI THRU
 
@@ -290,7 +299,7 @@ W serwisie, w sekcji MIDI THRU strony **What changes?**, dostępny jest angielsk
 | MIDI THRU | Routing, kanały, wyłączenie THRU, zwalnianie nut, USB/TRS i zachowanie ustawień |
 | Build | Kompilacja, limity pamięci i weryfikacja paczki `.fwsc` |
 
-**Aktualna wersja to 1.2.6.** Testy obejmują zapis po skasowaniu ścieżek, restart na symulowanej pamięci flash, tworzenie pustego utworu i ramkę w SONG. Test 6+2 na fizycznym FM-1 pozostaje do wykonania. [Informacje o wydaniu](RELEASE-1.2.6.md).
+Testy USB Host sprawdzają sześć odbiorników, ponowne wykrywanie portu i zmianę roli USB. [Informacje o wydaniu](RELEASE-1.2.9.md).
 
 Najważniejsze testy 6+2: [two_drums_test.c](../tests/two_drums_test.c), [test_two_drums.mjs](../web/test_two_drums.mjs), [preview_test.mjs](../tests/preview_test.mjs). Pozostałe regresje obejmują też historyczne konfiguracje: [pattern_bank_test.c](../tests/pattern_bank_test.c), [pattern24_test.c](../tests/pattern24_test.c), [pattern24_migration_test.c](../tests/pattern24_migration_test.c), [arranger_test.c](../tests/arranger_test.c), [save_safety_test.c](../tests/save_safety_test.c), [ui_pages_test.c](../tests/ui_pages_test.c), [test_web.mjs](../web/test_web.mjs).
 

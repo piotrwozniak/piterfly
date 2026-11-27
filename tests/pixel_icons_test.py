@@ -4,6 +4,7 @@
 import contextlib
 import io
 import json
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -38,5 +39,14 @@ with tempfile.TemporaryDirectory() as tmp:
     with contextlib.redirect_stdout(io.StringIO()):
         gen_icons.main(tmp / "packed.h", tmp)
     header = (tmp / "packed.h").read_text()
-    assert "ICON_DATA[86][36]" in header and "FELUCCA_ICONS_N 86" in header
-print("GPL pixel icons: 86 IDs, reproducible atlas, 2-bit packing, 3096 bytes PASS")
+    assert "FELUCCA_ICONS_N 86" in header
+    def table(name):
+        source = header.split(name, 1)[1].split("};", 1)[0]
+        return [[int(v, 0) for v in row.split(",")] for row in re.findall(r"\{([^{}]+)\}", source)]
+    rows, icons = table("ICON_ROWS"), table("ICON_ROW_ID")
+    assert len(rows) == 242 and len(icons) == 86 and 3 * len(rows) + 12 * len(icons) == 1758
+    for cell_pixels, indexes in zip(cells, icons):
+        assert len(indexes) == 12
+        decoded = [(byte >> shift) & 3 for index in indexes for byte in rows[index] for shift in (6, 4, 2, 0)]
+        assert decoded == cell_pixels
+print("GPL pixel icons: 86 IDs and identical 2-bit pixels, 1758 bytes PASS")

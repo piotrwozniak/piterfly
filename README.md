@@ -1,12 +1,12 @@
 <p align="center"><img src="assets/piterfly/arcade-web.png" alt="piterfly" width="240"></p>
 
-# piterfly 1.2.7 for M-VAVE FM-1
+# piterfly 1.2.9 for M-VAVE FM-1
 
-An alternative operating system based on **SLOOP 2.8.5** and Felucca. Version 1.2.7 has **six synth parts and two independent drum tracks**.
+An alternative operating system based on **SLOOP 2.8.5** and Felucca. Version 1.2.9 has **six synth parts and two independent drum tracks**.
 
-**Release 1.2.7** adds USB MIDI Host mode for controlling one external synth through a powered USB hub. USB Host has passed software tests and awaits a test on a physical FM-1.
+**Release 1.2.9** routes six synth tracks to six ports of a powered USB MIDI hub.
 
-[Polska instrukcja](docs/PITERFLY.md) · [Track controls](docs/TRACKS.md) · [1.2.7 notes](docs/RELEASE-1.2.7.md) · [Granular controls](docs/LIVE-GRANULAR.md)
+[Polska instrukcja](docs/PITERFLY.md) · [Track controls](docs/TRACKS.md) · [1.2.9 notes](docs/RELEASE-1.2.9.md) · [Granular controls](docs/LIVE-GRANULAR.md)
 
 ## Tracks and controls
 
@@ -42,24 +42,24 @@ The shared pool is **352 KiB**. Only nonempty stored patterns are pinned, togeth
 
 Default MIDI channels are **1–6 for synths, 7 for drum track 7, and 10 for drum track 8**. Set track 7 through CH7 and track 8 through DRUM CH. Every track retains its own THRU switch and MIDI Learn routing.
 
-**USB Host** lets the FM-1 play one USB MIDI synth, such as a JT-4000 or JT-4000M, through a powered hub. Hold HOME, turn SELECT to **USB**, and turn **knob 3 (USB HOST)** to the right. Wait for **MIDI READY**, match the synth's receive channel to the track, and set **GLO → MIDI 2 → OUT = SEQ** to send patterns. TRS MIDI IN can still drive the FM-1 and use the tracks' THRU switches. Use the synth's own audio output.
+**USB Host** sends each of tracks 1–6 to the matching port of a powered USB hub. Hold **HOME**, turn **SELECT** to **USB**, set **K4 (USB ROUTE)** to **TRACK 1-6**, then turn **K3 (USB HOST)** to the right. Wait for **MIDI READY**, match each synth’s receive channel to its track, and set **GLO → MIDI 2 → OUT = SEQ** to send patterns. Use **ONE DEVICE** for a single shared receiver. A controller on **TRS MIDI IN** can use the tracks’ MIDI THRU switches while hosting.
 
 For a computer setup, turn USB HOST off and connect the keyboard, FM-1 and external synth to the computer or MIDI host. Route keyboard → FM-1 and FM-1 → external synth. For an external-only part, enable its THRU and set internal LEVEL to zero; OUT = SEQ also sends recorded patterns. The FM-1 TRS connector is MIDI input; forwarded MIDI leaves over USB. MIDI does not carry the external instrument's audio.
 
 [USB MIDI Host setup](GUIDE.md#play-a-usb-synth-from-the-fm-1) · [Mac/MidiPipe setup](web/midipipe.html) · [MIDI protocol](web/EDITOR_PROTOCOL.md)
 
-## Build version 1.2.7
+## Build version 1.2.9
 
 ```sh
-sh build.sh --release 1.2.7
+sh build.sh --release 1.2.9
 sh tests/run_tests.sh
 ```
 
-The local firmware package is `build/felucca-1.2.7.fwsc`. Use an editor supporting **protocol 19**; the 1.2.0 editor remains compatible. See [BUILDING.md](BUILDING.md) for dependencies and [release notes](docs/RELEASE-1.2.7.md). [Download release 1.2.7](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.7) or use the [public installer](https://piotrwozniak.github.io/piterfly/webapp/installer/). The local bundle is `build/releases/piterfly-1.2.7/`, including firmware, exact sources, licences and checksums.
+The local firmware package is `build/felucca-1.2.9.fwsc`. Use an editor supporting **protocol 19**; the 1.2.0 editor remains compatible. See [BUILDING.md](BUILDING.md) for dependencies and [release notes](docs/RELEASE-1.2.9.md). [Download release 1.2.9](https://github.com/piotrwozniak/piterfly/releases/tag/1.2.9) or use the [public installer](https://piotrwozniak.github.io/piterfly/webapp/installer/). The local bundle is `build/releases/piterfly-1.2.9/`, including firmware, exact sources, licences and checksums.
 
 **Compatible with 1.2.0 projects.** This version uses **FUNB, 6,160 bytes**, and deliberately does not import FUN1–FUNA projects. Settings remain **PER4**. All four user-sample banks now store patterns and named songs; factory samples remain. The updater identity remains **FM-1_1120101**. Song import replaces all 24 pattern slots and the working loop, including empty slots.
 
-Software tests cover USB MIDI output through a simulated hub, reconnects, stuck-note cleanup and switching back to USB device mode.
+Software tests cover six-port MIDI routing, reconnects, note cleanup and switching back to USB device mode.
 
 ## Earlier releases and screenshots
 

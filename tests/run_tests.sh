@@ -169,7 +169,7 @@ $CC -Ifirmware/hal -o "$OUT/encoder_test" tests/encoder_test.c
 run "knobs: one click = one step (slow, fast, pauses, bounce)" "$OUT/encoder_test"
 HALF=$(sed -n 's/^#define HALF_FRAMES \([0-9]*\).*/\1/p' firmware/src/core.h)
 $CC -g -fsanitize=address,undefined -fno-sanitize-recover=all -o "$OUT/usb_host_output_test" tests/usb_host_output_test.c
-run "USB MIDI host: output via powered hub, retry, note cleanup and role handover" "$OUT/usb_host_output_test"
+run "USB MIDI host: six ports, routing, retry, note cleanup and role handover" "$OUT/usb_host_output_test"
 $CC -DT_CDC=1 -DHALF_FRAMES=$HALF -o "$OUT/uac_test" tests/uac_test.c -lm
 run "USB audio input: descriptors (with CDC), ring and packets" "$OUT/uac_test"
 $CC -DT_CDC=0 -DHALF_FRAMES=$HALF -o "$OUT/uac_test_nocdc" tests/uac_test.c -lm

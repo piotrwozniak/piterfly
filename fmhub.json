@@ -1,5 +1,5 @@
 {
-  "what": "A groovebox OS for M-VAVE FM-1, built on SLOOP and Felucca: six synths plus two independent drum tracks, 24 patterns, 128 SONG positions and up to eight named songs in 352 KiB shared storage. Save/load from a list, delete and export songs to a computer. Start an empty working song with REC twice on the SONGS list. FUNB projects require new work; user-sample banks are reclaimed. Includes live granular INSERT, selective DUCK, MIDI THRU, USB MIDI Host output through a powered hub and a browser editor with audio preview.",
+  "what": "A groovebox OS for M-VAVE FM-1, built on SLOOP and Felucca: six synths plus two independent drum tracks, 24 patterns, 128 SONG positions and up to eight named songs in 352 KiB shared storage. Save/load from a list, delete and export songs to a computer. Start an empty working song with REC twice on the SONGS list. FUNB projects require new work; user-sample banks are reclaimed. Includes live granular INSERT, selective DUCK, MIDI THRU, USB MIDI Host output to six synths through a powered hub and a browser editor with audio preview.",
   "author": "Piotr Woźniak",
   "kinds": [
     "groove",

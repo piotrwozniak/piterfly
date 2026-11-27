@@ -5,7 +5,7 @@ Repository: <https://github.com/piotrwozniak/piterfly> (public).
 Installer: `webapp/installer/`; editor: `webapp/editor/`; guide: `webapp/changes/`.
 
 The manual `Deploy piterfly Pages (manual)` workflow takes a `release_tag`,
-currently `1.0.1`. Publish that stable GitHub Release first, with all artifacts
+currently `1.2.9`. Publish that stable GitHub Release first, with all artifacts
 covered by its `SHA256SUMS`. Then run the workflow from `main`.
 
 It downloads the release, verifies every checksum and generates the site from
@@ -17,9 +17,9 @@ The deploy job alone has Pages/OIDC write permissions. No push or tag runs deplo
 
 In Settings → Pages, keep GitHub Actions as the source. The `github-pages`
 environment can require owner approval. Run Actions → Deploy piterfly Pages
-(manual) → Run workflow, branch `main`, release_tag `1.0.1`.
+(manual) → Run workflow, branch `main`, release_tag `1.2.9`.
 After deployment, compare the public installer package SHA-256 with the Release
-and the exact device-test package. No custom domain is configured.
+asset. No custom domain is configured.
 
 Service-worker cache names include their project path. Generated pages, permitted
 images and checksum-covered source/firmware/licence downloads are the only public

@@ -138,18 +138,18 @@ UI_SMALL static void cv_icon(int32_t x, int32_t y, uint32_t id, uint16_t c)
 {
     uint16_t ramp[4];
     uint32_t a, i, j;
-    const uint8_t *p;
     if (id >= FELUCCA_ICONS_N)
         return;
     for (a = 0; a < 4u; a++)
         ramp[a] = rgb565_over(c, a, 3u);               /* (2.7: onto the background; on black as before) */
-    p = ICON_DATA[id];
-    for (j = 0; j < ICON_CELL; j++)
+    for (j = 0; j < ICON_CELL; j++) {
+        const uint8_t *p = ICON_ROWS[ICON_ROW_ID[id][j]];
         for (i = 0; i < ICON_CELL; i++) {
-            uint32_t k = j * ICON_CELL + i, v = (p[k >> 2] >> (6u - 2u * (k & 3u))) & 3u;
+            uint32_t v = (p[i >> 2] >> (6u - 2u * (i & 3u))) & 3u;
             if (v)
                 cv_pset(x + (int32_t)i, y + (int32_t)j, ramp[v]);
         }
+    }
 }
 #else
 UI_SMALL static uint32_t icon_for_label(const char *l) { (void)l; return ICON_NONE; }

@@ -12,9 +12,9 @@ Input
                ink = brightness (or alpha, if the PNG has transparency), quantised to
                2 bits: 0 = background, 1 / 2 / 3 = a third / two thirds / full ink.
 
-Output: per icon cell*cell 2-bit pixels, row-major, 4 pixels per byte, first pixel in the
-high bits (12 x 12 -> 36 B), plus the enum ICON_<NAME> and FELUCCA_ICONS_N (the number of
-drawn icons; 0 when the PNG, the JSON or Pillow is missing, so the firmware builds without).
+Output: a shared table of 2-bit pixel rows and one row index per icon row.
+The first pixel occupies the high bits. ICON_<NAME> and FELUCCA_ICONS_N identify
+the icons (0 icons if the source atlas or Pillow is unavailable).
 """
 import json
 import re
@@ -74,17 +74,30 @@ def main(out, assets=ASSETS):
         lines.append("    ICON_COUNT\n};")
     n = len(cells) if cells else 0
     lines.append(f"#define FELUCCA_ICONS_N {n}")
+    size = 0
     if n:
-        bpi = (cell * cell + 3) // 4
-        lines.append(f"#define ICON_BYTES {bpi}")
-        lines.append(f"static const uint8_t ICON_DATA[{n}][{bpi}] = {{")
-        for name, px in zip(names, cells):
-            px = px + [0] * (-len(px) % 4)
-            b = [(px[i] << 6) | (px[i + 1] << 4) | (px[i + 2] << 2) | px[i + 3] for i in range(0, len(px), 4)]
-            lines.append("    {" + ", ".join(f"0x{v:02x}" for v in b) + f"}},   /* {name} */")
+        row_bytes = (cell + 3) // 4
+        rows = {}
+        icons = []
+        for pixels in cells:
+            indexes = []
+            for start in range(0, len(pixels), cell):
+                row = pixels[start:start + cell] + [0] * (-cell % 4)
+                packed = bytes((row[i] << 6) | (row[i + 1] << 4) | (row[i + 2] << 2) | row[i + 3]
+                               for i in range(0, len(row), 4))
+                indexes.append(rows.setdefault(packed, len(rows)))
+            icons.append(indexes)
+        index_bytes = 1 if len(rows) <= 256 else 2
+        if len(rows) > 65536:
+            raise SystemExit("gen_icons: too many distinct rows")
+        lines.append(f"static const uint8_t ICON_ROWS[{len(rows)}][{row_bytes}] = {{")
+        lines += ["    {" + ", ".join(f"0x{v:02x}" for v in row) + "}," for row in rows]
+        lines += ["};", f"static const uint{index_bytes * 8}_t ICON_ROW_ID[{n}][{cell}] = {{"]
+        lines += ["    {" + ", ".join(map(str, indexes)) + f"}},   /* {name} */" for name, indexes in zip(names, icons)]
         lines.append("};")
+        size = row_bytes * len(rows) + index_bytes * n * cell
     Path(out).write_text("\n".join(lines) + "\n")
-    print(f"icons: {n} of {len(names)} ({note}), {n * ((cell * cell + 3) // 4)} B")
+    print(f"icons: {n} of {len(names)} ({note}), {size} B")
 
 
 if __name__ == "__main__":

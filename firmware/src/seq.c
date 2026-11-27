@@ -81,12 +81,12 @@ static uint32_t trk_midi_ch(uint32_t i)    /* MIDI channel 0..15 of track i (key
     return c >= 1 && c <= 16 ? (uint32_t)c - 1u : 0xFFu;
 }
 /* a note on (vel > 0) / off to MIDI OUT on channel ch (trk_midi_ch: 0xFF, the track's MIDI OFF: nothing) */
-static void midi_out_note(uint32_t ch, uint32_t note, uint32_t vel)
+static void midi_out_note(uint32_t track, uint32_t ch, uint32_t note, uint32_t vel)
 {
     if (ch > 15u)
         return;
-    midi_out_event(vel ? 0x09u | (0x90u | ch) << 8 | (note & 127u) << 16 | (vel & 127u) << 24
-                       : 0x08u | (0x80u | ch) << 8 | (note & 127u) << 16);
+    midi_out_track(track, vel ? 0x09u | (0x90u | ch) << 8 | (note & 127u) << 16 | (vel & 127u) << 24
+                             : 0x08u | (0x80u | ch) << 8 | (note & 127u) << 16);
 }
 
 /* Remember the source and destination: track/channel changes must not lose note-offs.
@@ -95,7 +95,7 @@ static uint8_t thru_sent[2][16][128];
 static void thru_release(uint8_t *sent, uint32_t note)
 {
     if (*sent) {
-        midi_out_note((*sent & 31u) - 1u, note, 0);
+        midi_out_note(*sent >> 5, (*sent & 31u) - 1u, note, 0);
         *sent = 0;
     }
 }
@@ -124,7 +124,7 @@ static void thru_input(uint32_t pkt, const track_t *t, uint32_t ch,
     out = trk_midi_ch(ti);
     if (out > 15u)
         return;
-    midi_out_note(out, note, vel);
+    midi_out_note(ti, out, note, vel);
     *sent = (uint8_t)((ti << 5) | (out + 1u));
 }
 
@@ -141,7 +141,7 @@ static void seq_out_off(const track_t *t, uint32_t note)
     if (note > 127u || !(mo_set[i][note >> 5] & (1u << (note & 31u))))
         return;
     mo_set[i][note >> 5] &= ~(1u << (note & 31u));
-    midi_out_note(mo_ch[i], note, 0);
+    midi_out_note(i, mo_ch[i], note, 0);
 }
 static void seq_out_track_off(const track_t *t);
 static uint8_t mo_any;                     /* something was sent on since the last check (events_block) */
@@ -159,7 +159,7 @@ static void seq_out_on(const track_t *t, uint32_t note, uint32_t vel)
         return;                                /* (MIDI OFF: nothing goes out, nothing to end) */
     mo_set[i][note >> 5] |= 1u << (note & 31u);
     mo_any = 1;
-    midi_out_note(mo_ch[i], note, (vel ? vel & 127u : 1u));
+    midi_out_note(i, mo_ch[i], note, (vel ? vel & 127u : 1u));
 }
 static void seq_out_track_off(const track_t *t)      /* every note of the track still on */
 {
@@ -168,7 +168,7 @@ static void seq_out_track_off(const track_t *t)      /* every note of the track 
         for (b = 0; mo_set[i][w]; b++)
             if (mo_set[i][w] & (1u << b)) {
                 mo_set[i][w] &= ~(1u << b);
-                midi_out_note(mo_ch[i], (w * 32u + b), 0);
+                midi_out_note(i, mo_ch[i], (w * 32u + b), 0);
             }
 }
 static void seq_out_all_off(void)
@@ -1923,7 +1923,7 @@ static void kh_release(track_t *t)                  /* every held note ends */
                 live_set(t, n, 0);                /* (2.8.3: no longer held for a player) */
                 trk_note_off(t, n);
                 if ((kh_mo[ti][w] >> b) & 1u)
-                    midi_out_note(kh_mc[ti], n, 0);
+                    midi_out_note(ti, kh_mc[ti], n, 0);
             }
     memset(kh_set[ti], 0, sizeof kh_set[ti]);
     memset(kh_mo[ti], 0, sizeof kh_mo[ti]);
@@ -2192,7 +2192,7 @@ static void chord_revoice(uint32_t sel)
                 } else {
                     input_off(t, n);
                 }
-                midi_out_note(mc, n, 0);
+                midi_out_note(sel, mc, n, 0);
             }
         }
         for (j = 0; j < nn; j++) {                  /* the notes it gains */
@@ -2202,7 +2202,7 @@ static void chord_revoice(uint32_t sel)
                 in_key = (uint8_t)(k + 1u);         /* (a chord's new note: of this key, #191) */
                 input_on(t, nw[j], 100);
                 in_key = 0;
-                midi_out_note(mc, (uint32_t)nw[j], 100u);
+                midi_out_note(sel, mc, (uint32_t)nw[j], 100u);
             }
         }
         memcpy(kb_nt[k], nw, nn);
@@ -2314,7 +2314,7 @@ static void key_down(uint32_t k)
         kb_kind[k] = KS_DRUM;
         drum_input(t, lane, lvl, 0, 1);
         mc = trk_midi_ch(sel);
-        midi_out_note(mc, (uint32_t)LANE_NOTE[lane], lvl_vel(lvl, 100));
+        midi_out_note(sel, mc, (uint32_t)LANE_NOTE[lane], lvl_vel(lvl, 100));
         return;
     }
     {
@@ -2350,7 +2350,7 @@ static void key_down(uint32_t k)
             in_chord_i = i;
             input_on(t, kb_nt[k][i], 100);
             in_chord = 0;
-            midi_out_note(mc, (uint32_t)kb_nt[k][i], 100u);
+            midi_out_note(sel, mc, (uint32_t)kb_nt[k][i], 100u);
         }
         in_key = 0;
         /* the pen of the SEQ layer: the keys down now (a chord), else this note */
@@ -2400,7 +2400,7 @@ static void key_up(uint32_t k)
                 kh_mo[kb_trk[k] % NTRK][(n >> 5) & 3u] |= 1u << (n & 31u);
                 kh_mc[kb_trk[k] % NTRK] = (uint8_t)mc;
             } else {
-                midi_out_note(mc, n, 0);
+                midi_out_note(kb_trk[k], mc, n, 0);
             }
         }
         return;
@@ -2408,7 +2408,7 @@ static void key_up(uint32_t k)
         if (ft_on && ft_trk == trk_index(t))
             ft_note_off(kb_nt[k][0]);
         mc = trk_midi_ch(kb_trk[k] % NTRK);
-        midi_out_note(mc, (uint32_t)LANE_NOTE[kb_nt[k][0] & 15u], 0);
+        midi_out_note(kb_trk[k], mc, (uint32_t)LANE_NOTE[kb_nt[k][0] & 15u], 0);
         return;
     default:
         return;

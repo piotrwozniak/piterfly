@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/piterfly/arcade-web.png" alt="SLOOP" width="420"></p>
 
-**Current piterfly 1.2.4:** [Polish guide](docs/PITERFLY.md), [release notes](docs/RELEASE-1.2.4.md) and [named songs](docs/SONGS.md): six synths plus two drums, 24 patterns, 128 SONG positions, eight named song slots subject to free memory, and no user-sample banks. Full hardware validation of this version remains pending. The upstream guide below preserves its historical four-track descriptions; current piterfly documentation takes precedence.
+**Current piterfly 1.2.9.** See the [Polish guide](docs/PITERFLY.md), [release notes](docs/RELEASE-1.2.9.md) and [named songs](docs/SONGS.md). The firmware has six synth tracks, two drum tracks, 24 patterns, 128 SONG positions and up to six USB MIDI synths through a powered hub. The earlier four-track descriptions below document upstream SLOOP.
 
 # SLOOP 2.8.5 — The Complete Guide
 
@@ -928,7 +928,7 @@ The visualiser sees the mix **as if MASTER were all the way up**: with MASTER tu
 | **LCD** | **COLOR**: the screen palette (GREEN, AMBER, CYAN, RED, MONO, then [your theme](#your-theme) once you sent one) | **ZOOM**: ON shows the value you touch large and white | **KNOB ACCEL** (2.7): ON (the default) a fast turn sweeps wider; OFF one value a detent | — |
 | **LIGHTS** | **LIGHTS**: OFF, LOW, MID, HIGH | **KEYS**: OFF, C KEYS, WHITE KEYS, ALL KEYS | **NOTES**: OFF / ON | — |
 | **AUDIO** | **SPEAKER LOWCUT**: ON cuts the lows the small speaker cannot play (~110 Hz) | **FILTER RESO**: the resonance of the per-track filter, 0 (clean) … 10 | | |
-| **USB** | **USB AUDIO**: MASTER / FULL | **USB RATE**: AUTO / 44.1 KHZ / 48 KHZ (takes effect at the next start) | **USB HOST**: OFF / send MIDI to a USB synth through a powered hub | |
+| **USB** | **USB AUDIO**: MASTER / FULL | **USB RATE**: AUTO / 44.1 KHZ / 48 KHZ (takes effect at the next start) | **USB HOST**: turn right to enable, left to return to computer USB | **USB ROUTE**: ONE DEVICE / TRACK 1-6. Set while USB HOST is off. |
 | **SEQ** (2.7.1) | **STEP ADVANCE**: ON (the default) the NOTES page moves on when you let go of the keys; OFF it stays, so a chord you missed is played again on the same step (KNOB 1 moves the cursor) | **DRUM PREVIEW**: OFF (the default) a drum sound picked with a knob (DRUMS screen, SEQ layer) is not heard, quiet for live; ON you hear it, as up to 2.7 | — | — |
 | **SYSTEM** | **2ND CORE** (2.7): **ON** (the default) / OFF. ON, the sound is computed on both of the FM-1's cores: about twice the room before the CPU runs out (many voices, INSERT effects on several tracks), the same sound. ON takes effect at the next power-on; ABOUT then says *2 CORES* (*1 CORE*: the second core did not answer and SLOOP runs on one, as before). OFF: one core, as in 2.6. (2.8.3) On some FM-1s the second core can misread a word under heavy load (a backup over USB): it checks every job before running it and refuses a wrong one, and SLOOP then goes on with one core until the next power-off (ABOUT: *1 CORE*) instead of crashing; if a crash happens while both cores run, the next start is on one core too, until you power off. If it keeps happening on your FM-1, set 2ND CORE to OFF | **HARDWARE CALIBRATION** (the knob selects it, OCT+ opens it) | **MIDI LEARN CLEAR** (2.6): how many CCs are learned; OCT+ forgets them all | **ABOUT**, the version (the knob selects it, OCT+ opens it) |
 
@@ -1020,10 +1020,13 @@ The user confirmed sequencer track 1 → D MINI and keyboard → internal FM-1 s
 
 ### Play a USB synth from the FM-1
 
-1. Connect the hub to its own power supply. Connect the hub's upstream data connection to the FM-1 and plug the synth into a downstream data port. The hub supplies 5 V to a bus-powered synth such as the JT-4000. Use a single hub with a USB-A data port if a USB-C hub fails to connect.
-2. Hold **HOME** to open MENU, turn **SELECT** to **USB** and turn **knob 3 (USB HOST)** right. **LOOKING** changes to **MIDI READY** when an output is found. **NO MIDI OUT** indicates that no compatible output was found. Device detection can take a few seconds.
-3. Match the synth's MIDI receive channel to the track's channel in **GLO → MIDI**. The FM-1 keys play that channel. Set **GLO → MIDI 2 → OUT = SEQ** for patterns and **GLO → MIDI 3 → CLOCK = OUT** if you also want to send MIDI clock with internal sync. Use the synth's analog audio output to hear it.
-4. Turn **USB HOST** off to reconnect the computer, USB audio, editor or installer. The FM-1 boots with USB HOST off. While hosting, use the 3.5 mm MIDI IN for an external keyboard. USB host mode sends MIDI 1.0 to one synth.
+1. Connect a USB hub with its own power supply to the FM-1. Plug each USB MIDI 1.0 synth into its own data port on the hub.
+2. Hold **HOME** to open MENU and turn **SELECT** to **USB**. With **USB HOST** off, set **K4** to **TRACK 1-6**. Synth track 1 goes to hub port 1, track 2 to port 2, and so on. Plug your synths in any order. Select **ONE DEVICE** instead to send the tracks to a single receiver.
+3. Turn **K3** right to enable **USB HOST**. **LOOKING** shows while the FM-1 searches. **MIDI READY** means it found at least one receiver.
+4. Match each synth's receive channel to its track under **GLO → MIDI** or **MIDI 4-7**. Set **GLO → MIDI 2 → OUT = SEQ** for recorded patterns. **GLO → MIDI 3 → CLOCK = OUT** sends clock and transport to connected synths with internal sync. Use each synth's own audio output.
+5. A keyboard on **TRS MIDI IN** can pass notes to a synth with the corresponding track's **MIDI THRU** enabled. In **IN = NOTES**, assign distinct track channels if the keyboard selects tracks by channel.
+
+Turn **K3** left to return to the computer, editor, installer or USB Audio. The FM-1 boots with **USB HOST** off.
 
 ### MIDI out, clock in (GLO → SYSTEM)
 
