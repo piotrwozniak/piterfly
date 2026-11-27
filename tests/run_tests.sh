@@ -120,7 +120,7 @@ run "after Felucca 1.4 / 1.5: INSERT, filter TYPE, ENV SYNC, LFO 2, drum mutes, 
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/save_safety_test" tests/save_safety_test.c -lm
 run "save safety: retries, overwrite confirmation, pending status" "$OUT/save_safety_test"
 
-$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/ui_pages_test" tests/ui_pages_test.c -lm
+$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -DUI_USB_HOST_TEST=1 -o "$OUT/ui_pages_test" tests/ui_pages_test.c -lm
 run "live UI: pages, layers (punch, steps, erase, roll, key, mix), holds, drums, REC, fuzz" "$OUT/ui_pages_test" "$OUT"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/slider_handles_test" tests/slider_handles_test.c -lm
 run "round slider handles: extrema, every position, cache and TRACKS" "$OUT/slider_handles_test" "$OUT"
@@ -168,6 +168,8 @@ run "TRS MIDI parser" "$OUT/midi_uart_test"
 $CC -Ifirmware/hal -o "$OUT/encoder_test" tests/encoder_test.c
 run "knobs: one click = one step (slow, fast, pauses, bounce)" "$OUT/encoder_test"
 HALF=$(sed -n 's/^#define HALF_FRAMES \([0-9]*\).*/\1/p' firmware/src/core.h)
+$CC -g -fsanitize=address,undefined -fno-sanitize-recover=all -o "$OUT/usb_host_output_test" tests/usb_host_output_test.c
+run "USB MIDI host: output via powered hub, retry, note cleanup and role handover" "$OUT/usb_host_output_test"
 $CC -DT_CDC=1 -DHALF_FRAMES=$HALF -o "$OUT/uac_test" tests/uac_test.c -lm
 run "USB audio input: descriptors (with CDC), ring and packets" "$OUT/uac_test"
 $CC -DT_CDC=0 -DHALF_FRAMES=$HALF -o "$OUT/uac_test_nocdc" tests/uac_test.c -lm

@@ -30,6 +30,7 @@ The source manifest identifies the original main commit and the exact exported s
 | Component | Licence/status | Evidence and notices |
 | --- | --- | --- |
 | Application, HAL, loader and own DSP/wrappers | GPL-3.0-only | Original file headers; LICENSE |
+| USB MIDI Host portions | MPL-2.0 | Kerem Kilic and Adrien Tibi via Felucca BSP. See THIRD_PARTY_NOTICES.md and LICENSES/MPL-2.0.txt |
 | FM6 core, firmware/src/fm6_core.c | Apache-2.0 | Google 2012, Pascal Gauthier 2016–2025; Leo's C port 2026; LICENSES/Apache-2.0-msfa.txt |
 | PHYS DaisySP port, phys_dsp.c | MIT | Electrosmith / Emilie Gillet; Leo's fixed-point port; LICENSES/MIT-DaisySP.txt and file notice |
 | PHYS sympathetic strings, phys_symp.c | MIT | Rings, Emilie Gillet 2015; Leo's port; LICENSES/MIT-Rings.txt |

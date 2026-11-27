@@ -1,8 +1,8 @@
 {
   "origin_repository": "https://github.com/piotrwozniak/fm1-piterfly",
-  "origin_commit": "a0509e725118090819784961669bf8d45a604418",
+  "origin_commit": "3deeeb671489c86e8487c9b7bb035f5799010b3d",
   "upstream_sloop_commit": "bac9c05ea7627449405aa10e48da21d75b6c8c56",
-  "export_date": "2026-11-26",
+  "export_date": "2026-11-27",
   "git_metadata_created": false,
   "inherited_git_history": false,
   "published": true,

@@ -58,30 +58,29 @@ UI_SMALL static int ed_dsyn_handle(uint32_t cmd, const uint8_t *a, uint32_t n)
         }
         return 1;
     case ED_DSYN_GET: {
-        const dsnd_t *s = 0;
         uint32_t w = n == 1u ? a[0] : 127u, crush = 0, src = 0;
         char nm[8] = {0};
         if (w < DS_NKITS) {
-            s = DS_KITS[w].s;
+            ds_factory_copy(b + 2, &DS_KITS[w]);
             crush = DS_KITS[w].crush;
             src = w;
             for (i = 0; i < 8u && DS_KITS[w].name[i]; i++)
                 nm[i] = DS_KITS[w].name[i];
         } else if (w >= ED_DSYN_USER && w < ED_DSYN_USER + DSU_N) {
             const dsu_kit_t *u = &dsu.k[w - ED_DSYN_USER];
-            s = u->s;
+            memcpy(b + 2, u->s, sizeof u->s);
             crush = u->crush;
             src = u->src;
             memcpy(nm, u->name, 8);
+        } else {
+            ed_b(w); ed_b(1);
+            return 1;
         }
-        ed_b(w); ed_b(s ? 0u : 1u);
-        if (s) {
-            ed_dsyn_name(nm);
-            b[0] = (uint8_t)crush;                         /* (one pack7 stream: crush, src, the sounds) */
-            b[1] = (uint8_t)src;
-            memcpy(b + 2, s, DS_LANES * sizeof(dsnd_t));
-            ed_pack7(b, sizeof b);
-        }
+        ed_b(w); ed_b(0);
+        ed_dsyn_name(nm);
+        b[0] = (uint8_t)crush;                             /* (one pack7 stream: crush, src, the sounds) */
+        b[1] = (uint8_t)src;
+        ed_pack7(b, sizeof b);
         return 1;
     }
     case ED_DSYN_PUT: {

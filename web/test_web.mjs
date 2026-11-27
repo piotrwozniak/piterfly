@@ -1128,9 +1128,16 @@ async function editorDsyn() {
   let hdr = null;
   try { hdr = readFileSync(join(HERE, "../build/gen/felucca_drumkits.h"), "utf8"); } catch (e) { /* (not built) */ }
   if (hdr) {
-    const kits = [...hdr.matchAll(/\{"([^"]*)", "[^"]*", (0x[0-9A-Fa-f]+|\d+), \{([\s\S]*?)\}\},/g)];
-    const bytes = kits.flatMap((k) => [Number(k[2]), ...[...k[3].matchAll(/\{([^{}]*)\},/g)].flatMap((r) => r[1].split(",").map((x) => +x & 255))]);
-    ok(kits.length === 32 && js(kits.map((k) => k[1])) === js(E.DSYN_MOCK_NAMES) && js(Array.from(raw)) === js(bytes),
+    const numbers = (s) => s.split(",").map(Number);
+    const offsets = numbers((/DS_FACTORY_OFFSET\[\] = \{([^}]+)\}/.exec(hdr) || [, ""])[1]);
+    const sounds = (/DS_FACTORY_SOUNDS\[\] = \{([\s\S]*?)\n\};/.exec(hdr) || [, ""])[1];
+    const patches = [...sounds.matchAll(/\{([^}]+)\},/g)].map((row) => numbers(row[1]).map((x) => x & 255));
+    const kits = [...hdr.matchAll(/^    \{"([^"]*)", (0x[0-9A-Fa-f]+), \{([^}]+)\}\},$/gm)];
+    const bytes = kits.flatMap((k) => [
+      Number(k[2]),
+      ...numbers(k[3]).flatMap((id, lane) => patches[offsets[lane] + id] || []),
+    ]);
+    ok(offsets.length === 16 && kits.length === 32 && js(kits.map((k) => k[1])) === js(E.DSYN_MOCK_NAMES) && js(Array.from(raw)) === js(bytes),
       "dsyn: the mock's 32 kits == build/gen/felucca_drumkits.h");
   }
   /* viewing never changes a value: decode / encode give every factory sound back */

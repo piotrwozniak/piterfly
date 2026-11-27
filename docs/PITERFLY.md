@@ -1,8 +1,8 @@
-# piterfly 1.2.6 — zmiany względem SLOOP
+# piterfly 1.2.7 — zmiany względem SLOOP
 
-piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Wersja **1.2.6** ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Build i testy programowe przechodzą; test 6+2 na fizycznym FM-1 pozostaje do wykonania. Potwierdzenie sprzętowe z 13 listopada 2026 dotyczyło wcześniejszej wersji 1.1.0 (7+1).
+Piterfly to firmware dla **M-VAVE FM-1**, oparty na **SLOOP 2.8.5** i Felucca. Ma **sześć ścieżek syntezatora i dwie niezależne perkusje**. Wersja 1.2.7 dodaje [USB MIDI Host](#usb-midi-host-bez-komputera). Wersję 1.2.6 właściciel sprawdził na fizycznym FM-1. Nowy tryb USB Host zweryfikowano w testach programowych.
 
-**Aktualizacja 1.2.0 → 1.2.6 zachowuje zgodność projektów:** format **FUNB**, 6160 bajtów, protokół edytora **19**, ustawienia **PER4**. Starsze FUN1–FUNA nadal nie są importowane. Pakiet wydania: `build/releases/piterfly-1.2.6/piterfly-1.2.6.fwsc`. Edytor protokołu 19 z 1.2.0 pozostaje zgodny. [Zmiany i weryfikacja 1.2.6](RELEASE-1.2.6.md).
+**Wersja 1.2.7 jest zgodna z projektami od 1.2.0.** Format **FUNB** ma 6160 bajtów. Edytor używa protokołu **19**, a ustawienia formatu **PER4**. Pakiet wydania to `piterfly-1.2.7.fwsc`. [Informacje o wydaniu 1.2.7](RELEASE-1.2.7.md).
 
 **Gałki tracka i barwy:** na HOME, FX i pozostałych zwykłych stronach parametrów PRESETS wybiera track, a ALGORITHM zmienia jego barwę/preset (na perkusji — zestaw). W aktywnym edytorze NOTES oba pokrętła miały już funkcje: PRESETS nadal zmienia zoom, ALGORITHM wybiera track. SONG, menu ustawień i kombinacje z przytrzymanymi przyciskami zachowują swoje przypisania. Podczas swobodnego nagrania wybór tracka pozostaje zablokowany.
 
@@ -232,6 +232,19 @@ Przed pierwszym zapisem import sprawdza pola kolejności, powtórzone identyfika
 Edytor odmawia przywrócenia niepustych USR1/2/3/4 do tego builda oraz nowych ustawień PER4 na starszy firmware. Nie ma automatycznej migracji wstecz do układu czterech patternów; przy powrocie do SLOOP użyj backupu z wersji bazowej.
 
 Szczegóły pamięci i protokołu: [PATTERNS-24.md](PATTERNS-24.md), [EDITOR_PROTOCOL.md](../web/EDITOR_PROTOCOL.md).
+
+## USB MIDI Host bez komputera
+
+**FM-1 → zasilany hub USB → syntezator USB MIDI.** Podłącz hub do jego zasilacza. Połącz port upstream huba z FM-1, a syntezator podłącz do portu danych huba. Zasilacz huba dostarcza 5 V urządzeniom takim jak Behringer JT-4000.
+
+1. Przytrzymaj **HOME**, obróć **SELECT** do zakładki **USB** i przekręć **K3 (USB HOST)** w prawo.
+2. Poczekaj na **MIDI READY**. Podczas wykrywania widać **LOOKING**. Przy **NO MIDI OUT** sprawdź zasilanie huba i przewody do transmisji danych. Użyj jednego huba. Jeśli hub USB-C nie wykrywa syntezatora, wypróbuj hub z portem danych USB-A.
+3. Ustaw taki sam kanał MIDI na ścieżce FM-1 i w syntezatorze. Klawisze FM-1 wysyłają nuty. Aby wysłać także zapisane patterny, ustaw **GLO → MIDI 2 → OUT = SEQ**. **GLO → MIDI 3 → CLOCK = OUT** włącza wysyłanie zegara przy synchronizacji wewnętrznej.
+4. Wyprowadź dźwięk z wyjścia audio syntezatora. Klawiaturę do FM-1 możesz podłączyć przez **TRS MIDI IN** i przekazywać nuty przełącznikiem THRU danej ścieżki.
+
+Tryb używa **USB MIDI 1.0 OUT** i obsługuje jeden syntezator. Po włączeniu urządzenia USB HOST jest wyłączony. Przekręć **K3** w lewo, aby wrócić do połączenia z komputerem, edytorem, instalatorem lub USB Audio.
+
+![Menu USB z K3 USB HOST i statusem MIDI READY. Render panelu z testu programowego.](../assets/piterfly/screenshots/menu-usb-host-1.2.7.png)
 
 ## MIDI THRU
 

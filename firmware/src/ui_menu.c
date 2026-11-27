@@ -1,25 +1,59 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments */
 /* SLOOP menu (HOME held), in sections as the pages are (2.4): SCREEN (COLOR, ZOOM, KNOB ACCEL (2.7)), LIGHTS (LIGHTS, KEYS, NOTES),
- * AUDIO (LOWCUT, USB AUDIO, USB SERIAL (FELUCCA_CDC builds only), USB RATE (2.7 beta)), SEQ (2.7.1: STEP ADVANCE, DRUM PREVIEW), SYSTEM (2ND CORE (dualcore), HARDWARE CALIBRATION, LEARN CLEAR (2.6), ABOUT).
+ * USB options get their own tab in host-enabled builds. SEQ holds STEP ADVANCE and DRUM PREVIEW.
  * SELECT goes to the section before / after (stopping at the ends), KNOB 1..4 set the section's settings in order (the knob's colour marks
  * its row), PRESETS moves the cursor; OCT+ steps the cursor's setting round or opens it (CALIBRATION, ABOUT),
  * OCT- closes (from ABOUT: back to the section). */
 /* ------------------------------------------------------------ menu --- */
 /* (2.7: USB SERIAL only in a build with the serial console, FELUCCA_CDC=1: the FM-1's build has none) */
-enum { MI_COLOR, MI_ZOOM, MI_ACCEL, MI_LIGHTS, MI_KEYS, MI_NOTES, MI_LOWCUT, MI_USB,
+enum { MI_COLOR, MI_ZOOM, MI_ACCEL, MI_LIGHTS, MI_KEYS, MI_NOTES, MI_LOWCUT,
+#if FELUCCA_USB_HOST
+       MI_FRESO,
+#endif
+       MI_USB,
 #if FELUCCA_CDC
        MI_SERIAL,
 #endif
-       MI_RATE, MI_FRESO, MI_ADV, MI_DPREV, MI_CPU1, MI_PANEL, MI_LCLEAR, MI_ABOUT, MI_COUNT };
-static const char *const MI_NAME[MI_COUNT] = {"COLOR", "ZOOM", "KNOB ACCEL", "LIGHTS", "KEYS", "NOTES", "SPEAKER LOWCUT", "USB AUDIO",
-#if FELUCCA_CDC
-                                              "USB SERIAL",
+       MI_RATE,
+#if FELUCCA_USB_HOST
+       MI_USB_HOST,
+#else
+       MI_FRESO,
 #endif
-                                              "USB RATE", "FILTER RESO", "STEP ADVANCE", "DRUM PREVIEW", "2ND CORE", "HARDWARE CALIBRATION", "MIDI LEARN CLEAR", "ABOUT"};
-enum { MS_SCREEN, MS_LIGHTS, MS_AUDIO, MS_SEQ, MS_SYSTEM, MS_COUNT };   /* (2.7.1: SEQ) */
-static const char *const MS_NAME[MS_COUNT] = {"SCREEN", "LIGHTS", "AUDIO", "SEQ", "SYSTEM"};   /* (AUDIO: and USB) */
-static const uint8_t MS_FIRST[MS_COUNT + 1] = {MI_COLOR, MI_LIGHTS, MI_LOWCUT, MI_ADV, MI_CPU1, MI_COUNT};   /* rows of each */
+       MI_ADV, MI_DPREV, MI_CPU1, MI_PANEL, MI_LCLEAR, MI_ABOUT, MI_COUNT };
+static const char *const MI_NAME[MI_COUNT] = {
+    "COLOR", "ZOOM", "KNOB ACCEL", "LIGHTS", "KEYS", "NOTES", "SPEAKER LOWCUT",
+#if FELUCCA_USB_HOST
+    "FILTER RESO",
+#endif
+    "USB AUDIO",
+#if FELUCCA_CDC
+    "USB SERIAL",
+#endif
+    "USB RATE",
+#if FELUCCA_USB_HOST
+    "USB HOST",
+#else
+    "FILTER RESO",
+#endif
+    "STEP ADVANCE", "DRUM PREVIEW", "2ND CORE", "HARDWARE CALIBRATION", "MIDI LEARN CLEAR", "ABOUT"
+};
+enum { MS_SCREEN, MS_LIGHTS, MS_AUDIO,
+#if FELUCCA_USB_HOST
+       MS_USB,
+#endif
+       MS_SEQ, MS_SYSTEM, MS_COUNT };
+static const char *const MS_NAME[MS_COUNT] = {"SCREEN", "LIGHTS", "AUDIO",
+#if FELUCCA_USB_HOST
+                                             "USB",
+#endif
+                                             "SEQ", "SYSTEM"};
+static const uint8_t MS_FIRST[MS_COUNT + 1] = {MI_COLOR, MI_LIGHTS, MI_LOWCUT,
+#if FELUCCA_USB_HOST
+                                              MI_USB,
+#endif
+                                              MI_ADV, MI_CPU1, MI_COUNT};
 
 UI_SMALL static int mi_cpu1_have(void)                      /* the second core is running (cpu1.c; the host tests have no cpu1.c) */
 {
@@ -69,6 +103,16 @@ UI_SMALL static const char *mi_value(uint32_t i, uint16_t *c)
     case MI_NOTES: return lights_notes ? "ON" : "OFF";
     case MI_LOWCUT: return settings.lowcut ? "ON" : "OFF";
     case MI_USB: return usb_full ? "FULL" : "MASTER";
+#if FELUCCA_USB_HOST
+    case MI_USB_HOST:
+        if (!uh.want)
+            return "OFF";
+        if (uh.run)
+            return "MIDI READY";
+        if (uh.msg == UH_MSG_NOMIDI || uh.msg == UH_MSG_LOW)
+            return "NO MIDI OUT";
+        return "LOOKING";
+#endif
 #if FELUCCA_CDC
     case MI_SERIAL: return usb_serial ? "ON" : "OFF";
 #endif
@@ -112,6 +156,9 @@ UI_SMALL static __attribute__((noinline)) void draw_menu(void)
                    settings.zoom * 104729u + lights_lvl * 1299709u + lights_keys * 15485863u + ml_count() * 2654435u +
                    lights_notes * 32452843u + usb_full * 49979687u + usb_serial * 86028121u + usb_rate * 15486719u + theme_shown() * 32452867u + theme.crc + cpu1_off * 122949829u +
                    knob_accel_off * 179424673u + drum_preview * 236887691u + step_adv_off * 373587883u + flt_reso * 512927357u;
+#if FELUCCA_USB_HOST
+    sig += (uh.want + 2u * uh.run + 4u * uh.msg) * 2246822519u;
+#endif
     if (!ui.force && sig == ui.menu_sig)
         return;
     ui.menu_sig = sig;
@@ -164,11 +211,16 @@ UI_SMALL static __attribute__((noinline)) void draw_menu(void)
         } else {
             int32_t x = 4;
             for (i = 0; i < MS_COUNT; i++) {        /* the sections as tabs: this one lit */
-                int32_t w = text_w(&FONT_S, MS_NAME[i]);
+                const char *tab = MS_NAME[i];
+#if FELUCCA_USB_HOST
+                if (i == MS_SCREEN)
+                    tab = "LCD";
+#endif
+                int32_t w = text_w(&FONT_S, tab);
                 if (i == sec)
                     cv_rect(x - 2, 3, w + 4, 18, C_LINE);
-                cv_text(x, 4, &FONT_S, MS_NAME[i], i == sec ? C_WHITE : C_DIM);
-                x += w + 6;                         /* (2.7.1: five sections: 6, the last ends at 236) */
+                cv_text(x, 4, &FONT_S, tab, i == sec ? C_WHITE : C_DIM);
+                x += w + (FELUCCA_USB_HOST ? 4 : 6);
             }
             for (i = MS_FIRST[sec]; i < MS_FIRST[sec + 1u]; i++) {
                 uint32_t r = i - MS_FIRST[sec];
@@ -263,6 +315,11 @@ UI_SMALL static void mi_set(uint32_t i, int32_t s)
         fx_lowcut = (uint8_t)(settings.lowcut != 0);
         break;
     }
+#if FELUCCA_USB_HOST
+    case MI_USB_HOST:
+        usb_host_switch(s > 0 ? 1u : s < 0 ? 0u : !uh.want);
+        break;
+#endif
     case MI_USB:                                       /* right FULL, left MASTER */
         usb_full = (uint8_t)(s > 0 ? 1u : s < 0 ? 0u : !usb_full);
         break;

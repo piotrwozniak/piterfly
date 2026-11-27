@@ -34,11 +34,24 @@ typedef struct {
 #define DS_LANES 16              /* kick snare clap hat open-hat tom-lo tom-hi crash ride shaker conga
                                   * rim cowbell clave kick-2 snare-2 */
 typedef struct {
-    const char *name, *style;
+    const char *name;
     uint8_t crush;               /* low nibble: bits dropped, high nibble: sample-and-hold - 1 */
-    dsnd_t s[DS_LANES];
+    uint8_t lane[DS_LANES];       /* index within the lane's deduplicated factory sounds */
 } dkit_t;
 #include "felucca_drumkits.h"    /* DS_KITS[], DS_NKITS (tools/gen_drumkits.py) */
+
+static const dsnd_t *ds_factory_sound(const dkit_t *kit, uint32_t lane)
+{
+    return &DS_FACTORY_SOUNDS[DS_FACTORY_OFFSET[lane] + kit->lane[lane]];
+}
+
+static void ds_factory_copy(void *dst, const dkit_t *kit)
+{
+    uint8_t *bytes = dst;
+    uint32_t lane;
+    for (lane = 0; lane < DS_LANES; lane++)
+        memcpy(bytes + lane * sizeof(dsnd_t), ds_factory_sound(kit, lane), sizeof(dsnd_t));
+}
 
 /* GM note -> synth lane and a pitch offset in semitones */
 static const struct { uint8_t lane; int8_t semi; } DS_MAP[128 - 35] = {
@@ -125,12 +138,11 @@ static const int16_t DS_METAL[6] = {0, 109, 163, 259, 268, 377};
 static const int8_t DK_IDX[8] = {-26, -17, -10, -4, 0, 6, 13, 21};
 static const uint16_t DK_SCALE[8] = {64, 102, 154, 205, 256, 358, 512, 768};
 /* tune16: the sound's TUNE in 1/16 semitones; dsel: its DECAY + 4 (0 .. 7) */
-static void ds_on(dsv_t *s, const dsnd_t *snd, uint32_t crush, uint32_t note, uint32_t vel, int32_t tune16, uint32_t dsel)
+static void ds_on(dsv_t *s, const dsnd_t *d, uint32_t crush, uint32_t note, int32_t semi, uint32_t vel,
+                  int32_t tune16, uint32_t dsel)
 {
     int32_t dk = DK_IDX[dsel & 7u];
-    int32_t semi;
-    uint32_t lane = ds_lane(note, &semi), i;
-    const dsnd_t *d = &snd[lane];
+    uint32_t i;
     memset(s, 0, sizeof *s);
     s->d = d;
     s->crush = (uint8_t)crush;
@@ -360,7 +372,7 @@ static void dsu_from_factory(uint32_t k, uint32_t src)
         u->name[i] = f->name[i];
     u->crush = f->crush;
     u->src = (uint8_t)(src % DS_NKITS);
-    memcpy(u->s, f->s, sizeof u->s);
+    ds_factory_copy(u->s, f);
 }
 static void dsu_defaults(void)
 {

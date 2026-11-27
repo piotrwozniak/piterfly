@@ -173,7 +173,7 @@ The layers are **FX** (punch-in effects), **EDIT** (erase), **ARP** (note repeat
 | **PLAY** | start / stop all tracks (in song mode: play the song). Works inside every layer | — |
 | **REC** | playing: record now / stop recording · stopped: arm (*rec ready*) · free take: close the loop · count-in: cancel | ~2 s: **clear the selected track** (a ring fills; let go before it is full and nothing happens) |
 | **SAVE** | on TRACKS or DRUMS: the **SONG** screen · on the SONG screen: save the song · elsewhere: the **SAVE pages** | the **song layer** (sections A–D, chain, song mode, SONG REC) |
-| **HOME** | the **TRACKS** screen · on TRACKS: the **visualiser** (HOME again closes it) | 0.7 s: the **menu** (SCREEN, LIGHTS, AUDIO, SYSTEM); hold again to leave it |
+| **HOME** | the **TRACKS** screen · on TRACKS: the **visualiser** (HOME again closes it) | 0.7 s: the **menu** (LCD, LIGHTS, AUDIO, USB, SEQ, SYSTEM); hold again to leave it |
 | **ENV** | ENV pages (ENV, ENV DEST) | — |
 | **LFO** | LFO pages (LFO, LFO DEST) | — |
 | **FX** | FX pages (FX, FILTER, SLICER, DLY, REV/CHO) | punch-in layer |
@@ -925,9 +925,10 @@ The visualiser sees the mix **as if MASTER were all the way up**: with MASTER tu
 
 | Section | KNOB 1 | KNOB 2 | KNOB 3 | KNOB 4 |
 | --- | --- | --- | --- | --- |
-| **SCREEN** | **COLOR**: the screen palette (GREEN, AMBER, CYAN, RED, MONO, then [your theme](#your-theme) once you sent one) | **ZOOM**: ON shows the value you touch large and white | **KNOB ACCEL** (2.7): ON (the default) a fast turn sweeps wider; OFF one value a detent | — |
+| **LCD** | **COLOR**: the screen palette (GREEN, AMBER, CYAN, RED, MONO, then [your theme](#your-theme) once you sent one) | **ZOOM**: ON shows the value you touch large and white | **KNOB ACCEL** (2.7): ON (the default) a fast turn sweeps wider; OFF one value a detent | — |
 | **LIGHTS** | **LIGHTS**: OFF, LOW, MID, HIGH | **KEYS**: OFF, C KEYS, WHITE KEYS, ALL KEYS | **NOTES**: OFF / ON | — |
-| **AUDIO** | **SPEAKER LOWCUT**: ON cuts the lows the small speaker cannot play (~110 Hz) | **USB AUDIO**: MASTER / FULL | **USB RATE** (2.7): AUTO / 44.1 KHZ / 48 KHZ (takes effect at the next start) | **FILTER RESO** (2.7.2): the resonance of the per-track filter, 0 (clean, as before) … 10 |
+| **AUDIO** | **SPEAKER LOWCUT**: ON cuts the lows the small speaker cannot play (~110 Hz) | **FILTER RESO**: the resonance of the per-track filter, 0 (clean) … 10 | | |
+| **USB** | **USB AUDIO**: MASTER / FULL | **USB RATE**: AUTO / 44.1 KHZ / 48 KHZ (takes effect at the next start) | **USB HOST**: OFF / send MIDI to a USB synth through a powered hub | |
 | **SEQ** (2.7.1) | **STEP ADVANCE**: ON (the default) the NOTES page moves on when you let go of the keys; OFF it stays, so a chord you missed is played again on the same step (KNOB 1 moves the cursor) | **DRUM PREVIEW**: OFF (the default) a drum sound picked with a knob (DRUMS screen, SEQ layer) is not heard, quiet for live; ON you hear it, as up to 2.7 | — | — |
 | **SYSTEM** | **2ND CORE** (2.7): **ON** (the default) / OFF. ON, the sound is computed on both of the FM-1's cores: about twice the room before the CPU runs out (many voices, INSERT effects on several tracks), the same sound. ON takes effect at the next power-on; ABOUT then says *2 CORES* (*1 CORE*: the second core did not answer and SLOOP runs on one, as before). OFF: one core, as in 2.6. (2.8.3) On some FM-1s the second core can misread a word under heavy load (a backup over USB): it checks every job before running it and refuses a wrong one, and SLOOP then goes on with one core until the next power-off (ABOUT: *1 CORE*) instead of crashing; if a crash happens while both cores run, the next start is on one core too, until you power off. If it keeps happening on your FM-1, set 2ND CORE to OFF | **HARDWARE CALIBRATION** (the knob selects it, OCT+ opens it) | **MIDI LEARN CLEAR** (2.6): how many CCs are learned; OCT+ forgets them all | **ABOUT**, the version (the knob selects it, OCT+ opens it) |
 
@@ -1017,6 +1018,13 @@ For live input alone, either OUT setting works. To also drive the Behringer from
 
 The user confirmed sequencer track 1 → D MINI and keyboard → internal FM-1 sounds on the original setup. Live keyboard → FM-1 → D MINI was not achieved on the tested stock SLOOP. Current piterfly adds the per-track THRU described above; MidiPipe routing alone does not provide firmware THRU. A separate keyboard → channel-1-only filter → D MINI pipe is an optional, unconfirmed alternative for live playing on stock SLOOP. Choose one live-note path to avoid duplicates. The installer’s **What changes? → MIDI THRU** section links the full **FM-1 + Behringer D MINI setup guide**.
 
+### Play a USB synth from the FM-1
+
+1. Connect the hub to its own power supply. Connect the hub's upstream data connection to the FM-1 and plug the synth into a downstream data port. The hub supplies 5 V to a bus-powered synth such as the JT-4000. Use a single hub with a USB-A data port if a USB-C hub fails to connect.
+2. Hold **HOME** to open MENU, turn **SELECT** to **USB** and turn **knob 3 (USB HOST)** right. **LOOKING** changes to **MIDI READY** when an output is found. **NO MIDI OUT** indicates that no compatible output was found. Device detection can take a few seconds.
+3. Match the synth's MIDI receive channel to the track's channel in **GLO → MIDI**. The FM-1 keys play that channel. Set **GLO → MIDI 2 → OUT = SEQ** for patterns and **GLO → MIDI 3 → CLOCK = OUT** if you also want to send MIDI clock with internal sync. Use the synth's analog audio output to hear it.
+4. Turn **USB HOST** off to reconnect the computer, USB audio, editor or installer. The FM-1 boots with USB HOST off. While hosting, use the 3.5 mm MIDI IN for an external keyboard. USB host mode sends MIDI 1.0 to one synth.
+
 ### MIDI out, clock in (GLO → SYSTEM)
 
 | Knob | Setting | Choices |
@@ -1068,14 +1076,14 @@ A learned CC sets that track's parameter whatever channel it comes on, and no lo
 
 On USB the FM-1 is also an audio input named **Felucca**: 44.1 or 48 kHz (the computer, phone or tablet picks; 48 kHz since 2.5, for the phones and apps that only take it), 16-bit stereo, class compliant, no driver. In your DAW, in Audacity or in a sampler app on your phone (with a USB-C cable or adapter) choose that input and record: you get the master output, exactly what the headphones play (after DUST, DUCK and FILT; the click and count-in too if they are on). MIDI, the editor and the installer keep working on the same cable.
 
-**HOME menu → AUDIO → USB AUDIO:**
+**HOME menu → USB → USB AUDIO:**
 
 - **MASTER** (default): the recording follows the MASTER knob, as the headphones do. Keep MASTER well up while you record.
 - **FULL**: a fixed level, as with MASTER all the way up (kept from clipping by the limiter); MASTER then only sets the headphones. Best for a computer input with no level control of its own.
 
 The first time, the computer sees the FM-1 as a slightly different device (MIDI + audio) and sets it up again. On macOS 13–15, keep **USB SERIAL** OFF (the default) or the audio input may not show (2.6; from 2.7 the FM-1's build has no serial console and no USB SERIAL: the flash is full, and it was a developer's tool). (2.7.2) On macOS 15 and older, SLOOP up to 2.7.1 showed MIDI but no audio input: Apple's audio driver there stopped reading SLOOP's USB description before the audio part (after Felucca 1.5.1, the audio is now listed first). The FM-1 also reports a new USB version, so the Mac sets it up fresh.
 
-<a id="usb-rate"></a>**HOME menu → AUDIO → USB RATE** (2.7), KNOB 3: the rates the FM-1 offers. It takes effect at the next start: turn the FM-1 off and on (the menu shows *RESTART* until then).
+<a id="usb-rate"></a>**HOME menu → USB → USB RATE**, KNOB 2: the rates the FM-1 offers. It takes effect at the next start: turn the FM-1 off and on (the menu shows *RESTART* until then).
 
 - **AUTO** (default): 44.1 and 48 kHz, the computer or phone picks, as in 2.5 and 2.6.
 - **44.1 KHZ**: 44.1 kHz only, the samples exactly as the FM-1 makes them (as in 2.4). If a phone or tablet records the FM-1 distorted or noisy while a computer records it clean, try this first: the phone then converts the rate itself.
@@ -1303,8 +1311,8 @@ If the official firmware comes up with odd settings or a scrambled display, it i
 | Notes fade out on a dense part | the processor is at its limit; SLOOP fades one voice at a time (never the bass or lead) rather than glitching. Fewer held notes or a lighter engine help |
 | Nothing from the MIDI IN jack | try the other adapter type (A / B); check the channel (GLO → MIDI: CH1–CH4; MIDI 2: OTHER) and that GLO → MIDI 2 → IN is NOTES |
 | The USB audio input does not show | replug the FM-1; on a Mac (2.6) keep USB SERIAL OFF and restart the FM-1; in Audacity: Transport → Rescan Audio Devices |
-| The USB recording is quiet | HOME menu → USB AUDIO = FULL, or MASTER up |
-| The USB recording is distorted or noisy on a phone (clean on a computer) | HOME menu → AUDIO → [USB RATE](#usb-rate) = 44.1 KHZ, then turn the FM-1 off and on |
+| The USB recording is quiet | HOME menu → USB → USB AUDIO = FULL, or MASTER up |
+| The USB recording is distorted or noisy on a phone (clean on a computer) | HOME menu → USB → [USB RATE](#usb-rate) = 44.1 KHZ, then turn the FM-1 off and on |
 | An FM6 sound changed after loading a project | store the edited patch in the bank (editor → FM6 → Store in bank) and set PTCH to it |
 | *STOP THE SONG FIRST* / *STOP FIRST* | that change (new project, song edit, flash write) waits until the transport is stopped |
 | *EMPTY SECTION: REC* | the section you asked for has nothing in it: save a loop into it first (SAVE + key 5–8) |

@@ -1,6 +1,6 @@
 # piterfly — distribution-tree provenance
 
-Piterfly 1.2.6 public source export prepared on 2026-11-26. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
+Piterfly 1.2.7 public source export prepared on 2026-11-27. Earlier releases and tags remain unchanged. Version 1.2.0 introduces 6+2 tracks, FUNB projects, no user-sample banks and a named-song library. Full hardware validation remains pending; the earlier 1.1.0 acceptance does not cover the new layout.
 
 This tree derives from `piotrwozniak/fm1-piterfly`, private source commit
 `a0509e725118090819784961669bf8d45a604418`. That project modifies SLOOP 2.8.5,
@@ -119,3 +119,7 @@ Restores the complete original HOME geometry from 1.2.0: 36-pixel rows at y=40, 
 ## Version 1.2.6
 
 The working loop is saved after track clears. NEW SONG clears the working project and keeps the named library available. The SONG order shows a pattern-coloured outline around the selected row. The release includes two examples captured from the firmware renderer.
+
+## Version 1.2.7
+
+Adds USB MIDI Host output and the USB menu. The host implementation includes MPL-2.0 portions from the Felucca BSP and Melodee. Attribution and source references are in THIRD_PARTY_NOTICES.md and LICENSING.md. Duplicate factory SYN drum definitions share storage. The limits and formats for projects and the song library are retained.

@@ -98,6 +98,14 @@ static void settings_save(void) {}
 #include "../firmware/src/ui_draw.c"
 #include "../firmware/src/ui_vis.c"
 #include "../firmware/src/ui_layers.c"
+#ifdef UI_USB_HOST_TEST
+/* The panel test drives the menu, while usb_host_output_test exercises the port. */
+#undef FELUCCA_USB_HOST
+#define FELUCCA_USB_HOST 1
+enum { UH_MSG_NOMIDI = 1, UH_MSG_LOW };
+static struct { uint8_t want, run, msg; } uh;
+static void usb_host_switch(uint32_t on) { uh.want = on != 0; }
+#endif
 #include "../firmware/src/ui_menu.c"
 #include "../firmware/src/ui_input.c"
 #include "../firmware/src/splash.c"
@@ -1004,6 +1012,22 @@ int main(int argc, char **argv)
         check(usb_serial == 1u, "menu USB SERIAL: read back");
         tap(B_OCTUP);
         check(usb_serial == 0u && ui.menu == 1, "menu USB SERIAL: OCT+ toggles back to OFF");
+#elif FELUCCA_USB_HOST
+        {
+            uint16_t colour;
+            uint32_t saved = lights_word();
+            check(mi_sec(MI_RATE) == MS_USB && mi_row(MI_USB_HOST) == 2u && mi_sec(MI_FRESO) == MS_AUDIO,
+                  "menu USB: audio, rate and host; filter resonance in AUDIO");
+            check(!strcmp(mi_value(MI_USB_HOST, &colour), "OFF"), "menu USB HOST: off at boot");
+            encs[panel.enc[EN_K3]] = 1; frame();
+            check(ui.menu_sel == MI_USB_HOST && uh.want && !strcmp(mi_value(MI_USB_HOST, &colour), "LOOKING"),
+                  "menu USB HOST: K3 requests host mode");
+            uh.run = 1; frame();
+            check(!strcmp(mi_value(MI_USB_HOST, &colour), "MIDI READY"), "menu USB HOST: ready after enumeration");
+            ppm("menu-usb-host");
+            tap(B_OCTUP); uh.run = 0; frame();
+            check(!uh.want && lights_word() == saved, "menu USB HOST: OCT+ turns host off, settings word unchanged");
+        }
 #else
         check(MS_FIRST[MS_AUDIO + 1] - MS_FIRST[MS_AUDIO] == 4u && MI_RATE == MI_USB + 1 && MI_FRESO == MI_RATE + 1,
               "2.7.2: FM-1 build AUDIO is LOWCUT, USB AUDIO, USB RATE, FILTER RESO (no USB SERIAL: FELUCCA_CDC 0)");
@@ -1352,7 +1376,7 @@ int main(int argc, char **argv)
         {   /* (2.7.1) the SEQ section: STEP ADVANCE (ON), DRUM PREVIEW (OFF); between AUDIO and SYSTEM */
             uint32_t m0 = ui.menu_sel;
             check(!drum_preview && !step_adv_off && mi_sec(MI_ADV) == MS_SEQ && mi_sec(MI_DPREV) == MS_SEQ &&
-                  mi_sec(MI_RATE) == MS_AUDIO && mi_sec(MI_CPU1) == MS_SYSTEM,
+                  mi_sec(MI_CPU1) == MS_SYSTEM,
                   "menu (2.7.1): a SEQ section: STEP ADVANCE ON, DRUM PREVIEW OFF by default");
             ui.menu_sel = MI_ADV; ui.force = 1; frame(); ppm("menu-seq");
             encs[panel.enc[EN_K1]] = -1; frame();
@@ -1376,7 +1400,11 @@ int main(int argc, char **argv)
         encs[panel.enc[EN_PRESET]] = 1; frame();
         check(ui.menu_sel == MI_LIGHTS, "menu: PRESETS moves the cursor round the section's rows");
         encs[panel.enc[EN_SELECT]] = 1; frame(); ui.force = 1; frame(); ppm("menu-audio");
-        check(mi_sec(ui.menu_sel) == MS_AUDIO, "menu: SELECT right: AUDIO (LOWCUT, USB AUDIO, USB RATE)");
+        check(mi_sec(ui.menu_sel) == MS_AUDIO, "menu: SELECT right: AUDIO");
+#if FELUCCA_USB_HOST
+        encs[panel.enc[EN_SELECT]] = 1; frame();
+        check(mi_sec(ui.menu_sel) == MS_USB, "menu: SELECT right from AUDIO opens USB");
+#endif
         encs[panel.enc[EN_SELECT]] = 5; frame();
         check(mi_sec(ui.menu_sel) == MS_SEQ, "menu (2.7.1): SELECT right: SEQ (STEP ADVANCE, DRUM PREVIEW)");
         encs[panel.enc[EN_SELECT]] = 5; frame();

@@ -261,9 +261,8 @@ static voice_t *drum_pick(track_t *t, uint32_t note)
     }
     return v ? v : &d->v[0];
 }
-/* a synthesised voice: note on the 16 sounds snd (a factory kit, SYN1..4), the oldest voice stolen */
-static void __attribute__((noinline)) drum_synth_on(track_t *t, uint32_t note, uint32_t vel, uint32_t kit, const dsnd_t *snd, uint32_t crush,
-                                                    int tweak)
+/* Start a voice from the selected factory or user kit, stealing a voice when needed. */
+static void __attribute__((noinline)) drum_synth_on(track_t *t, uint32_t note, uint32_t vel, uint32_t kit, const dsu_kit_t *user, int tweak)
 {
     drum_state_t *d = drum_state(t);
     voice_t *v = &d->v[0];
@@ -286,9 +285,21 @@ static void __attribute__((noinline)) drum_synth_on(track_t *t, uint32_t note, u
     d->synth[i] = 1;
     d->kit[i] = (uint8_t)kit;
     {
-        uint32_t ln = lane_of_note(note);
+        uint32_t ln = lane_of_note(note), lane, crush;
+        const dsnd_t *sound;
+        int32_t semi;
+        lane = ds_lane(note, &semi);
+        if (user) {
+            sound = &user->s[lane];
+            crush = user->crush;
+        } else {
+            const dkit_t *factory = &DS_KITS[kit - DRUM_SAMPLED];
+            sound = ds_factory_sound(factory, lane);
+            crush = factory->crush;
+        }
         tweak = tweak && !DRUM_CLICK(note);
-        ds_on(&d->ds[i], snd, crush, note, vel, tweak ? drum_tune_for(t)[ln] * 16 : 0, tweak ? (uint32_t)(drum_dec_for(t)[ln] + 4) : 4u);
+        ds_on(&d->ds[i], sound, crush, note, semi, vel, tweak ? drum_tune_for(t)[ln] * 16 : 0,
+              tweak ? (uint32_t)(drum_dec_for(t)[ln] + 4) : 4u);
     }
 }
 /* the editor's audition (editor_dsyn.c DSYN_PLAY): queued, played by the audio ISR (drum_audition_poll) */
@@ -301,7 +312,7 @@ static void drum_audition_poll(void)
     dsu_aud_vel = 0;
     {
         const dsu_kit_t *u = dsu_kit(dsu_aud_k);
-        drum_synth_on(TDRUM_UI, DS_LANE_NOTE[dsu_aud_lane % DS_LANES], vel, DRUM_SYN + dsu_aud_k % DSU_N, u->s, u->crush, 0);   /* (as designed) */
+        drum_synth_on(TDRUM_UI, DS_LANE_NOTE[dsu_aud_lane % DS_LANES], vel, DRUM_SYN + dsu_aud_k % DSU_N, u, 0);   /* (as designed) */
     }
 }
 
@@ -319,7 +330,7 @@ static void drum_on_for(track_t *t, uint32_t note, uint32_t vel)
         d->kick = 1;                             /* (DUCK) */
     if (kit >= DRUM_SYN) {                          /* SYN1..SYN4: your synthesised kit */
         const dsu_kit_t *u = dsu_kit(kit - DRUM_SYN);
-        drum_synth_on(t, note, vel, kit, u->s, u->crush, 1);
+        drum_synth_on(t, note, vel, kit, u, 1);
         return;
     }
     if (kit >= DRUM_USR) {                          /* a user kit: the lane's sound, as its note (the hat choke) */
@@ -336,7 +347,7 @@ static void drum_on_for(track_t *t, uint32_t note, uint32_t vel)
         if (zid < 0)
             return;                                 /* (an empty slot, or no sound on this lane) */
     } else if (kit >= DRUM_SAMPLED) {               /* synthesised kit */
-        drum_synth_on(t, note, vel, kit, DS_KITS[kit - DRUM_SAMPLED].s, DS_KITS[kit - DRUM_SAMPLED].crush, 1);
+        drum_synth_on(t, note, vel, kit, 0, 1);
         return;
     }
     if (zid < 0) {                                  /* the GM sample kit */

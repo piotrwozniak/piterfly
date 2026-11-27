@@ -29,6 +29,14 @@ the inherited Git history are excluded from this distribution tree. See PROVENAN
 | Hügelton Sample Pack / Leo Kuroshita 2026 | Explicit CC0 dedication for `gen_waves.py` AND its sounds; commit `5738617968a22b5d4c0d3470cfcc95559052f446` |
 | Optional EPIANO / Greg Sullivan; mapped by kinwie | Wurlitzer EP200 v1.1 (1999-05-16), <http://www.sullivang.net/>, <https://github.com/sfzinstruments/GregSullivan.E-Pianos>; CC BY 3.0 <https://creativecommons.org/licenses/by/3.0/>; retuned, cut and processed by SLOOP; `LICENSES/CC-BY-3.0.txt` |
 
+USB MIDI host control, hub enumeration, descriptor parsing, OUT transfers and the
+USB0 host PHY sequence were adapted from [Felucca BSP at fdd709f](https://github.com/hugelton/felucca-bsp/tree/fdd709fd0066b878b03c144776404d63811db13e),
+originally from Melodee. Copyright (C) 2026 Kerem Kilic (Ellic Studio) and Adrien
+Tibi (Recursive Field Instruments). The imported portions retain MPL-2.0 as
+documented in the [upstream notice](https://github.com/hugelton/felucca-bsp/blob/fdd709fd0066b878b03c144776404d63811db13e/NOTICE).
+See `LICENSES/MPL-2.0.txt`, `firmware/src/usb_host.c`,
+`firmware/src/usb_host_desc.h` and the host PHY notice in `firmware/hal/fm1_usb.h`.
+
 CC0 sources are credited for provenance. EPIANO attribution and licence identification
 are mandatory when sharing those samples. The optional hip-hop pack is not embedded
 in the default firmware and must not be labelled entirely CC0.

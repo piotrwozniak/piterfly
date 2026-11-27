@@ -1,14 +1,25 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="changes.css"><link rel="icon" href="../icon-192.png">
-<title>Piterfly 1.2.6 — track clearing and SONG</title>
+<title>Piterfly 1.2.7 — USB MIDI Host</title>
 </head><body><main><div class="page-toolbar"><nav>
 <a href="../installer/">Installer</a>
 <a href="../editor/">Web editor</a>
 <a href="midipipe.html">D MINI setup</a>
 </nav><select class="language-picker" id="language" aria-label="Language"><option value="en">English</option><option value="pl">Polski</option><option value="es">Español</option></select></div><img class="brand" src="logo.png" width="446" height="304" alt="piterfly"><div class="strip"></div>
-<h1>Piterfly 1.2.6 — 6+2</h1>
+<h1>Piterfly 1.2.7 — 6+2</h1>
 <p>Tracks 1–6 are synths sharing eight voices. Tracks 7 and 8 are independent 16-lane drum parts with six voices each, separate patterns, kit selection, lane tuning, mixer settings and effects. Kicks from either part trigger DUCK on the six synths.</p>
 <p>Default MIDI channels: synths 1–6, drum track 7 on channel 7 (CH7), drum track 8 on channel 10 (DRUM CH). Use the matching protocol-19 editor.</p>
 <p><strong>Compatible with 1.2.0 projects.</strong> FUNB, 6,160 bytes; PER4 settings; protocol 19. No import of FUN1–FUNA. Eight named songs share 352 KiB with the current project. Factory samples remain; user-sample banks are unavailable. Full physical FM-1 validation remains pending.</p>
+<section id="usb-host">
+<h2>USB MIDI Host without a computer</h2>
+<p><strong>FM-1 → powered USB hub → USB MIDI synth</strong></p>
+<ol class="connection-steps">
+<li>Connect the hub to its own power supply. Connect its upstream port to the FM-1 and plug one USB MIDI 1.0 synth into a downstream data port.</li>
+<li>Hold HOME, turn SELECT to USB and turn K3 (USB HOST) to the right. Wait for MIDI READY, then match the synth’s receive channel to the FM-1 track.</li>
+<li>Set GLO → MIDI 2 → OUT = SEQ to send recorded patterns. Use the synth’s audio output to hear it.</li>
+</ol>
+<p>Turn USB HOST off to use the computer, editor, installer or USB Audio. The FM-1 starts with USB HOST off.</p>
+<figure><img src="screenshots/menu-usb-host-1.2.7.png" width="360" height="360" alt="USB menu with USB HOST and MIDI READY, rendered in a software test."><figcaption>USB menu with USB HOST and MIDI READY, rendered in a software test.</figcaption></figure>
+</section>
 <h2>HOME: instrument names, engines and numbers</h2>
 <p>Every track shows its sound name, engine and #XXX number above the left edge of its level bar; both drum tracks show kit numbers. Long names are shortened to keep the engine visible. REC/SOLO/MUTE temporarily replaces the number. Original 36-pixel tracks, fonts, grids, bottom controls and the header position line remain. No extra strip or current/total counter.</p>
 <figure><img src="screenshots/home-instrument-1.2.5.png" width="360" height="360" alt="HOME 1.2.5: names, engines and numbers above the level bars; original track dimensions."><figcaption>HOME 1.2.5: names, engines and numbers above the level bars; original track dimensions.</figcaption></figure>
@@ -68,6 +79,13 @@
 </section></details></main><script>
 const TRANSLATIONS = {
   "pl": {
+    "USB MIDI Host without a computer": "USB MIDI Host bez komputera",
+    "FM-1 → powered USB hub → USB MIDI synth": "FM-1 → zasilany hub USB → syntezator USB MIDI",
+    "Connect the hub to its own power supply. Connect its upstream port to the FM-1 and plug one USB MIDI 1.0 synth into a downstream data port.": "Podłącz hub do jego zasilacza. Połącz port upstream z FM-1, a jeden syntezator USB MIDI 1.0 podłącz do portu danych huba.",
+    "Hold HOME, turn SELECT to USB and turn K3 (USB HOST) to the right. Wait for MIDI READY, then match the synth’s receive channel to the FM-1 track.": "Przytrzymaj HOME, obróć SELECT do zakładki USB i przekręć K3 (USB HOST) w prawo. Poczekaj na MIDI READY i dopasuj kanał odbioru syntezatora do ścieżki FM-1.",
+    "Set GLO → MIDI 2 → OUT = SEQ to send recorded patterns. Use the synth’s audio output to hear it.": "Ustaw GLO → MIDI 2 → OUT = SEQ, aby wysyłać zapisane patterny. Dźwięk odbierzesz z wyjścia audio syntezatora.",
+    "Turn USB HOST off to use the computer, editor, installer or USB Audio. The FM-1 starts with USB HOST off.": "Wyłącz USB HOST, aby korzystać z komputera, edytora, instalatora lub USB Audio. FM-1 uruchamia się z wyłączonym USB HOST.",
+    "USB menu with USB HOST and MIDI READY, rendered in a software test.": "Menu USB z USB HOST i MIDI READY. Render z testu programowego.",
     "After holding REC to clear a track, CLEAR SAVED confirms that the change reached flash.": "Po przytrzymaniu REC w celu skasowania ścieżki napis CLEAR SAVED potwierdza zapis do flash.",
     "On the SONGS list, press REC twice within three seconds with playback stopped to clear the working loop, all 24 working patterns and the song order. NEW SONG confirms the reset. Named songs stay in the library.": "Na liście SONGS przy zatrzymanym odtwarzaniu naciśnij REC dwa razy w ciągu trzech sekund, aby wyczyścić roboczy loop, wszystkie 24 robocze patterny i kolejność utworu. Napis NEW SONG potwierdza wyczyszczenie. Nazwane utwory pozostają w bibliotece.",
     "Saved songs and visible BARS": "Zapisane songi i widoczne BARS",
@@ -128,8 +146,8 @@ const TRANSLATIONS = {
     "For this channel-1 example, set the keyboard transmit channel, FM-1 CH1 and D MINI receive channel to 1. On FM-1, use IN = NOTES, TRK1 THRU = ON and track 1 LEVEL = 0. Enable OUT = SEQ to play recorded patterns on D MINI too. Tracks 2–7 and drums remain available for internal sounds.": "W tym przykładzie ustaw kanał nadawania klawiatury, FM-1 CH1 i kanał odbioru D MINI na 1. Na FM-1 ustaw IN = NOTES, TRK1 THRU = ON i LEVEL ścieżki 1 = 0. Włącz OUT = SEQ, aby D MINI grał także zapisane patterny. Ścieżki 2–7 i perkusja pozostają dostępne dla wewnętrznych brzmień.",
     "Connect the FM-1 audio output and D MINI audio output to separate mixer or audio-interface inputs. D MINI enriches the combined sound with its own synthesis; its audio does not pass through FM-1 GRANUL or DUCK.": "Podłącz wyjścia audio FM-1 i D MINI do osobnych wejść miksera lub interfejsu audio. D MINI wzbogaca wspólne brzmienie własną syntezą; jego audio nie przechodzi przez GRANUL ani DUCK w FM-1.",
     "FM-1 + Behringer D MINI setup guide →": "Poradnik połączenia FM-1 + Behringer D MINI →",
-    "Piterfly 1.2.6 — track clearing and SONG": "Piterfly 1.2.6 — kasowanie ścieżek i SONG",
-    "Piterfly 1.2.6 — 6+2": "Piterfly 1.2.6 — 6+2",
+    "Piterfly 1.2.7 — USB MIDI Host": "Piterfly 1.2.7 — USB MIDI Host",
+    "Piterfly 1.2.7 — 6+2": "Piterfly 1.2.7 — 6+2",
     "Compatible with 1.2.0 projects.": "Zgodność z projektami 1.2.0.",
     "FUNB, 6,160 bytes; PER4 settings; protocol 19. No import of FUN1–FUNA. Eight named songs share 352 KiB with the current project. Factory samples remain; user-sample banks are unavailable. Full physical FM-1 validation remains pending.": "FUNB, 6160 bajtów; ustawienia PER4; protokół 19. Bez importu FUN1–FUNA. Osiem nazwanych songów dzieli 352 KiB z bieżącym projektem. Sample fabryczne pozostają; banki użytkownika są niedostępne. Pełny test na fizycznym FM-1 pozostaje do wykonania.",
     "LEVEL, STEPS and PAN are retained when switching away and back, including ordinary LOAD. Live selection waits for the complete longest LEN/DIV loop: 32 steps at 1/16 take two bars, 64 take four. Stop and wait for PATTERNS SAVED before powering off. SONG positions still use their BARS setting.": "LEVEL, STEPS i PAN pozostają po przełączeniu i powrocie, także przez zwykłe LOAD. Przejście live czeka na pełny najdłuższy obieg LEN/DIV: 32 kroki przy 1/16 to dwa takty, 64 to cztery. Przed wyłączeniem zatrzymaj odtwarzanie i poczekaj na PATTERNS SAVED. Pozycje SONG nadal korzystają z ustawienia BARS.",
@@ -138,6 +156,13 @@ const TRANSLATIONS = {
     "HOME 1.2.5: names, engines and numbers above the level bars; original track dimensions.": "HOME 1.2.5: nazwy, silniki i numery nad paskami LEVEL; oryginalne wymiary tracków."
   },
   "es": {
+    "USB MIDI Host without a computer": "USB MIDI Host sin ordenador",
+    "FM-1 → powered USB hub → USB MIDI synth": "FM-1 → hub USB con alimentación → sintetizador USB MIDI",
+    "Connect the hub to its own power supply. Connect its upstream port to the FM-1 and plug one USB MIDI 1.0 synth into a downstream data port.": "Conecta el hub a su propia fuente de alimentación y su puerto upstream al FM-1. Conecta un sintetizador USB MIDI 1.0 a un puerto de datos del hub.",
+    "Hold HOME, turn SELECT to USB and turn K3 (USB HOST) to the right. Wait for MIDI READY, then match the synth’s receive channel to the FM-1 track.": "Mantén pulsado HOME, gira SELECT hasta USB y gira K3 (USB HOST) a la derecha. Espera a MIDI READY y ajusta el canal del sintetizador al de la pista del FM-1.",
+    "Set GLO → MIDI 2 → OUT = SEQ to send recorded patterns. Use the synth’s audio output to hear it.": "Ajusta GLO → MIDI 2 → OUT = SEQ para enviar los patrones grabados. Usa la salida de audio del sintetizador.",
+    "Turn USB HOST off to use the computer, editor, installer or USB Audio. The FM-1 starts with USB HOST off.": "Desactiva USB HOST para usar el ordenador, el editor, el instalador o USB Audio. El FM-1 arranca con USB HOST desactivado.",
+    "USB menu with USB HOST and MIDI READY, rendered in a software test.": "Menú USB con USB HOST y MIDI READY, renderizado en una prueba de software.",
     "After holding REC to clear a track, CLEAR SAVED confirms that the change reached flash.": "Después de mantener pulsado REC para borrar una pista, CLEAR SAVED confirma la escritura en la memoria flash.",
     "On the SONGS list, press REC twice within three seconds with playback stopped to clear the working loop, all 24 working patterns and the song order. NEW SONG confirms the reset. Named songs stay in the library.": "En la lista SONGS, con la reproducción detenida, pulsa REC dos veces en tres segundos para borrar el bucle de trabajo, los 24 patrones de trabajo y el orden de la canción. NEW SONG confirma el borrado. Las canciones guardadas con nombre siguen en la biblioteca.",
     "Saved songs and visible BARS": "Canciones guardadas y BARS visibles",
@@ -198,8 +223,8 @@ const TRANSLATIONS = {
     "For this channel-1 example, set the keyboard transmit channel, FM-1 CH1 and D MINI receive channel to 1. On FM-1, use IN = NOTES, TRK1 THRU = ON and track 1 LEVEL = 0. Enable OUT = SEQ to play recorded patterns on D MINI too. Tracks 2–7 and drums remain available for internal sounds.": "En este ejemplo, ajusta a 1 el canal de transmisión del teclado, CH1 del FM-1 y el canal de recepción del D MINI. En FM-1 usa IN = NOTES, TRK1 THRU = ON y LEVEL de la pista 1 = 0. Activa OUT = SEQ para reproducir también los patrones grabados en D MINI. Las pistas 2–7 y la batería siguen disponibles para sonidos internos.",
     "Connect the FM-1 audio output and D MINI audio output to separate mixer or audio-interface inputs. D MINI enriches the combined sound with its own synthesis; its audio does not pass through FM-1 GRANUL or DUCK.": "Conecta las salidas de audio de FM-1 y D MINI a entradas separadas del mezclador o interfaz. D MINI enriquece el sonido conjunto con su propia síntesis; su audio no pasa por GRANUL ni DUCK del FM-1.",
     "FM-1 + Behringer D MINI setup guide →": "Guía de conexión de FM-1 + Behringer D MINI →",
-    "Piterfly 1.2.6 — track clearing and SONG": "Piterfly 1.2.6 — borrado de pistas y SONG",
-    "Piterfly 1.2.6 — 6+2": "Piterfly 1.2.6 — 6+2",
+    "Piterfly 1.2.7 — USB MIDI Host": "Piterfly 1.2.7 — USB MIDI Host",
+    "Piterfly 1.2.7 — 6+2": "Piterfly 1.2.7 — 6+2",
     "Compatible with 1.2.0 projects.": "Compatible con proyectos de 1.2.0.",
     "FUNB, 6,160 bytes; PER4 settings; protocol 19. No import of FUN1–FUNA. Eight named songs share 352 KiB with the current project. Factory samples remain; user-sample banks are unavailable. Full physical FM-1 validation remains pending.": "FUNB, 6160 bytes; ajustes PER4; protocolo 19. Sin importación de FUN1–FUNA. Ocho canciones con nombre comparten 352 KiB con el proyecto actual. Se mantienen las muestras de fábrica; no hay bancos de usuario. Sigue pendiente la validación completa en un FM-1 físico.",
     "LEVEL, STEPS and PAN are retained when switching away and back, including ordinary LOAD. Live selection waits for the complete longest LEN/DIV loop: 32 steps at 1/16 take two bars, 64 take four. Stop and wait for PATTERNS SAVED before powering off. SONG positions still use their BARS setting.": "LEVEL, STEPS y PAN se conservan al cambiar de patrón y volver, también mediante LOAD. El cambio en directo espera al ciclo LEN/DIV más largo completo: 32 pasos a 1/16 duran dos compases y 64 duran cuatro. Detén la reproducción y espera PATTERNS SAVED antes de apagar. Las posiciones SONG siguen usando su ajuste BARS.",
